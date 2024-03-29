@@ -1,4 +1,5 @@
-import {DFAState, State} from "../../src/automata/State";
+import {State} from "../../src/states/State";
+import {DFAState} from "../../src/states/RegularStates";
 
 describe("Getters and setters", () => {
     let state:State

@@ -1,9 +1,9 @@
-import {char, DFA, toChar} from "../../../src";
+import {Symbol, DFA, toChar} from "../../../src";
 import {IllegalArgument} from "../../../src/exceptions/exceptions";
 
 describe("DFA: Running string on DFA", () => {
     // states: q0, q1, q2
-    const alphabet = new Set<char>();
+    const alphabet = new Set<Symbol>();
     alphabet.add(toChar("a"));
     alphabet.add(toChar("b"));
     const dfa = new DFA(alphabet, "q0", false)
@@ -11,12 +11,12 @@ describe("DFA: Running string on DFA", () => {
     beforeEach(() => {
         dfa.addState("q1", false);
         dfa.addState("q2", true)
-        dfa.addEdge("q0", 'b' as char, "q0");
-        dfa.addEdge("q0", 'a' as char, "q1");
-        dfa.addEdge("q1", 'a' as char, "q2");
-        dfa.addEdge("q1", 'b' as char, "q0");
-        dfa.addEdge("q2", 'a' as char, "q2");
-        dfa.addEdge("q2", 'b' as char, "q2");
+        dfa.addEdge("q0", 'b' as Symbol, "q0");
+        dfa.addEdge("q0", 'a' as Symbol, "q1");
+        dfa.addEdge("q1", 'a' as Symbol, "q2");
+        dfa.addEdge("q1", 'b' as Symbol, "q0");
+        dfa.addEdge("q2", 'a' as Symbol, "q2");
+        dfa.addEdge("q2", 'b' as Symbol, "q2");
     })
 
     it("Should parse words correctly", () => {
@@ -34,15 +34,15 @@ describe("DFA: Running string on DFA", () => {
 
     it("Should check for validity correctly", () => {
         expect(dfa.isValid()).toBe(true);
-        expect(dfa.removeEdge("q0", 'a' as char)).toBe(true);
+        expect(dfa.removeEdge("q0", 'a' as Symbol)).toBe(true);
         expect(dfa.isValid()).toBe(false);
     })
 })
 
 describe('DFA: Validity checking', () => {
-    const alphabet = new Set<char>();
-    alphabet.add('a' as char)
-    alphabet.add('b' as char)
+    const alphabet = new Set<Symbol>();
+    alphabet.add('a' as Symbol)
+    alphabet.add('b' as Symbol)
 
     it('should correctly check validity of valid DFA', () => {
         const dfa = new DFA(alphabet, "start", false);
@@ -50,17 +50,17 @@ describe('DFA: Validity checking', () => {
         dfa.addStates("1", "2");
         dfa.addState("end", true);
 
-        dfa.addEdge("start", 'a' as char, "start");
-        dfa.addEdge("start", 'b' as char, "1");
+        dfa.addEdge("start", 'a' as Symbol, "start");
+        dfa.addEdge("start", 'b' as Symbol, "1");
 
-        dfa.addEdge("1", 'a' as char, "2");
-        dfa.addEdge("1", 'b' as char, "1");
+        dfa.addEdge("1", 'a' as Symbol, "2");
+        dfa.addEdge("1", 'b' as Symbol, "1");
 
-        dfa.addEdge("2", 'a' as char, "end");
-        dfa.addEdge("2", 'b' as char, "start");
+        dfa.addEdge("2", 'a' as Symbol, "end");
+        dfa.addEdge("2", 'b' as Symbol, "start");
 
-        dfa.addEdge("end", 'a' as char, "end");
-        dfa.addEdge("end", 'b' as char, "1");
+        dfa.addEdge("end", 'a' as Symbol, "end");
+        dfa.addEdge("end", 'b' as Symbol, "1");
 
         expect(dfa.isValid()).toBe(true)
     });
@@ -68,8 +68,8 @@ describe('DFA: Validity checking', () => {
     it('should have predictable response to bad weather input', () => {
         const dfa = new DFA(alphabet, "start", false);
 
-        dfa.addEdge("start", 'a' as char, "start");
-        dfa.addEdge("start", 'b' as char, "start");
+        dfa.addEdge("start", 'a' as Symbol, "start");
+        dfa.addEdge("start", 'b' as Symbol, "start");
 
         expect(dfa.isValid()).toBe(true)
     });
@@ -78,7 +78,7 @@ describe('DFA: Validity checking', () => {
 
 describe('DFA: Adding edges', () => {
     it('throws error when input character is not in the alphabet', () => {
-        const alphabet = new Set<char>();
+        const alphabet = new Set<Symbol>();
         alphabet.add(toChar('a'));
         const dfa = new DFA(alphabet, "start", true);
 
@@ -86,7 +86,7 @@ describe('DFA: Adding edges', () => {
     });
 
     it('throws error when starting state does not exist', () => {
-        const alphabet = new Set<char>();
+        const alphabet = new Set<Symbol>();
         alphabet.add(toChar('a'));
         const dfa = new DFA(alphabet, "start", true);
 
@@ -94,7 +94,7 @@ describe('DFA: Adding edges', () => {
     });
 
     it('throws error when ending state does not exist', () => {
-        const alphabet = new Set<char>();
+        const alphabet = new Set<Symbol>();
         alphabet.add(toChar('a'));
         const dfa = new DFA(alphabet, "start", false);
 
@@ -102,7 +102,7 @@ describe('DFA: Adding edges', () => {
     });
 
     it('adds transition successfully when all conditions are met', () => {
-        const alphabet = new Set<char>();
+        const alphabet = new Set<Symbol>();
         alphabet.add(toChar('a'));
         const dfa = new DFA(alphabet, "start", false);
         dfa.addState("end");
