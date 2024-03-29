@@ -72,6 +72,34 @@ describe('DFA: Adding edges', () => {
     });
 });
 
+describe("DFA: Removing edges", () => {
+    const dfa = new DFA(Fixtures.genericAlphabet(), "start", true);
+
+    beforeEach(() => {
+        dfa.addState("end", true)
+        dfa.addEdge("start", toChar('a'), "end");
+        dfa.addEdge("start", toChar('b'), "end");
+
+        dfa.addEdge("end", toChar('a'), "start");
+        dfa.addEdge("end", toChar('b'), "start");
+    })
+
+    it('removes existing edges correctly and returns false if the edge does not exist', () => {
+        expect(dfa.removeEdge("start", toChar('a'))).toBe(true);
+        expect(dfa.removeEdge("start", toChar('a'))).toBe(false);
+    })
+
+    it('throws an exception when the symbol is not part of the alphabet', () => {
+        expect(() => dfa.removeEdge("start", toChar('c')))
+            .toThrow(IllegalArgument);
+    })
+
+    it('throws an exception when the state is not present in the DFA', () => {
+        expect(() => dfa.removeEdge("doesn't exist", toChar('a')))
+            .toThrow(IllegalArgument);
+    })
+})
+
 describe("DFA to String method", () => {
     it('should correctly represent the DFA in string format', () => {
         const dfa = Fixtures.genericValidDFA()
