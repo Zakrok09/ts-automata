@@ -1,12 +1,12 @@
-import {Char, toChar} from "../../../src";
+import {char, toChar} from "../../../src";
 import {NFA} from "../../../src/automata/regular/NFA";
 
 describe("NFA acceptance testing", () => {
-    let alphabet:Set<Char>;
+    let alphabet:Set<char>;
     let nfa:NFA;
 
     beforeEach(() => {
-        alphabet = new Set<Char>();
+        alphabet = new Set<char>();
         alphabet.add(toChar('a'))
         alphabet.add(toChar('b'))
 

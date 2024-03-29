@@ -1,5 +1,5 @@
 import {FiniteAutomaton} from "./FiniteAutomaton";
-import {DFA, Char, toChar} from "../../index";
+import {DFA, char, toChar} from "../../index";
 import {NFAState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 
@@ -18,7 +18,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param startState the name of the starting state.
      * @param startingAccept whether the starting state should accept.
      */
-    public constructor(alphabet: Set<Char>, startState: string, startingAccept: boolean) {
+    public constructor(alphabet: Set<char>, startState: string, startingAccept: boolean) {
         let start:NFAState = new NFAState(startState);
         super(alphabet, start);
 
@@ -46,7 +46,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param to the destination state as in a NFA there can be multiple edges with the
      * same input symbol and state from which they come out of.
      */
-    removeEdge(stateName:string, input:Char, to:string) {
+    removeEdge(stateName:string, input:char, to:string) {
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);

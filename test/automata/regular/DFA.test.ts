@@ -1,4 +1,4 @@
-import {Char, DFA, toChar} from "../../../src";
+import {char, DFA, toChar} from "../../../src";
 import {IllegalArgument, IllegalAutomatonState} from "../../../src/exceptions/exceptions";
 import Fixtures from "../../fixtures";
 
@@ -50,7 +50,7 @@ describe('DFA: Validity checking', () => {
 
 
 describe('DFA: Adding edges', () => {
-    const alphabet = new Set<Char>();
+    const alphabet = new Set<char>();
     alphabet.add(toChar('a'));
     const dfa = new DFA(alphabet, "start", false);
 

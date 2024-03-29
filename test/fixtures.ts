@@ -1,14 +1,14 @@
-import {DFA, Char} from "../src";
+import {DFA, char} from "../src";
 
 /**
  * Returns a set of symbols representing a generic alphabet.
  *
- * @returns {Set<Char>} - A set of symbols representing the generic alphabet.
+ * @returns {Set<char>} - A set of symbols representing the generic alphabet.
  */
-function genericAlphabet():Set<Char> {
-    const alphabet = new Set<Char>();
-    alphabet.add('a' as Char)
-    alphabet.add('b' as Char)
+function genericAlphabet():Set<char> {
+    const alphabet = new Set<char>();
+    alphabet.add('a' as char)
+    alphabet.add('b' as char)
 
     return alphabet;
 }
@@ -25,17 +25,17 @@ function genericValidDFA():DFA {
     dfa.addStates("1", "2");
     dfa.addState("end", true);
 
-    dfa.addEdge("start", 'a' as Char, "start");
-    dfa.addEdge("start", 'b' as Char, "1");
+    dfa.addEdge("start", 'a' as char, "start");
+    dfa.addEdge("start", 'b' as char, "1");
 
-    dfa.addEdge("1", 'a' as Char, "2");
-    dfa.addEdge("1", 'b' as Char, "1");
+    dfa.addEdge("1", 'a' as char, "2");
+    dfa.addEdge("1", 'b' as char, "1");
 
-    dfa.addEdge("2", 'a' as Char, "end");
-    dfa.addEdge("2", 'b' as Char, "start");
+    dfa.addEdge("2", 'a' as char, "end");
+    dfa.addEdge("2", 'b' as char, "start");
 
-    dfa.addEdge("end", 'a' as Char, "end");
-    dfa.addEdge("end", 'b' as Char, "1");
+    dfa.addEdge("end", 'a' as char, "end");
+    dfa.addEdge("end", 'b' as char, "1");
 
     return dfa;
 }
@@ -48,8 +48,8 @@ function genericValidDFA():DFA {
  */
 function genericSingleStateValidDFA():DFA {
     const dfa = new DFA(genericAlphabet(), "start", false);
-    dfa.addEdge("start", 'a' as Char, "start");
-    dfa.addEdge("start", 'b' as Char, "start");
+    dfa.addEdge("start", 'a' as char, "start");
+    dfa.addEdge("start", 'b' as char, "start");
 
     return dfa;
 }
@@ -66,11 +66,11 @@ function genericInvalidDFA():DFA {
     dfa.addStates("1", "2");
     dfa.addState("3", true);
 
-    dfa.addEdge("start", 'a' as Char, "3");
-    dfa.addEdge("start", 'b' as Char, "1");
-    dfa.addEdge("1", 'a' as Char, "2");
-    dfa.addEdge("2", 'b' as Char, "start");
-    dfa.addEdge("3", 'b' as Char, "1");
+    dfa.addEdge("start", 'a' as char, "3");
+    dfa.addEdge("start", 'b' as char, "1");
+    dfa.addEdge("1", 'a' as char, "2");
+    dfa.addEdge("2", 'b' as char, "start");
+    dfa.addEdge("3", 'b' as char, "1");
 
     return dfa;
 }
