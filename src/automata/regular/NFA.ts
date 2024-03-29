@@ -41,13 +41,16 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param to the destination state as in a NFA there can be multiple edges with the
      * same input symbol and state from which they come out of.
      */
-    removeEdge(stateName:string, input:Symbol, to:NFAState) {
+    removeEdge(stateName:string, input:Symbol, to:string) {
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
-        return state.removeTransition(input, to);
+        const dest = this.states.get(to);
+        if (!dest) throw new IllegalArgument(`State ${stateName} does not exist!`);
+
+        return state.removeTransition(input, dest);
     };
 
     /**
