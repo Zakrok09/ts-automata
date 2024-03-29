@@ -1,4 +1,4 @@
-import {Symbol} from "../index";
+import {Char} from "../index";
 
 /**
  * Represents a state in an automaton.
@@ -48,9 +48,9 @@ export abstract class State {
      * Gives the set of characters this state accepts.
      * These are the characters that are bound to an outgoing edge of this graph.
      *
-     * @return {Set<Symbol>} the Symbol inputs this state takes without
+     * @return {Set<Char>} the Char inputs this state takes without
      * the state it reaches.
      * Used to see what input can this state recognise
      */
-    public abstract getInputAlphabet():Set<Symbol>;
+    public abstract getInputAlphabet():Set<Char>;
 }

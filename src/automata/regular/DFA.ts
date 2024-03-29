@@ -1,4 +1,4 @@
-import {Symbol, toChar} from "../../index";
+import {Char, toChar} from "../../index";
 import {FiniteAutomaton} from "./FiniteAutomaton";
 import {DFAState} from "../../states/RegularStates";
 import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exceptions";
@@ -18,7 +18,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @param startState - The start state of the DFA.
      * @param startingAccept - Whether the starting state should accept.
      */
-    constructor(alphabet: Set<Symbol>, startState: string, startingAccept: boolean) {
+    constructor(alphabet: Set<Char>, startState: string, startingAccept: boolean) {
         let start:DFAState = new DFAState(startState);
         super(alphabet, start);
 
@@ -57,14 +57,14 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * Removes an edge from a DFA state.
      *
      * @param {string} stateName - The name of the state.
-     * @param {Symbol} input - The input character of the edge to be removed.
+     * @param {Char} input - The input character of the edge to be removed.
      *
      * @returns {boolean} - True if the edge is successfully removed, false otherwise.
      *
      * @throws {IllegalArgument} if the input character is not part of the alphabet of this DFA.
      * @throws {IllegalArgument} if the state does not exist.
      */
-    public removeEdge(stateName:string, input:Symbol):boolean {
+    public removeEdge(stateName:string, input:Char):boolean {
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);
@@ -87,7 +87,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
         let currentState:DFAState = this._startState;
 
         for (let char of str) {
-            let c: Symbol = toChar(char);
+            let c: Char = toChar(char);
             currentState = currentState.transition(c);
             if (!currentState) return false;
         }

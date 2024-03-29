@@ -1,14 +1,14 @@
-import {Symbol} from "../../index";
+import {Char} from "../../index";
 import {RegularState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 
 export abstract class FiniteAutomaton<TState extends RegularState> {
     protected readonly states:Map<string, TState>;
-    protected readonly alphabet:Set<Symbol>;
+    protected readonly alphabet:Set<Char>;
     protected readonly _startState:TState;
     protected readonly _acceptStates:Set<TState>
 
-    protected constructor(alphabet: Set<Symbol>, startState:TState) {
+    protected constructor(alphabet: Set<Char>, startState:TState) {
         this.states = new Map<string, TState>;
         this.alphabet = alphabet;
         this._acceptStates = new Set<TState>()
@@ -33,7 +33,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> {
      * @param input the symbol to be tested
      * @throws IllegalArgument if the symbol is not part of the alphabet
      */
-    protected testSymbolAgainstAlphabet(input:Symbol){
+    protected testSymbolAgainstAlphabet(input:Char){
         if(!this.alphabet.has(input)) throw new IllegalArgument(`${input} is not part fo the alphabet of this finite automaton`)
     }
 
@@ -71,7 +71,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> {
      * @throws IllegalArgument Throws an error if the input character is not part of the alphabet,
      * the given state does not exist, or the destination state does not exist.
      */
-    addEdge(stateName: string, input: Symbol, to: string): boolean {
+    addEdge(stateName: string, input: Char, to: string): boolean {
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);
