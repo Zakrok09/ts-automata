@@ -28,6 +28,16 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
     }
 
     /**
+     * Retrieves the state associated with the specified name.
+     *
+     * @param name The name of the state to retrieve.
+     * @return The state associated with the specified name, or undefined if not found.
+     */
+    public getState(name:string):TState|undefined {
+        return this.states.get(name);
+    }
+
+    /**
      * Test the symbol against the alphabet. This method throws an exception if the alphabet does not
      * recognise the symbol.
      *
