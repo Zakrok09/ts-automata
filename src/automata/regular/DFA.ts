@@ -100,7 +100,15 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns The string representation of the DFA.
      */
     public toString() {
-        return `DFA: {Alphabet: ${this.alphabet.values()} \nStates: ${this.states.values()} \nStarting State: ${this.startState.name}}`
+        let alphabet:string = "";
+        this.alphabet.forEach(sym => alphabet += `${sym}, `);
+        alphabet = alphabet.trim().slice(0, alphabet.length-2)
+
+        let states:string = "";
+        this.states.forEach(state => states += `${state.name}, `);
+        states = states.trim().slice(0, states.length-2)
+
+        return `DFA: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this.startState.name}\n}`
     }
 
     /**
