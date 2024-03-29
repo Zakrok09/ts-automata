@@ -201,10 +201,33 @@ export class NFA extends FiniteAutomaton<NFAState> {
     }
 
     /**
-     *
+     * Returns a string representation of the NFA.
+     * @returns The string representation of the NFA.
      */
-    public toString(): string {
-        throw new Error("Method not implemented.");
+    public toString() {
+        let alphabet:string = "";
+        this.alphabet.chars.forEach(sym => alphabet += `${sym}, `);
+        alphabet = alphabet.trim().slice(0, alphabet.length-2)
+
+        let states:string = "";
+        this.states.forEach(state => states += `${state.name}, `);
+        states = states.trim().slice(0, states.length-2)
+
+        let transitions:string = "";
+        this.states.forEach(state => {
+            let currState = `\n\t\tState: ${state.name}`;
+
+            for (const [input, nextStates] of state.transitions) {
+                let nextString = "";
+                nextStates.forEach(nextState => nextString += `${nextState.name}, `)
+                nextString = nextString.trim().slice(0, nextString.length-2)
+                currState += `\n\t\t\t${input} => ${nextString}`
+            }
+
+            transitions+=currState;
+        })
+
+        return `NFA: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this._startState.name}\n\tTransitions:${transitions}\n}`
     }
 
     /**
