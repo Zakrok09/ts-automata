@@ -1,14 +1,16 @@
-import {Char} from "../../index";
 import {RegularState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
+import {Automaton} from "../Automaton";
+import {Alphabet} from "../Alphabet";
+import {char, EPSILON, toChar} from "../../types";
 
-export abstract class FiniteAutomaton<TState extends RegularState> {
+export abstract class FiniteAutomaton<TState extends RegularState> implements Automaton {
     protected readonly states:Map<string, TState>;
-    protected readonly alphabet:Set<Char>;
+    protected readonly alphabet:Alphabet;
     protected readonly _startState:TState;
     protected readonly _acceptStates:Set<TState>
 
-    protected constructor(alphabet: Set<Char>, startState:TState) {
+    protected constructor(alphabet: Alphabet, startState:TState) {
         this.states = new Map<string, TState>;
         this.alphabet = alphabet;
         this._acceptStates = new Set<TState>()
@@ -33,7 +35,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> {
      * @param input the symbol to be tested
      * @throws IllegalArgument if the symbol is not part of the alphabet
      */
-    protected testSymbolAgainstAlphabet(input:Char){
+    protected testSymbolAgainstAlphabet(input:char){
         if(!this.alphabet.has(input)) throw new IllegalArgument(`${input} is not part fo the alphabet of this finite automaton`)
     }
 
@@ -65,13 +67,15 @@ export abstract class FiniteAutomaton<TState extends RegularState> {
     /**
      * Add en edge to the Non-deterministic finite automaton.
      * @param stateName the name of the state from which the edge goes.
-     * @param input the input of the edge.
+     * @param inputStr the input of the edge.
      * @param to the destination state or where the edge goes
      * @return true if the edge was successfully added
      * @throws IllegalArgument Throws an error if the input character is not part of the alphabet,
      * the given state does not exist, or the destination state does not exist.
      */
-    addEdge(stateName: string, input: Char, to: string): boolean {
+    addEdge(stateName: string, inputStr: string, to: string): boolean {
+        let input = toChar(inputStr)
+        if (input === EPSILON) throw new IllegalArgument("Epsilon cannot be added to a finite automaton. Use addEpsilonEdge if you are adding it to a NFA")
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);

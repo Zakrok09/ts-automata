@@ -21,7 +21,7 @@ The code below is an example of creating and running input on a DFA.
 
 ```typescript
 /* Create an alphabet for the Finite Automaton */
-const alphabet = new Set<Char>();
+const alphabet = new Set<char>();
 alphabet.add(toChar("a"));
 alphabet.add(toChar("b"));
 

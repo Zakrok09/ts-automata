@@ -1,25 +1,20 @@
-import {Char, toChar} from "../../../src";
-import {NFA} from "../../../src/automata/regular/NFA";
+import {NFA} from "../../../src";
+import Fixtures from "../../fixtures";
 
 describe("NFA acceptance testing", () => {
-    let alphabet:Set<Char>;
     let nfa:NFA;
 
     beforeEach(() => {
-        alphabet = new Set<Char>();
-        alphabet.add(toChar('a'))
-        alphabet.add(toChar('b'))
-
-        nfa = new NFA(alphabet, "start", false);
+        nfa = new NFA("ab", "start", false);
         nfa.addStates("1", "2");
         nfa.addState("end", true);
 
-        nfa.addEdge("start", toChar('a'), "1");
-        nfa.addEdge("start", toChar('a'), "2");
+        nfa.addEdge("start", 'a', "1");
+        nfa.addEdge("start", 'a', "2");
 
-        nfa.addEdge("2", toChar('a'), "2");
-        nfa.addEdge("2", toChar('b'), "2");
-        nfa.addEdge("2", toChar('a'), "end");
+        nfa.addEdge("2", 'a', "2");
+        nfa.addEdge("2", 'b', "2");
+        nfa.addEdge("2", 'a', "end");
     })
 
     it("Should correctly accept a working NFA", () => {
@@ -31,12 +26,26 @@ describe("NFA acceptance testing", () => {
     })
 
     it("should correctly deal with situations where the graph is split", () => {
-        expect(nfa.removeEdge("2", toChar('a'), "end")).toBe(true);
+        expect(nfa.removeEdge("2", 'a', "end")).toBe(true);
 
         expect(nfa.runString("a")).toBe(false);
         expect(nfa.runString("aa")).toBe(false);
         expect(nfa.runString("ba")).toBe(false);
         expect(nfa.runString("aabbb")).toBe(false);
         expect(nfa.runString("abbbba")).toBe(false);
+    })
+
+    it("should correctly deal with epsilon edges", () => {
+        let enfa = Fixtures.genericEpsilonNFA();
+
+        expect(enfa.runString("")).toBe(true);
+
+        expect(enfa.runString("ab")).toBe(true);
+        expect(enfa.runString("aba")).toBe(false);
+
+        expect(enfa.runString("a")).toBe(false);
+        expect(enfa.runString("b")).toBe(true);
+        expect(enfa.runString("ba")).toBe(true);
+        expect(enfa.runString("baa")).toBe(true);
     })
 })

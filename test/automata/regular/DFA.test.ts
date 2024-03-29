@@ -1,6 +1,7 @@
-import {Char, DFA, toChar} from "../../../src";
+import {DFA} from "../../../src";
 import {IllegalArgument, IllegalAutomatonState} from "../../../src/exceptions/exceptions";
 import Fixtures from "../../fixtures";
+import {EPSILON} from "../../../src/types";
 
 describe("DFA: Running string on DFA", () => {
     // states: q0, q1, q2
@@ -24,7 +25,7 @@ describe("DFA: Running string on DFA", () => {
     })
 
     it('should throw an exception when asked to run without being valid', () => {
-        dfa.removeEdge("2", toChar('a'))
+        dfa.removeEdge("2", 'a')
 
         expect(dfa.isValid()).toBe(false);
         expect(() => dfa.runString("a")).toThrow(IllegalAutomatonState);
@@ -50,52 +51,55 @@ describe('DFA: Validity checking', () => {
 
 
 describe('DFA: Adding edges', () => {
-    const alphabet = new Set<Char>();
-    alphabet.add(toChar('a'));
-    const dfa = new DFA(alphabet, "start", false);
+    const dfa = new DFA("a", "start", false);
 
     it('throws error when input character is not in the alphabet', () => {
-        expect(() => dfa.addEdge("start", toChar('b'), "end")).toThrow(IllegalArgument);
+        expect(() => dfa.addEdge("start", 'b', "end")).toThrow(IllegalArgument);
     });
 
     it('throws error when starting state does not exist', () => {
-        expect(() => dfa.addEdge("nonexistent", toChar('a'), "end")).toThrow(IllegalArgument);
+        expect(() => dfa.addEdge("nonexistent", 'a', "end")).toThrow(IllegalArgument);
     });
 
     it('throws error when ending state does not exist', () => {
-        expect(() => dfa.addEdge("start", toChar('a'), "nonexistent")).toThrow(IllegalArgument);
+        expect(() => dfa.addEdge("start", 'a', "nonexistent")).toThrow(IllegalArgument);
     });
 
     it('adds transition successfully when all conditions are met', () => {
         dfa.addState("end");
-        expect(dfa.addEdge("start", toChar('a'), "end")).toBe(true);
+        expect(dfa.addEdge("start", 'a', "end")).toBe(true);
+    });
+
+    it('throws error when adding an epsilon edge', () => {
+        dfa.addState("end");
+        expect(() => dfa.addEdge("start", EPSILON, "end")).toThrow(IllegalArgument);
     });
 });
 
 describe("DFA: Removing edges", () => {
-    const dfa = new DFA(Fixtures.genericAlphabet(), "start", true);
+    const dfa = new DFA("ab", "start", true);
 
     beforeEach(() => {
         dfa.addState("end", true)
-        dfa.addEdge("start", toChar('a'), "end");
-        dfa.addEdge("start", toChar('b'), "end");
+        dfa.addEdge("start", 'a', "end");
+        dfa.addEdge("start", 'b', "end");
 
-        dfa.addEdge("end", toChar('a'), "start");
-        dfa.addEdge("end", toChar('b'), "start");
+        dfa.addEdge("end", 'a', "start");
+        dfa.addEdge("end", 'b', "start");
     })
 
     it('removes existing edges correctly and returns false if the edge does not exist', () => {
-        expect(dfa.removeEdge("start", toChar('a'))).toBe(true);
-        expect(dfa.removeEdge("start", toChar('a'))).toBe(false);
+        expect(dfa.removeEdge("start", 'a')).toBe(true);
+        expect(dfa.removeEdge("start", 'a')).toBe(false);
     })
 
     it('throws an exception when the symbol is not part of the alphabet', () => {
-        expect(() => dfa.removeEdge("start", toChar('c')))
+        expect(() => dfa.removeEdge("start", 'c'))
             .toThrow(IllegalArgument);
     })
 
     it('throws an exception when the state is not present in the DFA', () => {
-        expect(() => dfa.removeEdge("doesn't exist", toChar('a')))
+        expect(() => dfa.removeEdge("doesn't exist", 'a'))
             .toThrow(IllegalArgument);
     })
 })
