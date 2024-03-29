@@ -1,15 +1,5 @@
-import {char, DFA} from "../src";
-import {Alphabet} from "../src/automata/Alphabet";
-
-/**
- * Returns a set of symbols representing a generic alphabet.
- *
- * @returns {Set<char>} - A set of symbols representing the generic alphabet.
- */
-function genericAlphabet():Alphabet {
-    return Alphabet.fromString("ab");
-}
-
+import {char} from "../src/types";
+import {DFA} from "../src";
 /**
  * Creates a valid DFA fixture
  *
@@ -17,7 +7,7 @@ function genericAlphabet():Alphabet {
  * @return the created DFA fixture
  */
 function genericValidDFA():DFA {
-    const dfa = new DFA(genericAlphabet(), "start", false);
+    const dfa = new DFA("ab", "start", false);
 
     dfa.addStates("1", "2");
     dfa.addState("end", true);
@@ -44,7 +34,7 @@ function genericValidDFA():DFA {
  * @returns {DFA} - The created DFA fixture.
  */
 function genericSingleStateValidDFA():DFA {
-    const dfa = new DFA(genericAlphabet(), "start", false);
+    const dfa = new DFA("ab", "start", false);
     dfa.addEdge("start", 'a' as char, "start");
     dfa.addEdge("start", 'b' as char, "start");
 
@@ -58,7 +48,7 @@ function genericSingleStateValidDFA():DFA {
  * @returns {DFA} The generated DFA fixture.
  */
 function genericInvalidDFA():DFA {
-    const dfa = new DFA(genericAlphabet(), "start", false);
+    const dfa = new DFA("ab", "start", false);
 
     dfa.addStates("1", "2");
     dfa.addState("3", true);
@@ -72,4 +62,4 @@ function genericInvalidDFA():DFA {
     return dfa;
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericInvalidDFA, genericAlphabet}
+export default {genericValidDFA, genericSingleStateValidDFA, genericInvalidDFA}

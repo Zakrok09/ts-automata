@@ -1,14 +1,10 @@
-import {NFA} from "../../../src/automata/regular/NFA";
-import {Alphabet} from "../../../src/automata/Alphabet";
+import {NFA} from "../../../src";
 
 describe("NFA acceptance testing", () => {
-    let alphabet:Alphabet;
     let nfa:NFA;
 
     beforeEach(() => {
-        alphabet = Alphabet.fromString('ab')
-
-        nfa = new NFA(alphabet, "start", false);
+        nfa = new NFA("ab", "start", false);
         nfa.addStates("1", "2");
         nfa.addState("end", true);
 

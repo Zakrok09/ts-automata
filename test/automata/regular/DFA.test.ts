@@ -1,7 +1,6 @@
 import {DFA} from "../../../src";
 import {IllegalArgument, IllegalAutomatonState} from "../../../src/exceptions/exceptions";
 import Fixtures from "../../fixtures";
-import {Alphabet} from "../../../src/automata/Alphabet";
 
 describe("DFA: Running string on DFA", () => {
     // states: q0, q1, q2
@@ -51,7 +50,7 @@ describe('DFA: Validity checking', () => {
 
 
 describe('DFA: Adding edges', () => {
-    const dfa = new DFA(Alphabet.fromString("a"), "start", false);
+    const dfa = new DFA("a", "start", false);
 
     it('throws error when input character is not in the alphabet', () => {
         expect(() => dfa.addEdge("start", 'b', "end")).toThrow(IllegalArgument);
@@ -72,7 +71,7 @@ describe('DFA: Adding edges', () => {
 });
 
 describe("DFA: Removing edges", () => {
-    const dfa = new DFA(Fixtures.genericAlphabet(), "start", true);
+    const dfa = new DFA("ab", "start", true);
 
     beforeEach(() => {
         dfa.addState("end", true)

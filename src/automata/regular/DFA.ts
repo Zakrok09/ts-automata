@@ -1,8 +1,8 @@
-import {char, toChar} from "../../index";
-import {FiniteAutomaton} from "./FiniteAutomaton";
+import {char, toChar} from "../../types";
 import {DFAState} from "../../states/RegularStates";
 import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exceptions";
 import {Alphabet} from "../Alphabet";
+import {FiniteAutomaton} from "./FiniteAutomaton";
 
 /**
  * Represents a deterministic finite automaton.
@@ -12,16 +12,16 @@ import {Alphabet} from "../Alphabet";
 export class DFA extends FiniteAutomaton<DFAState> {
 
     /**
-     * Represents a constructor for creating a DFA.
-     * and the values are corresponding DFAState objects.
+     * Creates a DFA (Deterministic Finite Automaton) object.
+     * Isolates the logic of the alphabet creation as the alphabet object must not be accessible outside the automaton.
      *
-     * @param alphabet - The alphabet of the DFA, represented by a Set of strings.
-     * @param startState - The start state of the DFA.
-     * @param startingAccept - Whether the starting state should accept.
+     * @param {string} alphabetString - The string representation of the alphabet for the DFA.
+     * @param {string} startState - The starting state of the DFA.
+     * @param {boolean} startingAccept - Indicates whether the starting state is an accepting state.
      */
-    constructor(alphabet: Alphabet, startState: string, startingAccept: boolean) {
+    public constructor(alphabetString:string, startState: string, startingAccept: boolean) {
         let start:DFAState = new DFAState(startState);
-        super(alphabet, start);
+        super(Alphabet.fromString(alphabetString), start);
 
         if (startingAccept) {
             this._startState.accepting = true;

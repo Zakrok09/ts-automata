@@ -1,5 +1,6 @@
 import {FiniteAutomaton} from "./FiniteAutomaton";
-import {DFA, toChar} from "../../index";
+import {toChar} from "../../types";
+import {DFA} from "./DFA";
 import {NFAState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 import {Alphabet} from "../Alphabet";
@@ -15,13 +16,13 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * Constructs a finite automaton given an alphabet and a starting state. Applies to
      * all types of finite automatas defined: DFA, NFA and GNFA.
      *
-     * @param alphabet the alphabet of the automaton. Should not change throughout execution.
+     * @param alphabetString the alphabet of the automaton. Should not change throughout execution.
      * @param startState the name of the starting state.
      * @param startingAccept whether the starting state should accept.
      */
-    public constructor(alphabet: Alphabet, startState: string, startingAccept: boolean) {
+    public constructor(alphabetString: string, startState: string, startingAccept: boolean) {
         let start:NFAState = new NFAState(startState);
-        super(alphabet, start);
+        super(Alphabet.fromString(alphabetString), start);
 
         if (startingAccept) {
             this._startState.accepting = true;
@@ -85,7 +86,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
     }
 
     /**
-     * TODO: Implement
+     *
      *
      * Convert a NFA to a DFA
      *
@@ -96,14 +97,14 @@ export class NFA extends FiniteAutomaton<NFAState> {
     }
 
     /**
-     * TODO: Implement
+     *
      */
     public toString(): string {
         throw new Error("Method not implemented.");
     }
 
     /**
-     * TODO: Implement
+     *
      */
     isValid(): boolean {
         return true;

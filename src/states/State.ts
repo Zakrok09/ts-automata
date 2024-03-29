@@ -1,4 +1,4 @@
-import {char} from "../index";
+import {char} from "../types";
 
 /**
  * Represents a state in an automaton.

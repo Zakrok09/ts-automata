@@ -1,4 +1,4 @@
-import {char, EPSILON, toChar} from "../index";
+import {char, EPSILON, toChar} from "../types";
 import {IllegalArgument} from "../exceptions/exceptions";
 
 export class Alphabet {
@@ -72,5 +72,15 @@ export class Alphabet {
         }
 
         return alphabet;
+    }
+
+    /**
+     * Converts an array of characters to a string and creates an instance of the Alphabet class.
+     *
+     * @param {Array} chars - An array of characters.
+     * @return {Alphabet} - An instance of the Alphabet class.
+     */
+    public static fromCharString(...chars:char[]):Alphabet {
+        return Alphabet.fromString(chars.join(''));
     }
 }

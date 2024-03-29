@@ -1,4 +1,4 @@
-import {char} from "../index";
+import {char} from "../types";
 import {IllegalArgument} from "../exceptions/exceptions";
 import {State} from "./State";
 
