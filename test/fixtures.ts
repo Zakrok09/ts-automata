@@ -1,5 +1,5 @@
 import {char} from "../src/types";
-import {DFA} from "../src";
+import {DFA, NFA} from "../src";
 /**
  * Creates a valid DFA fixture
  *
@@ -62,4 +62,28 @@ function genericInvalidDFA():DFA {
     return dfa;
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericInvalidDFA}
+function genericEpsilonNFA():NFA {
+    const nfa = new NFA("ab", "start", false);
+
+    nfa.addStates("1", "11", "2", "22")
+    nfa.addState("3", true);
+    nfa.addState("33", true);
+    nfa.addState("end", true);
+
+    nfa.addEpsilonEdge("start", "1");
+    nfa.addEpsilonEdge("start", "11");
+    nfa.addEpsilonEdge("11", "end");
+
+    nfa.addEdge("1", "a", "2");
+    nfa.addEdge("2", "b", "3");
+
+    nfa.addEdge("11", "b", "22");
+    nfa.addEdge("22", "a", "22");
+    nfa.addEdge("22", "a", "33");
+
+    nfa.addEdge("end", "b", "end");
+
+    return nfa;
+}
+
+export default {genericValidDFA, genericSingleStateValidDFA, genericInvalidDFA, genericEpsilonNFA}

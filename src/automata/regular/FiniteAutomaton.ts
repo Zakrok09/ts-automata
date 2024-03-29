@@ -2,7 +2,7 @@ import {RegularState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 import {Automaton} from "../Automaton";
 import {Alphabet} from "../Alphabet";
-import {char, toChar} from "../../types";
+import {char, EPSILON, toChar} from "../../types";
 
 export abstract class FiniteAutomaton<TState extends RegularState> implements Automaton {
     protected readonly states:Map<string, TState>;
@@ -75,6 +75,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
      */
     addEdge(stateName: string, inputStr: string, to: string): boolean {
         let input = toChar(inputStr)
+        if (input === EPSILON) throw new IllegalArgument("Epsilon cannot be added to a finite automaton. Use addEpsilonEdge if you are adding it to a NFA")
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);

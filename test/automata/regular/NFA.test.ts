@@ -1,4 +1,5 @@
 import {NFA} from "../../../src";
+import Fixtures from "../../fixtures";
 
 describe("NFA acceptance testing", () => {
     let nfa:NFA;
@@ -32,5 +33,19 @@ describe("NFA acceptance testing", () => {
         expect(nfa.runString("ba")).toBe(false);
         expect(nfa.runString("aabbb")).toBe(false);
         expect(nfa.runString("abbbba")).toBe(false);
+    })
+
+    it("should correctly deal with epsilon edges", () => {
+        let enfa = Fixtures.genericEpsilonNFA();
+
+        expect(enfa.runString("")).toBe(true);
+
+        expect(enfa.runString("ab")).toBe(true);
+        expect(enfa.runString("aba")).toBe(false);
+
+        expect(enfa.runString("a")).toBe(false);
+        expect(enfa.runString("b")).toBe(true);
+        expect(enfa.runString("ba")).toBe(true);
+        expect(enfa.runString("baa")).toBe(true);
     })
 })

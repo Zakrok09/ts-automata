@@ -1,6 +1,7 @@
 import {DFA} from "../../../src";
 import {IllegalArgument, IllegalAutomatonState} from "../../../src/exceptions/exceptions";
 import Fixtures from "../../fixtures";
+import {EPSILON} from "../../../src/types";
 
 describe("DFA: Running string on DFA", () => {
     // states: q0, q1, q2
@@ -67,6 +68,11 @@ describe('DFA: Adding edges', () => {
     it('adds transition successfully when all conditions are met', () => {
         dfa.addState("end");
         expect(dfa.addEdge("start", 'a', "end")).toBe(true);
+    });
+
+    it('throws error when adding an epsilon edge', () => {
+        dfa.addState("end");
+        expect(() => dfa.addEdge("start", EPSILON, "end")).toThrow(IllegalArgument);
     });
 });
 
