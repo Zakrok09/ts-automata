@@ -2,6 +2,7 @@ import {char, toChar} from "../../index";
 import {FiniteAutomaton} from "./FiniteAutomaton";
 import {DFAState} from "../../states/RegularStates";
 import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exceptions";
+import {Alphabet} from "../Alphabet";
 
 /**
  * Represents a deterministic finite automaton.
@@ -18,7 +19,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @param startState - The start state of the DFA.
      * @param startingAccept - Whether the starting state should accept.
      */
-    constructor(alphabet: Set<char>, startState: string, startingAccept: boolean) {
+    constructor(alphabet: Alphabet, startState: string, startingAccept: boolean) {
         let start:DFAState = new DFAState(startState);
         super(alphabet, start);
 
@@ -64,13 +65,14 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @throws {IllegalArgument} if the input character is not part of the alphabet of this DFA.
      * @throws {IllegalArgument} if the state does not exist.
      */
-    public removeEdge(stateName:string, input:char):boolean {
-        this.testSymbolAgainstAlphabet(input);
+    public removeEdge(stateName:string, input:string):boolean {
+        let char = toChar(input)
+        this.testSymbolAgainstAlphabet(char);
 
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
-        return state.removeTransition(input);
+        return state.removeTransition(char);
     }
 
     /**
@@ -101,7 +103,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      */
     public toString() {
         let alphabet:string = "";
-        this.alphabet.forEach(sym => alphabet += `${sym}, `);
+        this.alphabet.chars.forEach(sym => alphabet += `${sym}, `);
         alphabet = alphabet.trim().slice(0, alphabet.length-2)
 
         let states:string = "";

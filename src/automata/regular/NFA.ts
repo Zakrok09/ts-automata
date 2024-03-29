@@ -1,7 +1,8 @@
 import {FiniteAutomaton} from "./FiniteAutomaton";
-import {DFA, char, toChar} from "../../index";
+import {DFA, toChar} from "../../index";
 import {NFAState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
+import {Alphabet} from "../Alphabet";
 
 /**
  * Class representation of a non-deterministic finite automaton.
@@ -18,7 +19,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param startState the name of the starting state.
      * @param startingAccept whether the starting state should accept.
      */
-    public constructor(alphabet: Set<char>, startState: string, startingAccept: boolean) {
+    public constructor(alphabet: Alphabet, startState: string, startingAccept: boolean) {
         let start:NFAState = new NFAState(startState);
         super(alphabet, start);
 
@@ -46,8 +47,9 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param to the destination state as in a NFA there can be multiple edges with the
      * same input symbol and state from which they come out of.
      */
-    removeEdge(stateName:string, input:char, to:string) {
-        this.testSymbolAgainstAlphabet(input);
+    removeEdge(stateName:string, input:string, to:string) {
+        let char = toChar(input)
+        this.testSymbolAgainstAlphabet(char);
 
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
@@ -55,7 +57,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
         const dest = this.states.get(to);
         if (!dest) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
-        return state.removeTransition(input, dest);
+        return state.removeTransition(char, dest);
     };
 
     /**

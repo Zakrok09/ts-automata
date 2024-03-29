@@ -1,15 +1,16 @@
-import {char} from "../../index";
+import {char, toChar} from "../../index";
 import {RegularState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 import {Automaton} from "../Automaton";
+import {Alphabet} from "../Alphabet";
 
 export abstract class FiniteAutomaton<TState extends RegularState> implements Automaton {
     protected readonly states:Map<string, TState>;
-    protected readonly alphabet:Set<char>;
+    protected readonly alphabet:Alphabet;
     protected readonly _startState:TState;
     protected readonly _acceptStates:Set<TState>
 
-    protected constructor(alphabet: Set<char>, startState:TState) {
+    protected constructor(alphabet: Alphabet, startState:TState) {
         this.states = new Map<string, TState>;
         this.alphabet = alphabet;
         this._acceptStates = new Set<TState>()
@@ -66,13 +67,14 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
     /**
      * Add en edge to the Non-deterministic finite automaton.
      * @param stateName the name of the state from which the edge goes.
-     * @param input the input of the edge.
+     * @param inputStr the input of the edge.
      * @param to the destination state or where the edge goes
      * @return true if the edge was successfully added
      * @throws IllegalArgument Throws an error if the input character is not part of the alphabet,
      * the given state does not exist, or the destination state does not exist.
      */
-    addEdge(stateName: string, input: char, to: string): boolean {
+    addEdge(stateName: string, inputStr: string, to: string): boolean {
+        let input = toChar(inputStr)
         this.testSymbolAgainstAlphabet(input);
 
         const state = this.states.get(stateName);

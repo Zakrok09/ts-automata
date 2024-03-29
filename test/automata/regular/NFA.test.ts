@@ -1,25 +1,23 @@
-import {char, toChar} from "../../../src";
 import {NFA} from "../../../src/automata/regular/NFA";
+import {Alphabet} from "../../../src/automata/Alphabet";
 
 describe("NFA acceptance testing", () => {
-    let alphabet:Set<char>;
+    let alphabet:Alphabet;
     let nfa:NFA;
 
     beforeEach(() => {
-        alphabet = new Set<char>();
-        alphabet.add(toChar('a'))
-        alphabet.add(toChar('b'))
+        alphabet = Alphabet.fromString('ab')
 
         nfa = new NFA(alphabet, "start", false);
         nfa.addStates("1", "2");
         nfa.addState("end", true);
 
-        nfa.addEdge("start", toChar('a'), "1");
-        nfa.addEdge("start", toChar('a'), "2");
+        nfa.addEdge("start", 'a', "1");
+        nfa.addEdge("start", 'a', "2");
 
-        nfa.addEdge("2", toChar('a'), "2");
-        nfa.addEdge("2", toChar('b'), "2");
-        nfa.addEdge("2", toChar('a'), "end");
+        nfa.addEdge("2", 'a', "2");
+        nfa.addEdge("2", 'b', "2");
+        nfa.addEdge("2", 'a', "end");
     })
 
     it("Should correctly accept a working NFA", () => {
@@ -31,7 +29,7 @@ describe("NFA acceptance testing", () => {
     })
 
     it("should correctly deal with situations where the graph is split", () => {
-        expect(nfa.removeEdge("2", toChar('a'), "end")).toBe(true);
+        expect(nfa.removeEdge("2", 'a', "end")).toBe(true);
 
         expect(nfa.runString("a")).toBe(false);
         expect(nfa.runString("aa")).toBe(false);

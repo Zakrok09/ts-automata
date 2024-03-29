@@ -1,16 +1,13 @@
-import {DFA, char} from "../src";
+import {char, DFA} from "../src";
+import {Alphabet} from "../src/automata/Alphabet";
 
 /**
  * Returns a set of symbols representing a generic alphabet.
  *
  * @returns {Set<char>} - A set of symbols representing the generic alphabet.
  */
-function genericAlphabet():Set<char> {
-    const alphabet = new Set<char>();
-    alphabet.add('a' as char)
-    alphabet.add('b' as char)
-
-    return alphabet;
+function genericAlphabet():Alphabet {
+    return Alphabet.fromString("ab");
 }
 
 /**

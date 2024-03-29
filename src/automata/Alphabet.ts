@@ -18,6 +18,25 @@ export class Alphabet {
     }
 
     /**
+     * Returns the size of the object.
+     *
+     * @returns {number} The size of the object.
+     */
+    get size():number {
+        return this._chars.size;
+    }
+
+    /**
+     * Checks if the given character exists in the internal set of characters.
+     *
+     * @param {char} c - The character to check.
+     * @return {boolean} - Returns true if the character exists in the set, otherwise returns false.
+     */
+    public has(c:char):boolean {
+        return this._chars.has(c);
+    }
+
+    /**
      * Adds a character to the alphabet.
      *
      * @param c - The character to add.
@@ -39,14 +58,19 @@ export class Alphabet {
     }
 
     /**
-     * Adds each character from the given string to the existing string.
+     * Creates an alphabet with each character from the given string.
      *
      * @param str The string containing characters to be added.
+     * @return {Alphabet} the created alphabet
      * @throws IllegalArgument If epsilon is being added to the alphabet.
      */
-    public addCharFromString(str:string) {
+    public static fromString(str:string):Alphabet {
+        const alphabet = new Alphabet();
+
         for (let char of str) {
-            this.addChar(toChar(char));
+            alphabet.addChar(toChar(char));
         }
+
+        return alphabet;
     }
 }
