@@ -1,10 +1,11 @@
 {
   "name": "ts-automata",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Automata utility package for FSMs, PDAs, TMs in JS/TS.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist",
     "package.json",

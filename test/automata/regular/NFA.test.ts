@@ -1,6 +1,5 @@
-import {DFA, Symbol, toChar} from "../../../src";
+import {Symbol, toChar} from "../../../src";
 import {NFA} from "../../../src/automata/regular/NFA";
-import {run} from "jest";
 
 describe("NFA acceptance testing", () => {
 

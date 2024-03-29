@@ -1,6 +1,6 @@
 import {Symbol, toChar} from "../../index";
 import {FiniteAutomaton} from "./FiniteAutomaton";
-import {DFAState, NFAState} from "../../states/RegularStates";
+import {DFAState} from "../../states/RegularStates";
 import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exceptions";
 
 /**
@@ -34,7 +34,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns True if the transition diagram is valid, otherwise false.
      */
     public isValid():boolean {
-        for (let [key, state] of this.states) {
+        for (let state of this.states.values()) {
             if (state.getInputAlphabet().size !== this.alphabet.size) {
                 return false;
             }
@@ -100,7 +100,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns The string representation of the DFA.
      */
     public toString() {
-        return `DFA: {Alphabet: ${this.alphabet} \nStates: ${this.states} \nStarting State: ${this.startState}}`
+        return `DFA: {Alphabet: ${this.alphabet.values()} \nStates: ${this.states.values()} \nStarting State: ${this.startState.name}}`
     }
 
     /**
