@@ -1,8 +1,9 @@
 import {Char} from "../../index";
 import {RegularState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
+import {Automaton} from "../Automaton";
 
-export abstract class FiniteAutomaton<TState extends RegularState> {
+export abstract class FiniteAutomaton<TState extends RegularState> implements Automaton {
     protected readonly states:Map<string, TState>;
     protected readonly alphabet:Set<Char>;
     protected readonly _startState:TState;
