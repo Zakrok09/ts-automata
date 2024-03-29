@@ -38,7 +38,8 @@ export class NFAState extends State implements RegularState {
             bucket = new Set<NFAState>();
             this._transitions.set(input, bucket);
         }
-        bucket.add(to);
+
+        if (!bucket.has(to)) bucket.add(to);
     }
 
     /**
