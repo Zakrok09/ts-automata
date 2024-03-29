@@ -3,6 +3,11 @@ import {DFA, Symbol, toChar} from "../../index";
 import {NFAState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 
+/**
+ * Class representation of a non-deterministic finite automaton.
+ *
+ * @extends FiniteAutomaton with NFAState.
+ */
 export class NFA extends FiniteAutomaton<NFAState> {
 
     /**

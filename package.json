@@ -16,7 +16,7 @@
     "test": "jest",
     "build": "tsup"
   },
-  "keywords": ["automata", "typescript"],
+  "keywords": ["automata", "typescript", "math"],
   "author": "Kiril Panayotov",
   "license": "MIT",
   "devDependencies": {

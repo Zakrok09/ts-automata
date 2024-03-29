@@ -6,7 +6,7 @@ import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exception
 /**
  * Represents a deterministic finite automaton.
  *
- * @class DFA
+ * @extends FiniteAutomaton with DFAState.
  */
 export class DFA extends FiniteAutomaton<DFAState> {
 
