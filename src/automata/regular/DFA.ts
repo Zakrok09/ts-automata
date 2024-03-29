@@ -110,7 +110,18 @@ export class DFA extends FiniteAutomaton<DFAState> {
         this.states.forEach(state => states += `${state.name}, `);
         states = states.trim().slice(0, states.length-2)
 
-        return `DFA: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this.startState.name}\n}`
+        let transitions:string = "";
+        this.states.forEach(state => {
+            let currState = `\n\t\tState: ${state.name}`;
+
+            for (const [input, nextState] of state.transitions) {
+                currState += `\n\t\t\t${input} => ${nextState.name}`
+            }
+
+            transitions+=currState;
+        })
+
+        return `DFA: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this.startState.name}\n\tTransitions:${transitions}\n}`
     }
 
     /**

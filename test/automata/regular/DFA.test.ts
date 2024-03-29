@@ -108,6 +108,23 @@ describe("DFA to String method", () => {
     it('should correctly represent the DFA in string format', () => {
         const dfa = Fixtures.genericValidDFA()
 
-        expect(dfa.toString()).toBe("DFA: {\n\tAlphabet: [a, b]\n\tStates: [start, 1, 2, end]\n\tStarting State: start\n}")
+        expect(dfa.toString()).toBe("DFA: {\n" +
+            "\tAlphabet: [a, b]\n" +
+            "\tStates: [start, 1, 2, end]\n" +
+            "\tStarting State: start\n" +
+            "\tTransitions:\n" +
+            "\t\tState: start\n" +
+            "\t\t\ta => start\n" +
+            "\t\t\tb => 1\n" +
+            "\t\tState: 1\n" +
+            "\t\t\ta => 2\n" +
+            "\t\t\tb => 1\n" +
+            "\t\tState: 2\n" +
+            "\t\t\ta => end\n" +
+            "\t\t\tb => start\n" +
+            "\t\tState: end\n" +
+            "\t\t\ta => end\n" +
+            "\t\t\tb => 1\n" +
+            "}")
     });
 })
