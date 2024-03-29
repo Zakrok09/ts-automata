@@ -15,7 +15,7 @@ Make use of the provided TSDoc and JSDoc for each method to see
 
 ## Usage
 
-Automatons can be created by initialising an `Alphabet` to feed to the Automaton,
+Automata can be created by initialising an `Alphabet` to feed to the Automaton,
 defining the states of the automaton and finally the transition function. 
 The code below is an example of creating and running input on a DFA.
 
