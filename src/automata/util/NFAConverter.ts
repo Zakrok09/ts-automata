@@ -1,5 +1,5 @@
 import {DFA} from "../regular/DFA";
-import {DFAState, NFAState} from "../../states/RegularStates";
+import {NFAState} from "../../states/RegularStates";
 import {NFA} from "../regular/NFA";
 import {char} from "../../types";
 
@@ -9,7 +9,6 @@ import {char} from "../../types";
  */
 export class NFAConverter {
     private readonly nfa:NFA;
-
     // TODO Substitute this for a builder to handle the awkward case of creating a DFA and it being undefined first.
     private dfa:DFA|undefined;
 
@@ -24,20 +23,6 @@ export class NFAConverter {
     }
 
     /**
-     * Get the name of a state.
-     *
-     * @param states An array of NFAState objects representing the states.
-     *
-     * @returns The name of the state.
-     * If the state name is empty, returns "dead-state".
-     */
-    private stateName(states: NFAState[]): string {
-        let res = states.map(s => s.name)
-            .sort((a, b) => a.localeCompare(b)).join('-');
-        return res.trim() === "" ? "dead-state" : res;
-    }
-
-    /**
      * Convert a NFA to a DFA.
      * Conversion is done
      * using the algorithm described by Micheal Sipser in his book "Introduction to the Theory of Computation"
@@ -48,60 +33,64 @@ export class NFAConverter {
         const startStateBunch = new StateBunch(NFA.epsilonClosure([this.nfa.startState]), this.nfa);
         const statesToProcess: StateBunch[] = [startStateBunch];
 
-        let alphabet = this.nfa.alphabet.joinToString();
-
         while (statesToProcess.length > 0) {
             const currentBunch = statesToProcess.pop()!;
-            const currentStateName = this.stateName(currentBunch.states);
 
-            this.processStateBunch(currentBunch, currentStateName, alphabet, statesToProcess)
+            this.processStateBunch(currentBunch, statesToProcess)
         }
 
         return this.dfa!;
     }
 
     /**
-     * Process the next StateBunch that
+     * Process the next StateBunch according to the Sipser's algorithm.
      * Extracted method for toDFA conversion.
+     *
+     * @param currentBunch the currently active set of states in the NFA.
+     * @param statesToProcess reference to the stack of states to be processed.
+     *
      * @link https://refactoring.guru/extract-method
      */
-    private processStateBunch(currentBunch:StateBunch, currentStateName:string, alphabetString:string, statesToProcess:StateBunch[]):void {
+    private processStateBunch(currentBunch:StateBunch, statesToProcess:StateBunch[]):void {
         let isFinal = currentBunch.hasAnyFinalState();
-        let dfaState = new DFAState(currentStateName);
 
         if (this.dfa === undefined) {
             // handle the first addition to the DFA, which will create a new DFA.
-            this.dfa = new DFA(alphabetString, dfaState.name, isFinal)
-        } else if (!this.dfa.getState(currentStateName))
-            this.dfa.addState(currentStateName, isFinal)
+            let alphabet = this.nfa.alphabet.joinToString();
+            this.dfa = new DFA(alphabet, currentBunch.name, isFinal)
+        } else if (!this.dfa.getState(currentBunch.name))
+            this.dfa.addState(currentBunch.name, isFinal)
 
         for (const symbol of this.nfa.alphabet.chars) {
-            this.handleNextStateBunch(currentBunch, currentStateName, symbol, statesToProcess);
+            this.processNextStateBunch(currentBunch, symbol, statesToProcess);
         }
     }
 
     /**
-     * Handle the next StateBunch to be added given a symbol.
+     * Process the next StateBunch to be added given a symbol.
      * This would mean handling all the next active states in the NFA on a given symbol, including parsing their
      * epsilon closures.
      *
      * This method will put the next generated StateBunch on the queue for processing.
-     * @private
+     *
+     * @param currentBunch the currently observed bunch of active states in the algorithm.
+     * @param symbol the symbol on which to acquire the new stateBunch.
+     * @param statesToProcess reference to the stack of states to be processed.
      */
-    private handleNextStateBunch(currentBunch:StateBunch, currentStateName:string, symbol:char, statesToProcess:StateBunch[]):void {
+    private processNextStateBunch(currentBunch:StateBunch, symbol:char, statesToProcess:StateBunch[]):void {
         let nextStates:NFAState[] = currentBunch.giveNextStates(symbol);
-        const nextStateName = this.stateName(nextStates);
+        let newStateBunch = new StateBunch(nextStates, this.nfa);
 
         // Look to see if we've already encountered this set of NFA states as a DFA state.
-        let nextDFAState = this.dfa?.getState(nextStateName);
+        let nextDFAState = this.dfa?.getState(newStateBunch.name);
 
         // If we haven't, make it a new state in the DFA and remember to process it later.
         if (!nextDFAState) {
             statesToProcess.push(new StateBunch(nextStates, this.nfa));
-            this.dfa?.addState(nextStateName, nextStates.some(nfaState => this.nfa.acceptStates.has(nfaState)))
+            this.dfa?.addState(newStateBunch.name, newStateBunch.hasAnyFinalState())
         }
 
-        this.dfa?.addEdge(currentStateName, symbol, nextStateName)
+        this.dfa?.addEdge(currentBunch.name, symbol, newStateBunch.name)
     }
 }
 
@@ -113,11 +102,26 @@ export class NFAConverter {
 class StateBunch {
     states:NFAState[];
     nfa:NFA;
+    name:string;
 
     constructor(states: NFAState[], nfa:NFA) {
         this.states = states;
         this.nfa = nfa;
+        this.name = this.stateName(states)
+    }
 
+    /**
+     * Get the name of a state.
+     *
+     * @param states An array of NFAState objects representing the states.
+     *
+     * @returns The name of the state.
+     * If the state name is empty, returns "dead-state".
+     */
+    private stateName(states: NFAState[]): string {
+        let res = states.map(s => s.name)
+            .sort((a, b) => a.localeCompare(b)).join('-');
+        return res.trim() === "" ? "dead-state" : res;
     }
 
     /**
