@@ -130,14 +130,6 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @returns The string representation of the NFA.
      */
     public toString() {
-        let alphabet:string = "";
-        this.alphabet.chars.forEach(sym => alphabet += `${sym}, `);
-        alphabet = alphabet.trim().slice(0, alphabet.length-2)
-
-        let states:string = "";
-        this.states.forEach(state => states += `${state.name}, `);
-        states = states.trim().slice(0, states.length-2)
-
         let transitions:string = "";
         this.states.forEach(state => {
             let currState = `\n\t\tState: ${state.name}`;
@@ -152,9 +144,19 @@ export class NFA extends FiniteAutomaton<NFAState> {
             transitions+=currState;
         })
 
-        return `NFA: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this._startState.name}\n\tTransitions:${transitions}\n}`
+        return super.toString(transitions);
     }
 
+    /**
+     * Returns the machine type of the NFA. The result is always NFA.
+     */
+    get machineType(): string {
+        return "NFA";
+    }
+
+    /**
+     * Returns whether the NFA is valid.
+     */
     isValid(): boolean {
         return true;
     }

@@ -99,6 +99,28 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
     }
 
     /**
+     * Get the string representation of the Finite Automaton.
+     * @returns The string representation of the Finite Automaton.
+     */
+    public toString(transitions:string):string {
+        let alphabet:string = "";
+        this.alphabet.chars.forEach(sym => alphabet += `${sym}, `);
+        alphabet = alphabet.trim().slice(0, alphabet.length-2)
+
+        let states:string = "";
+        this.states.forEach(state => states += `${state.name}, `);
+        states = states.trim().slice(0, states.length-2)
+
+        return `${this.machineType}: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this._startState.name}\n\tTransitions:${transitions}\n}`
+    }
+
+    /**
+     * Get the type of the machine as a string.
+     * @returns The type of the automaton as a string.
+     */
+    public abstract get machineType():string;
+
+    /**
      * Add state method. Each finite automata class shall implement its own logic of adding states.
      *
      * @abstract
@@ -123,11 +145,4 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
      * @returns Returns true if the string is accepted by the finite state machine, otherwise false.
      */
     public abstract runString(str:string): boolean;
-
-    /**
-     * @abstract
-     * Returns a string representation of the Finite Automaton.
-     * @returns The string representation of the Finite Automaton.
-     */
-    public abstract toString():string;
 }
