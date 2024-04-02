@@ -122,13 +122,4 @@ export class DFA extends FiniteAutomaton<DFAState> {
     get machineType(): string {
         return "DFA";
     }
-
-    /**
-     * Returns the start state of the DFA.
-     *
-     * @return {DFAState} The start state of the DFA.
-     */
-    get startState(): DFAState {
-        return this._startState;
-    }
 }

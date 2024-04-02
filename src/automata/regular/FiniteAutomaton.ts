@@ -6,13 +6,13 @@ import {char, EPSILON, toChar} from "../../types";
 
 export abstract class FiniteAutomaton<TState extends RegularState> implements Automaton {
     protected readonly states:Map<string, TState>;
-    protected readonly alphabet:Alphabet;
+    private readonly _alphabet:Alphabet;
     protected readonly _startState:TState;
     protected readonly _acceptStates:Set<TState>
 
     protected constructor(alphabet: Alphabet, startState:TState) {
         this.states = new Map<string, TState>;
-        this.alphabet = alphabet;
+        this._alphabet = alphabet;
         this._acceptStates = new Set<TState>()
 
         this._startState = startState;
@@ -46,7 +46,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
      * @throws IllegalArgument if the symbol is not part of the alphabet
      */
     protected testSymbolAgainstAlphabet(input:char){
-        if(!this.alphabet.has(input)) throw new IllegalArgument(`${input} is not part fo the alphabet of this finite automaton`)
+        if(!this._alphabet.has(input)) throw new IllegalArgument(`${input} is not part fo the alphabet of this finite automaton`)
     }
 
     /**
@@ -104,7 +104,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
      */
     public toString(transitions:string):string {
         let alphabet:string = "";
-        this.alphabet.chars.forEach(sym => alphabet += `${sym}, `);
+        this._alphabet.chars.forEach(sym => alphabet += `${sym}, `);
         alphabet = alphabet.trim().slice(0, alphabet.length-2)
 
         let states:string = "";
@@ -112,6 +112,24 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
         states = states.trim().slice(0, states.length-2)
 
         return `${this.machineType}: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this._startState.name}\n\tTransitions:${transitions}\n}`
+    }
+
+    /**
+     * Returns the start state of the DFA.
+     *
+     * @return The start state of the DFA.
+     */
+    get startState():TState {
+        return this._startState;
+    }
+
+    /**
+     * Getter for the alphabet of the Finite Automaton
+     *
+     * @return the alphabet of the automaton
+     */
+    get alphabet(): Alphabet {
+        return this._alphabet;
     }
 
     /**

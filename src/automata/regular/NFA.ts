@@ -1,9 +1,10 @@
 import {FiniteAutomaton} from "./FiniteAutomaton";
 import {EPSILON, toChar} from "../../types";
 import {DFA} from "./DFA";
-import {DFAState, NFAState} from "../../states/RegularStates";
+import {NFAState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 import {Alphabet} from "../Alphabet";
+import {NFAConverter} from "../util/NFAConverter";
 
 /**
  * Class representation of a non-deterministic finite automaton.
@@ -162,20 +163,6 @@ export class NFA extends FiniteAutomaton<NFAState> {
     }
 
     /**
-     * Get the name of a state.
-     *
-     * @param {NFAState[]} states - An array of NFAState objects representing the states.
-     *
-     * @returns {string} - The name of the state.
-     * If the state name is empty, returns "dead-state".
-     */
-    private stateName(states: NFAState[]): string {
-        let res = states.map(s => s.name)
-            .sort((a, b) => a.localeCompare(b)).join('-');
-        return res.trim() === "" ? "dead-state" : res;
-    }
-
-    /**
      * Convert a NFA to a DFA.
      * Conversion is done
      * using the algorithm described by Micheal Sipser in his book "Introduction to the Theory of Computation"
@@ -183,62 +170,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @return a DFA of the NFA using Sipper's algorithm.
      */
     public toDFA(): DFA {
-        class StateBunch {
-            states:NFAState[];
-
-            constructor(states: NFAState[]) {
-                this.states = states;
-            }
-        }
-
-        // Create the start state.
-        const startStateBunch = new StateBunch(NFA.epsilonClosure([this._startState]));
-        const statesToProcess: StateBunch[] = [startStateBunch];
-
-        let alphabet = this.alphabet.joinToString();
-        let dfa:DFA|undefined = undefined;
-
-        while (statesToProcess.length > 0) {
-            const currentBunch = statesToProcess.pop()!;
-            const currentStateName = this.stateName(currentBunch.states);
-
-            let isFinal =
-                currentBunch.states.some(nfaState => this.acceptStates.has(nfaState));
-
-            // Add the 'current' state to the 'all states' set.
-            let dfaState = new DFAState(currentStateName);
-
-            if (dfa === undefined) {
-                dfa = new DFA(alphabet, dfaState.name, isFinal)
-            } else if (!dfa.getState(currentStateName))
-                dfa.addState(currentStateName, isFinal)
-
-            for (const symbol of this.alphabet.chars) {
-                // The next state is the epsilon-closure of the set of all states we can reach
-                // on this symbol from any active NFA state.
-                let nextStates:NFAState[] = []
-                for (const state of currentBunch.states) {
-                    nextStates.push(...state.transition(symbol))
-                }
-                nextStates = NFA.epsilonClosure(nextStates);
-
-                // We call it the combination of all the states
-                const nextStateName = this.stateName(nextStates);
-
-                // Look to see if we've already encountered this set of NFA states as a DFA state.
-                let nextDFAState = dfa?.getState(nextStateName);
-
-                // If we haven't, make it a new state in the DFA and remember to process it later.
-                if (!nextDFAState) {
-                    nextDFAState = new DFAState(nextStateName);
-                    statesToProcess.push(new StateBunch(nextStates));
-                    dfa?.addState(nextStateName, nextStates.some(nfaState => this.acceptStates.has(nfaState)))
-                }
-
-                dfa?.addEdge(currentStateName, symbol, nextStateName)
-            }
-        }
-
-        return dfa!;
+        const nfaConverter = new NFAConverter(this);
+        return nfaConverter.toDFA();
     }
 }
