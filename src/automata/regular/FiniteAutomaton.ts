@@ -65,6 +65,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
         }
     }
 
+    // TODO Make method take structs of two elements -> {name, accepting?}
     /**
      * Adds states to the current object. All added states are considered not final
      *
@@ -74,6 +75,7 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
         names.forEach(n => this.addState(n, false));
     }
 
+    // TODO: On larger input than a char for inputStr, add multiple edges for each of them.
     /**
      * Add en edge to the Non-deterministic finite automaton.
      * @param stateName the name of the state from which the edge goes.

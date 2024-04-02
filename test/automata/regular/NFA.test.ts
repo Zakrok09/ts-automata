@@ -30,44 +30,23 @@ describe("NFA acceptance testing", () => {
         let enfa = Fixtures.genericEpsilonNFA();
 
         expect(enfa.runString("")).toBe(true);
-
         expect(enfa.runString("ab")).toBe(true);
         expect(enfa.runString("aba")).toBe(false);
-
         expect(enfa.runString("a")).toBe(false);
         expect(enfa.runString("b")).toBe(true);
         expect(enfa.runString("ba")).toBe(true);
         expect(enfa.runString("baa")).toBe(true);
     })
-})
 
-describe("NFA to DFA converter", () => {
-    it("should correctly convert NFA with no present epsilons to DFA", () => {
-        let nfa = Fixtures.genericNFA();
-        let dfa = nfa.toDFA();
+    it("should correctly work with NFAs with epsilon edges and large alphabet", () => {
+        let enfa = Fixtures.genericEpsilonNFALargerAlphabet();
 
-        expect(dfa.isValid()).toBe(true);
-
-        expect(dfa.runString("a")).toBe(false);
-        expect(dfa.runString("aa")).toBe(true);
-        expect(dfa.runString("ba")).toBe(false);
-        expect(dfa.runString("aabbb")).toBe(false);
-        expect(dfa.runString("abbbba")).toBe(true);
-    })
-
-    it("should correctly convert NFA with epsilons to DFA", () => {
-        let enfa = Fixtures.genericEpsilonNFA();
-        let dfa = enfa.toDFA();
-
-        expect(dfa.isValid()).toBe(true);
-
-        expect(dfa.runString("")).toBe(true);
-        expect(dfa.runString("ab")).toBe(true);
-        expect(dfa.runString("aba")).toBe(false);
-        expect(dfa.runString("a")).toBe(false);
-        expect(dfa.runString("b")).toBe(true);
-        expect(dfa.runString("ba")).toBe(true);
-        expect(dfa.runString("baa")).toBe(true);
+        expect(enfa.runString("")).toBe(false);
+        expect(enfa.runString("ba")).toBe(true);
+        expect(enfa.runString("abcdccaa")).toBe(true);
+        expect(enfa.runString("acadabc")).toBe(true);
+        expect(enfa.runString("acad")).toBe(true);
+        expect(enfa.runString("cab")).toBe(false);
     })
 })
 

@@ -62,6 +62,38 @@ function genericInvalidDFA():DFA {
     return dfa;
 }
 
+function genericEpsilonNFALargerAlphabet():NFA {
+    const nfa = new NFA("abcd", "start", false);
+
+    nfa.addStates("q1","q3","q4");
+    nfa.addState("end",true);
+    nfa.addState("q2", true);
+
+    nfa.addEdge("start", 'a', "start");
+    nfa.addEpsilonEdge("start","q1");
+    nfa.addEpsilonEdge("start","q3");
+
+    nfa.addEdge("q1", 'b', "q3");
+
+    nfa.addEdge("q2", 'c', "q2");
+    nfa.addEpsilonEdge("q2", "start");
+
+    nfa.addEdge("q3", 'c', "q4");
+    nfa.addEdge("q3", 'a', "end");
+    nfa.addEdge("q3", 'b', "end");
+
+    nfa.addEdge("q4", 'd', "q2");
+    nfa.addEdge("q4", 'd', "end");
+    nfa.addEdge("q4", 'a', "q4");
+    nfa.addEdge("q4", 'b', "q4");
+
+    nfa.addEdge("end", 'a', "end");
+    nfa.addEdge("end", 'b', "end");
+    nfa.addEdge("end", 'c', "end");
+
+    return nfa;
+}
+
 function genericEpsilonNFA():NFA {
     const nfa = new NFA("ab", "start", false);
 
@@ -101,4 +133,4 @@ function genericNFA():NFA {
     return nfa;
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericInvalidDFA, genericEpsilonNFA, genericNFA}
+export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA}
