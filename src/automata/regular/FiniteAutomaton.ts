@@ -65,14 +65,14 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
         }
     }
 
-    // TODO Make method take structs of two elements -> {name, accepting?}
     /**
-     * Adds states to the current object. All added states are considered not final
+     * Adds states to the current object.
      *
+     * @param final whether all the states being added are final
      * @param {...string} names - The names of the states to be added.
      */
-    public addStates(...names:string[]) {
-        names.forEach(n => this.addState(n, false));
+    public addStates(final:boolean, ...names:string[]) {
+        names.forEach(n => this.addState(n, final));
     }
 
     /**

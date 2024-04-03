@@ -1,4 +1,3 @@
-import {char} from "../src/types";
 import {DFA, NFA} from "../src";
 /**
  * Creates a valid DFA fixture
@@ -9,8 +8,8 @@ import {DFA, NFA} from "../src";
 function genericValidDFA():DFA {
     const dfa = new DFA("ab", "start", false);
 
-    dfa.addStates("1", "2");
-    dfa.addState("end", true);
+    dfa.addStates(false, "1", "2");
+    dfa.addStates(true, "end");
 
     dfa.addEdge("start", 'a', "start");
     dfa.addEdge("start", 'b', "1");
@@ -49,8 +48,8 @@ function genericSingleStateValidDFA():DFA {
 function genericInvalidDFA():DFA {
     const dfa = new DFA("ab", "start", false);
 
-    dfa.addStates("1", "2");
-    dfa.addState("3", true);
+    dfa.addStates(false, "1", "2");
+    dfa.addStates(false, "3");
 
     dfa.addEdge("start", 'a', "3");
     dfa.addEdge("start", 'b', "1");
@@ -64,9 +63,8 @@ function genericInvalidDFA():DFA {
 function genericEpsilonNFALargerAlphabet():NFA {
     const nfa = new NFA("abcd", "start", false);
 
-    nfa.addStates("q1","q3","q4");
-    nfa.addState("end",true);
-    nfa.addState("q2", true);
+    nfa.addStates(false, "q1","q3","q4");
+    nfa.addStates(true, "end", "q2");
 
     nfa.addEdge("start", 'a', "start");
     nfa.addEpsilonEdge("start","q1");
@@ -92,10 +90,8 @@ function genericEpsilonNFALargerAlphabet():NFA {
 function genericEpsilonNFA():NFA {
     const nfa = new NFA("ab", "start", false);
 
-    nfa.addStates("1", "11", "2", "22")
-    nfa.addState("3", true);
-    nfa.addState("33", true);
-    nfa.addState("end", true);
+    nfa.addStates(false, "1", "11", "2", "22")
+    nfa.addStates(true, "3", "33", "end")
 
     nfa.addEpsilonEdge("start", "1");
     nfa.addEpsilonEdge("start", "11");
@@ -115,8 +111,8 @@ function genericEpsilonNFA():NFA {
 
 function genericNFA():NFA {
     const nfa = new NFA("ab", "start", false);
-    nfa.addStates("1", "2");
-    nfa.addState("end", true);
+    nfa.addStates(false, "1", "2");
+    nfa.addStates(true, "end");
 
     nfa.addEdge("start", 'a', "1");
     nfa.addEdge("start", 'a', "2");
