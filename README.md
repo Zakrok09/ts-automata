@@ -36,7 +36,7 @@ dfa.addEdge("q2", 'a', "q2");
 dfa.addEdge("q2", 'b', "q2");
 
 /* Check for validity */
-console.log(dfa.isValid()); 
+console.log(dfa.isValid());
 
 /* Run strings on the DFA */
 dfa.runString("ababababaa") // true
@@ -50,3 +50,19 @@ q0 is the starting state
 q2 is the only accepting state](https://i.imgur.com/pRuPlEv.jpeg "Image of the DFA described in the code abov")
 _Figure 2: Visual representation of D._
 
+This can also be done using the helpful `DFABuilder`:
+```typescript
+const dfa = new DFABuilder("ab")
+    /* Add states to the DFA */
+    .withNotFinalStates("q0", "q1")
+    .withFinalStates("q2")
+
+    /* Define the transition function for each state */
+    .withEdges.from("q0").toSelf().over("b")
+    .withEdges.from("q0").to("q1").over("a")
+    .withEdges.from("q1").to("q2").over("a")
+    .withEdges.from("q1").to("q0").over("b")
+    .withEdges.from("q2").toSelf().over("ab")
+    .getResult()
+```
+_Figure 3: Creating a DFA using a `DFABuilder`._
