@@ -80,8 +80,8 @@ describe("NFA toString", () => {
             "\t\tState: 1\n" +
             "\t\t\ta => 2\n" +
             "\t\tState: 11\n" +
-            "\t\t\tε => end\n" +
             "\t\t\tb => 22\n" +
+            "\t\t\tε => end\n" +
             "\t\tState: 2\n" +
             "\t\t\tb => 3\n" +
             "\t\tState: 22\n" +

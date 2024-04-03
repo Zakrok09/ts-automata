@@ -2,6 +2,7 @@ import {DFA} from "../regular/DFA";
 import {NFAState} from "../../states/RegularStates";
 import {NFA} from "../regular/NFA";
 import {char} from "../../types";
+import {DFABuilder} from "./builders/automata/DFABuilder";
 
 /**
  * @class Method object for converting NFAs to DFAs
@@ -9,8 +10,7 @@ import {char} from "../../types";
  */
 export class NFAConverter {
     private readonly nfa:NFA;
-    // TODO Substitute this for a builder to handle the awkward case of creating a DFA and it being undefined first.
-    private dfa:DFA|undefined;
+    private dfaBuilder:DFABuilder;
 
     /**
      * Constructs a new instance of the class.
@@ -19,7 +19,7 @@ export class NFAConverter {
      */
     constructor(nfa: NFA) {
         this.nfa = nfa;
-        this.dfa = undefined;
+        this.dfaBuilder = new DFABuilder(nfa.alphabet.joinToString());
     }
 
     /**
@@ -39,7 +39,7 @@ export class NFAConverter {
             this.processStateBunch(currentBunch, statesToProcess)
         }
 
-        return this.dfa!;
+        return this.dfaBuilder.getResult();
     }
 
     /**
@@ -54,12 +54,8 @@ export class NFAConverter {
     private processStateBunch(currentBunch:StateBunch, statesToProcess:StateBunch[]):void {
         let isFinal = currentBunch.hasAnyFinalState();
 
-        if (this.dfa === undefined) {
-            // handle the first addition to the DFA, which will create a new DFA.
-            let alphabet = this.nfa.alphabet.joinToString();
-            this.dfa = new DFA(alphabet, currentBunch.name, isFinal)
-        } else if (!this.dfa.getState(currentBunch.name))
-            this.dfa.addState(currentBunch.name, isFinal)
+        if (!this.dfaBuilder.getState(currentBunch.name))
+            this.dfaBuilder.addState(currentBunch.name, isFinal)
 
         for (const symbol of this.nfa.alphabet.chars) {
             this.processNextStateBunch(currentBunch, symbol, statesToProcess);
@@ -82,15 +78,15 @@ export class NFAConverter {
         let newStateBunch = new StateBunch(nextStates, this.nfa);
 
         // Look to see if we've already encountered this set of NFA states as a DFA state.
-        let nextDFAState = this.dfa?.getState(newStateBunch.name);
+        let nextDFAState = this.dfaBuilder.getState(newStateBunch.name);
 
         // If we haven't, make it a new state in the DFA and remember to process it later.
         if (!nextDFAState) {
             statesToProcess.push(new StateBunch(nextStates, this.nfa));
-            this.dfa?.addState(newStateBunch.name, newStateBunch.hasAnyFinalState())
+            this.dfaBuilder.addState(newStateBunch.name, newStateBunch.hasAnyFinalState())
         }
 
-        this.dfa?.addEdge(currentBunch.name, symbol, newStateBunch.name)
+        this.dfaBuilder.addEdge(currentBunch.name, symbol, newStateBunch.name)
     }
 }
 
