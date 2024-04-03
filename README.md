@@ -1,8 +1,18 @@
-# TS Automata
+<p align="center">
+<img src="./.github/logo.jpg" height="250">
+</p>
+<h1 align="center">
+TS-Automata
+</h1>
+<p align="center">
+A TypeScript/JavaScript library for managing automata.
+<p>
+<h6 align="center">
 
 [![NPM Package](https://img.shields.io/npm/v/ts-automata.svg?style=flat)](https://npmjs.org/package/ts-automata "View this project on npm")
 
-A TypeScript/JavaScript library for managing automata. 
+</h6>
+
 
 ```shell
 npm i ts-automata
