@@ -75,17 +75,18 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
         names.forEach(n => this.addState(n, false));
     }
 
-    // TODO: On larger input than a char for inputStr, add multiple edges for each of them.
     /**
      * Add en edge to the Non-deterministic finite automaton.
      * @param stateName the name of the state from which the edge goes.
-     * @param inputStr the input of the edge.
+     * @param inputStr the input of the edge (must be a single char)
      * @param to the destination state or where the edge goes
-     * @return true if the edge was successfully added
-     * @throws IllegalArgument Throws an error if the input character is not part of the alphabet,
-     * the given state does not exist, or the destination state does not exist.
+     * @throws IllegalArgument throws an error
+     * if the input character is not part of the alphabet or is longer than a char,
+     * the given state does not exist or the destination state does not exist.
      */
-    addEdge(stateName: string, inputStr: string, to: string): boolean {
+    addEdge(stateName: string, inputStr: string, to: string):void {
+        if (inputStr.length !== 1) throw new IllegalArgument("Input longer than")
+
         let input = toChar(inputStr)
         if (input === EPSILON) throw new IllegalArgument("Epsilon cannot be added to a finite automaton. Use addEpsilonEdge if you are adding it to a NFA")
         this.testSymbolAgainstAlphabet(input);
@@ -97,7 +98,22 @@ export abstract class FiniteAutomaton<TState extends RegularState> implements Au
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
 
         state.insertTransition(input, toState);
-        return true;
+    }
+
+    /**
+     * Add en edge to the Non-deterministic finite automaton.
+     * @param stateName the name of the state from which the edge goes.
+     * @param inputs the input of the edge (must be a single char)
+     * @param to the destination state or where the edge goes
+     * @return true if the edge was successfully added
+     * @throws IllegalArgument throws an error
+     * if any of the input characters is not part of the alphabet,
+     * the given state does not exist or the destination state does not exist.
+     */
+    addEdges(stateName: string, inputs: string, to: string):void {
+        for (let char of inputs) {
+            this.addEdge(stateName, char, to);
+        }
     }
 
     /**

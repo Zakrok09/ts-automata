@@ -51,7 +51,7 @@ describe('DFA: Validity checking', () => {
 
 
 describe('DFA: Adding edges', () => {
-    const dfa = new DFA("a", "start", false);
+    const dfa = new DFA("ab", "start", false);
 
     it('throws error when input character is not in the alphabet', () => {
         expect(() => dfa.addEdge("start", 'b', "end")).toThrow(IllegalArgument);
@@ -67,7 +67,17 @@ describe('DFA: Adding edges', () => {
 
     it('adds transition successfully when all conditions are met', () => {
         dfa.addState("end");
-        expect(dfa.addEdge("start", 'a', "end")).toBe(true);
+        expect(() => dfa.addEdge("start", 'a', "end")).not.toThrow();
+    });
+
+    it('throws an error if the input is larger than a single char on the addEdge method', () => {
+        dfa.addState("end");
+        expect(() => dfa.addEdge("start", 'ab', "end")).toThrow(IllegalArgument);
+    });
+
+    it('should work well then multiple chars are being added with addEdges method', () => {
+        dfa.addState("end");
+        expect(() => dfa.addEdges("start", 'ab', "end")).not.toThrow();
     });
 
     it('throws error when adding an epsilon edge', () => {
@@ -81,11 +91,8 @@ describe("DFA: Removing edges", () => {
 
     beforeEach(() => {
         dfa.addState("end", true)
-        dfa.addEdge("start", 'a', "end");
-        dfa.addEdge("start", 'b', "end");
-
-        dfa.addEdge("end", 'a', "start");
-        dfa.addEdge("end", 'b', "start");
+        dfa.addEdges("start", 'ab', "end");
+        dfa.addEdges("end", 'ab', "start");
     })
 
     it('removes existing edges correctly and returns false if the edge does not exist', () => {

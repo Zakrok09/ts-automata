@@ -12,17 +12,17 @@ function genericValidDFA():DFA {
     dfa.addStates("1", "2");
     dfa.addState("end", true);
 
-    dfa.addEdge("start", 'a' as char, "start");
-    dfa.addEdge("start", 'b' as char, "1");
+    dfa.addEdge("start", 'a', "start");
+    dfa.addEdge("start", 'b', "1");
 
-    dfa.addEdge("1", 'a' as char, "2");
-    dfa.addEdge("1", 'b' as char, "1");
+    dfa.addEdge("1", 'a', "2");
+    dfa.addEdge("1", 'b', "1");
 
-    dfa.addEdge("2", 'a' as char, "end");
-    dfa.addEdge("2", 'b' as char, "start");
+    dfa.addEdge("2", 'a', "end");
+    dfa.addEdge("2", 'b', "start");
 
-    dfa.addEdge("end", 'a' as char, "end");
-    dfa.addEdge("end", 'b' as char, "1");
+    dfa.addEdge("end", 'a', "end");
+    dfa.addEdge("end", 'b', "1");
 
     return dfa;
 }
@@ -35,8 +35,7 @@ function genericValidDFA():DFA {
  */
 function genericSingleStateValidDFA():DFA {
     const dfa = new DFA("ab", "start", false);
-    dfa.addEdge("start", 'a' as char, "start");
-    dfa.addEdge("start", 'b' as char, "start");
+    dfa.addEdges("start", 'ab', "start");
 
     return dfa;
 }
@@ -53,11 +52,11 @@ function genericInvalidDFA():DFA {
     dfa.addStates("1", "2");
     dfa.addState("3", true);
 
-    dfa.addEdge("start", 'a' as char, "3");
-    dfa.addEdge("start", 'b' as char, "1");
-    dfa.addEdge("1", 'a' as char, "2");
-    dfa.addEdge("2", 'b' as char, "start");
-    dfa.addEdge("3", 'b' as char, "1");
+    dfa.addEdge("start", 'a', "3");
+    dfa.addEdge("start", 'b', "1");
+    dfa.addEdge("1", 'a', "2");
+    dfa.addEdge("2", 'b', "start");
+    dfa.addEdge("3", 'b', "1");
 
     return dfa;
 }
@@ -79,17 +78,13 @@ function genericEpsilonNFALargerAlphabet():NFA {
     nfa.addEpsilonEdge("q2", "start");
 
     nfa.addEdge("q3", 'c', "q4");
-    nfa.addEdge("q3", 'a', "end");
-    nfa.addEdge("q3", 'b', "end");
+    nfa.addEdges("q3", 'ab', "end");
 
     nfa.addEdge("q4", 'd', "q2");
     nfa.addEdge("q4", 'd', "end");
-    nfa.addEdge("q4", 'a', "q4");
-    nfa.addEdge("q4", 'b', "q4");
+    nfa.addEdges("q4", 'ab', "q4");
 
-    nfa.addEdge("end", 'a', "end");
-    nfa.addEdge("end", 'b', "end");
-    nfa.addEdge("end", 'c', "end");
+    nfa.addEdges("end", 'abc', "end");
 
     return nfa;
 }
@@ -126,8 +121,7 @@ function genericNFA():NFA {
     nfa.addEdge("start", 'a', "1");
     nfa.addEdge("start", 'a', "2");
 
-    nfa.addEdge("2", 'a', "2");
-    nfa.addEdge("2", 'b', "2");
+    nfa.addEdges("2", 'ab', "2");
     nfa.addEdge("2", 'a', "end");
 
     return nfa;
