@@ -48,13 +48,14 @@ export class Alphabet {
     }
 
     /**
-     * Adds characters to the existing list of characters.
+     * Creates a string by joining all the characters in the array.
      *
-     * @param chars - The characters to add.
-     * @throws IllegalArgument
+     * @return {string} The joined string.
      */
-    public addChars(...chars:char[]) {
-        chars.forEach(this.addChar);
+    public joinToString(): string {
+        let alphabet = '';
+        this.chars.forEach(c => alphabet+=c)
+        return alphabet;
     }
 
     /**
@@ -72,15 +73,5 @@ export class Alphabet {
         }
 
         return alphabet;
-    }
-
-    /**
-     * Converts an array of characters to a string and creates an instance of the Alphabet class.
-     *
-     * @param {Array} chars - An array of characters.
-     * @return {Alphabet} - An instance of the Alphabet class.
-     */
-    public static fromCharString(...chars:char[]):Alphabet {
-        return Alphabet.fromString(chars.join(''));
     }
 }

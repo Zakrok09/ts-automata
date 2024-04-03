@@ -5,16 +5,7 @@ describe("NFA acceptance testing", () => {
     let nfa:NFA;
 
     beforeEach(() => {
-        nfa = new NFA("ab", "start", false);
-        nfa.addStates("1", "2");
-        nfa.addState("end", true);
-
-        nfa.addEdge("start", 'a', "1");
-        nfa.addEdge("start", 'a', "2");
-
-        nfa.addEdge("2", 'a', "2");
-        nfa.addEdge("2", 'b', "2");
-        nfa.addEdge("2", 'a', "end");
+        nfa = Fixtures.genericNFA();
     })
 
     it("Should correctly accept a working NFA", () => {
@@ -39,13 +30,66 @@ describe("NFA acceptance testing", () => {
         let enfa = Fixtures.genericEpsilonNFA();
 
         expect(enfa.runString("")).toBe(true);
-
         expect(enfa.runString("ab")).toBe(true);
         expect(enfa.runString("aba")).toBe(false);
-
         expect(enfa.runString("a")).toBe(false);
         expect(enfa.runString("b")).toBe(true);
         expect(enfa.runString("ba")).toBe(true);
         expect(enfa.runString("baa")).toBe(true);
+    })
+
+    it("should correctly work with NFAs with epsilon edges and large alphabet", () => {
+        let enfa = Fixtures.genericEpsilonNFALargerAlphabet();
+
+        expect(enfa.runString("")).toBe(false);
+        expect(enfa.runString("ba")).toBe(true);
+        expect(enfa.runString("abcdccaa")).toBe(true);
+        expect(enfa.runString("acadabc")).toBe(true);
+        expect(enfa.runString("acad")).toBe(true);
+        expect(enfa.runString("cab")).toBe(false);
+    })
+})
+
+describe("NFA toString", () => {
+    it("should correctly print a NFA with no present epsilons", () => {
+        let nfa = Fixtures.genericNFA();
+        expect(nfa.toString()).toBe("NFA: {\n" +
+            "\tAlphabet: [a, b]\n" +
+            "\tStates: [start, 1, 2, end]\n" +
+            "\tStarting State: start\n" +
+            "\tTransitions:\n" +
+            "\t\tState: start\n" +
+            "\t\t\ta => 1, 2\n" +
+            "\t\tState: 1\n" +
+            "\t\tState: 2\n" +
+            "\t\t\ta => 2, end\n" +
+            "\t\t\tb => 2\n" +
+            "\t\tState: end\n" +
+            "}");
+    })
+
+    it("should correctly print a NFA with epsilons", () => {
+        let enfa = Fixtures.genericEpsilonNFA();
+        expect(enfa.toString()).toBe("NFA: {\n" +
+            "\tAlphabet: [a, b]\n" +
+            "\tStates: [start, 1, 11, 2, 22, 3, 33, end]\n" +
+            "\tStarting State: start\n" +
+            "\tTransitions:\n" +
+            "\t\tState: start\n" +
+            "\t\t\tε => 1, 11\n" +
+            "\t\tState: 1\n" +
+            "\t\t\ta => 2\n" +
+            "\t\tState: 11\n" +
+            "\t\t\tb => 22\n" +
+            "\t\t\tε => end\n" +
+            "\t\tState: 2\n" +
+            "\t\t\tb => 3\n" +
+            "\t\tState: 22\n" +
+            "\t\t\ta => 22, 33\n" +
+            "\t\tState: 3\n" +
+            "\t\tState: 33\n" +
+            "\t\tState: end\n" +
+            "\t\t\tb => end\n" +
+            "}");
     })
 })

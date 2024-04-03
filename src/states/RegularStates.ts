@@ -7,11 +7,20 @@ export interface RegularState extends State {
 }
 
 export class NFAState extends State implements RegularState {
-    private _transitions: Map<char, Set<NFAState>>
+    private readonly _transitions: Map<char, Set<NFAState>>
 
     constructor(name: string) {
         super(name);
         this._transitions = new Map<char, Set<NFAState>>();
+    }
+
+    /**
+     * Retrieves the transitions of the NFAState.
+     *
+     * @return {Map<char, Set<NFAState>>} The transitions of the NFAState.
+     */
+    get transitions(): Map<char, Set<NFAState>> {
+        return this._transitions;
     }
 
     /**
@@ -78,11 +87,20 @@ export class NFAState extends State implements RegularState {
  * @extends State
  */
 export class DFAState extends State implements RegularState {
-    private _transitions: Map<char, DFAState>
+    private readonly _transitions: Map<char, DFAState>
 
     constructor(name: string) {
         super(name);
         this._transitions = new Map<char, DFAState>();
+    }
+
+    /**
+     * Returns the transitions of the DFAState object.
+     *
+     * @return {Map<char, DFAState>} - A Map object representing the transitions of the DFAState.
+     */
+    get transitions(): Map<char, DFAState> {
+        return this._transitions;
     }
 
     /**

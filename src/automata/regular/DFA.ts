@@ -102,23 +102,24 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns The string representation of the DFA.
      */
     public toString() {
-        let alphabet:string = "";
-        this.alphabet.chars.forEach(sym => alphabet += `${sym}, `);
-        alphabet = alphabet.trim().slice(0, alphabet.length-2)
+        let transitions:string = "";
+        this.states.forEach(state => {
+            let currState = `\n\t\tState: ${state.name}`;
 
-        let states:string = "";
-        this.states.forEach(state => states += `${state.name}, `);
-        states = states.trim().slice(0, states.length-2)
+            for (const [input, nextState] of state.transitions) {
+                currState += `\n\t\t\t${input} => ${nextState.name}`
+            }
 
-        return `DFA: {\n\tAlphabet: [${alphabet}]\n\tStates: [${states}]\n\tStarting State: ${this.startState.name}\n}`
+            transitions+=currState;
+        })
+
+        return super.toString(transitions);
     }
 
     /**
-     * Returns the start state of the DFA.
-     *
-     * @return {DFAState} The start state of the DFA.
+     * Returns the machine type of the DFA. The result is always DFA.
      */
-    get startState(): DFAState {
-        return this._startState;
+    get machineType(): string {
+        return "DFA";
     }
 }

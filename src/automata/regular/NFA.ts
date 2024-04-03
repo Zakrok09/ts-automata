@@ -4,6 +4,7 @@ import {DFA} from "./DFA";
 import {NFAState} from "../../states/RegularStates";
 import {IllegalArgument} from "../../exceptions/exceptions";
 import {Alphabet} from "../Alphabet";
+import {NFAConverter} from "../util/NFAConverter";
 
 /**
  * Class representation of a non-deterministic finite automaton.
@@ -86,8 +87,8 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param str The string to be evaluated.
      * @returns Returns true if the string is accepted by the finite state machine, otherwise false.
      */
-    runString(str: string): boolean {
-        let activeStates = this.epsilonClosure([this._startState]);
+    public runString(str: string): boolean {
+        let activeStates = NFA.epsilonClosure([this._startState]);
 
         while (str.length > 0 && activeStates.length > 0) {
             const symbol = toChar(str[0]);
@@ -97,7 +98,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
                 const transitions = state.transition(symbol);
                 nextStates.push(...transitions);
             }
-            activeStates = this.epsilonClosure(nextStates);
+            activeStates = NFA.epsilonClosure(nextStates);
         }
 
         return activeStates.some(state => this._acceptStates.has(state));
@@ -109,7 +110,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param {NFAState[]} states - The initial states for which to calculate the epsilon closure.
      * @return {NFAState[]} - An array of NFAStates representing the epsilon closure of the given states.
      */
-    public epsilonClosure(states: NFAState[]): NFAState[] {
+    public static epsilonClosure(states: NFAState[]): NFAState[] {
         const stack = [...states];
         const closureSet = new Set<NFAState>(stack);
         while (stack.length > 0) {
@@ -126,27 +127,50 @@ export class NFA extends FiniteAutomaton<NFAState> {
     }
 
     /**
-     *
-     *
-     * Convert a NFA to a DFA
+     * Returns a string representation of the NFA.
+     * @returns The string representation of the NFA.
+     */
+    public toString() {
+        let transitions:string = "";
+        this.states.forEach(state => {
+            let currState = `\n\t\tState: ${state.name}`;
+
+            for (const [input, nextStates] of state.transitions) {
+                let nextString = "";
+                nextStates.forEach(nextState => nextString += `${nextState.name}, `)
+                nextString = nextString.trim().slice(0, nextString.length-2)
+                currState += `\n\t\t\t${input} => ${nextString}`
+            }
+
+            transitions+=currState;
+        })
+
+        return super.toString(transitions);
+    }
+
+    /**
+     * Returns the machine type of the NFA. The result is always NFA.
+     */
+    get machineType(): string {
+        return "NFA";
+    }
+
+    /**
+     * Returns whether the NFA is valid.
+     */
+    isValid(): boolean {
+        return true;
+    }
+
+    /**
+     * Convert a NFA to a DFA.
+     * Conversion is done
+     * using the algorithm described by Micheal Sipser in his book "Introduction to the Theory of Computation"
      *
      * @return a DFA of the NFA using Sipper's algorithm.
      */
     public toDFA(): DFA {
-        throw new Error("Method not implemented");
-    }
-
-    /**
-     *
-     */
-    public toString(): string {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
-     *
-     */
-    isValid(): boolean {
-        return true;
+        const nfaConverter = new NFAConverter(this);
+        return nfaConverter.toDFA();
     }
 }

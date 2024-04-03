@@ -1,5 +1,6 @@
-import {char} from "../src/types";
-import {DFA, NFA} from "../src";
+import {DFA, DFABuilder, NFA} from "../src";
+import {NFABuilder} from "../src/automata/util/builders/automata/NFABuilder";
+
 /**
  * Creates a valid DFA fixture
  *
@@ -7,24 +8,22 @@ import {DFA, NFA} from "../src";
  * @return the created DFA fixture
  */
 function genericValidDFA():DFA {
-    const dfa = new DFA("ab", "start", false);
+    return new DFABuilder("ab")
+        .withNotFinalStates("start", "1", "2")
+        .withFinalStates("end")
 
-    dfa.addStates("1", "2");
-    dfa.addState("end", true);
+        .withEdges.from("start").toSelf().over("a")
+        .withEdges.from("start").to("1").over("b")
 
-    dfa.addEdge("start", 'a' as char, "start");
-    dfa.addEdge("start", 'b' as char, "1");
+        .withEdges.from("1").to("2").over("a")
+        .withEdges.from("1").toSelf().over("b")
 
-    dfa.addEdge("1", 'a' as char, "2");
-    dfa.addEdge("1", 'b' as char, "1");
+        .withEdges.from("2").to("end").over("a")
+        .withEdges.from("2").to("start").over("b")
 
-    dfa.addEdge("2", 'a' as char, "end");
-    dfa.addEdge("2", 'b' as char, "start");
-
-    dfa.addEdge("end", 'a' as char, "end");
-    dfa.addEdge("end", 'b' as char, "1");
-
-    return dfa;
+        .withEdges.from("end").toSelf().over("a")
+        .withEdges.from("end").to("1").over("b")
+        .getResult();
 }
 
 /**
@@ -34,11 +33,10 @@ function genericValidDFA():DFA {
  * @returns {DFA} - The created DFA fixture.
  */
 function genericSingleStateValidDFA():DFA {
-    const dfa = new DFA("ab", "start", false);
-    dfa.addEdge("start", 'a' as char, "start");
-    dfa.addEdge("start", 'b' as char, "start");
-
-    return dfa;
+    return new DFABuilder("ab")
+        .withNotFinalStates("start")
+        .withEdges.from("start").toSelf().over("ab")
+        .getResult()
 }
 
 /**
@@ -48,42 +46,71 @@ function genericSingleStateValidDFA():DFA {
  * @returns {DFA} The generated DFA fixture.
  */
 function genericInvalidDFA():DFA {
-    const dfa = new DFA("ab", "start", false);
+    return new DFABuilder("ab")
+        .withNotFinalStates("start", "1", "2", "3")
+        .withEdges.from("start").to("3").over("a")
+        .withEdges.from("start").to("1").over("b")
+        .withEdges.from("1").to("2").over("a")
+        .withEdges.from("2").to("start").over("b")
+        .withEdges.from("3").to("1").over("b")
+        .getResult()
+}
 
-    dfa.addStates("1", "2");
-    dfa.addState("3", true);
+function genericEpsilonNFALargerAlphabet():NFA {
+    return new NFABuilder("abcd")
+        .withNotFinalStates("start", "q1", "q3", "q4")
+        .withFinalStates("end","q2")
 
-    dfa.addEdge("start", 'a' as char, "3");
-    dfa.addEdge("start", 'b' as char, "1");
-    dfa.addEdge("1", 'a' as char, "2");
-    dfa.addEdge("2", 'b' as char, "start");
-    dfa.addEdge("3", 'b' as char, "1");
+        .withEdges.from("start").toSelf().over("a")
+        .withEdges.from("start").to("q1").epsilon()
+        .withEdges.from("start").to("q3").epsilon()
 
-    return dfa;
+        .withEdges.from("q1").to("q3").over("b")
+
+        .withEdges.from("q2").toSelf().over("c")
+        .withEdges.from("q2").to("start").epsilon()
+
+        .withEdges.from("q3").to("q4").over("c")
+        .withEdges.from("q3").to("end").over("ab")
+
+        .withEdges.from("q4").to("q2").over("d")
+        .withEdges.from("q4").to("end").over("d")
+        .withEdges.from("q4").toSelf().over("ab")
+
+        .withEdges.from("end").to("end").over("abc")
+
+        .getResult()
 }
 
 function genericEpsilonNFA():NFA {
-    const nfa = new NFA("ab", "start", false);
+    return new NFABuilder("ab")
+        .withNotFinalStates("start", "1", "11", "2", "22")
+        .withFinalStates("3","33","end")
 
-    nfa.addStates("1", "11", "2", "22")
-    nfa.addState("3", true);
-    nfa.addState("33", true);
-    nfa.addState("end", true);
+        .withEdges.from("start").to("1").epsilon()
+        .withEdges.from("start").to("11").epsilon()
+        .withEdges.from("11").to("end").epsilon()
 
-    nfa.addEpsilonEdge("start", "1");
-    nfa.addEpsilonEdge("start", "11");
-    nfa.addEpsilonEdge("11", "end");
+        .withEdges.from("1").to("2").over("a")
+        .withEdges.from("2").to("3").over("b")
 
-    nfa.addEdge("1", "a", "2");
-    nfa.addEdge("2", "b", "3");
+        .withEdges.from("11").to("22").over("b")
+        .withEdges.from("22").toSelf().over("a")
+        .withEdges.from("22").to("33").over("a")
 
-    nfa.addEdge("11", "b", "22");
-    nfa.addEdge("22", "a", "22");
-    nfa.addEdge("22", "a", "33");
-
-    nfa.addEdge("end", "b", "end");
-
-    return nfa;
+        .withEdges.from("end").toSelf().over("b")
+        .getResult()
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericInvalidDFA, genericEpsilonNFA}
+function genericNFA():NFA {
+    return new NFABuilder("ab")
+        .withNotFinalStates("start", "1", "2")
+        .withFinalStates("end")
+        .withEdges.from("start").to("1").over("a")
+        .withEdges.from("start").to("2").over("a")
+        .withEdges.from("2").toSelf().over("ab")
+        .withEdges.from("2").to("end").over("a")
+        .getResult()
+}
+
+export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA}
