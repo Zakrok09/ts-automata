@@ -1,4 +1,5 @@
 import Fixtures from "../../fixtures";
+import {describe, it, expect} from "vitest";
 
 describe("NFA to DFA converter", () => {
     it("should correctly convert NFA with no present epsilons to DFA", () => {

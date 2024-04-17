@@ -1,3 +1,5 @@
+import {describe, beforeEach, it, expect} from "vitest";
+
 import {NFA} from "../../../src";
 import Fixtures from "../../fixtures";
 

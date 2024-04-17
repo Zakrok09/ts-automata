@@ -1,3 +1,5 @@
+import {describe, beforeEach, it, expect} from "vitest";
+
 import {State} from "../../src/states/State";
 import {DFAState} from "../../src/states/RegularStates";
 
