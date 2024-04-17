@@ -6,4 +6,5 @@ import {NFA} from "./regular/NFA";
 
 import {DFABuilder, NFABuilder, AutomataBuilder, NFAConverter} from "./util";
 
-export {Alphabet, NFA, NFABuilder, DFABuilder, DFA, AutomataBuilder, NFAConverter, Automaton, FiniteAutomaton}
+export {Alphabet, NFA, NFABuilder, DFABuilder, DFA, AutomataBuilder, NFAConverter, FiniteAutomaton}
+export type {Automaton}
