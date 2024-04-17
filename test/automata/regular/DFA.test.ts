@@ -1,3 +1,5 @@
+import {describe, beforeEach, it, expect} from "vitest";
+
 import {DFA} from "../../../src";
 import {IllegalArgument, IllegalAutomatonState} from "../../../src/exceptions/exceptions";
 import Fixtures from "../../fixtures";
