@@ -10,7 +10,7 @@
     }
   },
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "module": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "type": "module",
   "files": [
@@ -38,6 +38,7 @@
     "prettier": "^3.2.5",
     "typescript": "^5.4.2",
     "vite": "^5.2.9",
+    "vite-plugin-dts": "^3.8.3",
     "vitest": "^1.5.0"
   }
 }
