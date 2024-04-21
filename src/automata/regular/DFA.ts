@@ -5,9 +5,15 @@ import {Alphabet} from "../Alphabet";
 import {FiniteAutomaton} from "./FiniteAutomaton";
 
 /**
- * Represents a deterministic finite automaton.
+ * Deterministic finite automaton.
  *
  * @extends FiniteAutomaton with DFAState.
+ * @classdesc a DFA is a 5-tuple of its states, alphabet, transition function, starting state
+ * and a set of accepting states.
+ * It has equivalent power to NFAs and GNFAs.
+ * Decides Regular languages.
+ * @link https://en.wikipedia.org/wiki/Deterministic_finite_automaton
+ * @since 0.0.1
  */
 export class DFA extends FiniteAutomaton<DFAState> {
 

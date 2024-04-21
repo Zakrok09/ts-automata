@@ -7,9 +7,15 @@ import {Alphabet} from "../Alphabet";
 import {NFAConverter} from "../util/NFAConverter";
 
 /**
- * Class representation of a non-deterministic finite automaton.
+ * Nondeterministic finite automaton.
  *
  * @extends FiniteAutomaton with NFAState.
+ * @classdesc a NFA is a 5-tuple of its states, alphabet, transition function, starting state
+ * and a set of accepting states.
+ * It has equivalent power to DFAs and GNFAs.
+ * Decides Regular languages.
+ * @link https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
+ * @since 0.1.0
  */
 export class NFA extends FiniteAutomaton<NFAState> {
 
