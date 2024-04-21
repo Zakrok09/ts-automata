@@ -85,12 +85,6 @@ export abstract class FiniteAutomaton<TState extends RegularState> extends Autom
         return this._alphabet;
     }
 
-    /**
-     * Get the type of the machine as a string.
-     * @returns The type of the automaton as a string.
-     */
-    public abstract get machineType():string;
-
 
     /**
      * Checks if the transition diagram is valid.

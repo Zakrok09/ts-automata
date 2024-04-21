@@ -4,7 +4,8 @@ import {char} from "../types";
 import {IllegalArgument} from "../exceptions/exceptions";
 
 /**
- * Represents an automaton that can execute a given string.
+ * Represents an automaton that DECIDES a language.
+ * Undecidable languages cannot be covered.
  */
 export abstract class Automaton<TState extends State> {
     protected readonly states:Map<string, TState>;
@@ -31,6 +32,20 @@ export abstract class Automaton<TState extends State> {
     public abstract addState(name:string, final?:boolean):void;
 
     /**
+     * Executes a given string.
+     *
+     * @param {string} str - The string to be executed.
+     * @return {boolean} - Returns true if the string is accepted, otherwise returns false.
+     */
+    abstract runString(str:string):boolean
+
+    /**
+     * Get the type of the machine as a string.
+     * @returns The type of the automaton as a string.
+     */
+    public abstract get machineType():string;
+
+    /**
      * Adds states to the current object.
      *
      * @param final whether all the states being added are final
@@ -38,14 +53,6 @@ export abstract class Automaton<TState extends State> {
      */
     public addStates(final:boolean, ...names:string[]) {
         names.forEach(n => this.addState(n, final));
-    }
-
-    /**
-     * Returns the set of accepting states of the DFA.
-     * @return The Set of accepting states.
-     */
-    public get acceptStates(): Set<TState> {
-        return this._acceptStates;
     }
 
     /**
@@ -88,10 +95,10 @@ export abstract class Automaton<TState extends State> {
     }
 
     /**
-     * Executes a given string.
-     *
-     * @param {string} str - The string to be executed.
-     * @return {boolean} - Returns true if the string is accepted, otherwise returns false.
+     * Returns the set of accepting states of the DFA.
+     * @return The Set of accepting states.
      */
-    abstract runString(str:string):boolean
+    public get acceptStates(): Set<TState> {
+        return this._acceptStates;
+    }
 }
