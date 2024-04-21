@@ -1,5 +1,8 @@
 import {DFA, DFABuilder, NFA} from "../src";
 import {NFABuilder} from "../src/automata/util/builders/automata/NFABuilder";
+import {PDA} from "../src/automata/context-free/PDA";
+import {PDAState} from "../src/states/PDAState";
+import {Alphabet, EPSILON} from "../src/automata";
 
 /**
  * Creates a valid DFA fixture
@@ -113,4 +116,21 @@ function genericNFA():NFA {
         .getResult()
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA}
+function genericPDA():PDA {
+    let start = new PDAState("q1")
+    start.accepting = true;
+    let pda = new PDA(Alphabet.fromString("10"), Alphabet.fromString("10$"), start)
+
+    pda.addStates(false, "q2", "q3")
+    pda.addState("q4", true)
+
+    pda.addEdge("q1", EPSILON, EPSILON, "$", "q2")
+    pda.addEdge("q2", "0", EPSILON, "0", "q2")
+    pda.addEdge("q2", "1", "0", EPSILON, "q3")
+    pda.addEdge("q3", "1", "0", EPSILON, "q3")
+    pda.addEdge("q3", EPSILON, "$", EPSILON, "q4")
+
+    return pda;
+}
+
+export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA}

@@ -46,9 +46,8 @@ export class NFA extends FiniteAutomaton<NFAState> {
      *
      * @param {string} stateName - The name of the state from which the epsilon edge originates.
      * @param {string} to - The name of the state to which the epsilon edge leads.
-     * @return {boolean} - Returns true if the epsilon edge is successfully added, false otherwise.
      */
-    public addEpsilonEdge(stateName:string, to:string):boolean {
+    public addEpsilonEdge(stateName:string, to:string):void {
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
@@ -56,7 +55,6 @@ export class NFA extends FiniteAutomaton<NFAState> {
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
 
         state.insertTransition(EPSILON, toState);
-        return true;
     }
 
     /**
