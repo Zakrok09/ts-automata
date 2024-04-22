@@ -10,6 +10,10 @@ A TypeScript/JavaScript library for managing automata.
 <h6 align="center">
 
 [![NPM Package](https://img.shields.io/npm/v/ts-automata.svg?style=flat)](https://npmjs.org/package/ts-automata "View this project on npm")
+![NPM Downloads](https://img.shields.io/npm/d18m/ts-automata)
+![GitHub License](https://img.shields.io/github/license/Zakrok09/ts-automata)
+
+
 
 </h6>
 
@@ -22,8 +26,12 @@ npm i ts-automata
 
 ## Overview
 
-Currently supported are the Deterministic and Non-deterministic finite state automata. 
-Make use of the provided TSDoc and JSDoc for each method to see 
+Currently supported are the Deterministic, Nondeterministic and Generalised nondeterministic finite state automata 
+as well as nondeterministic push-down automata.
+
+Make use of the provided TSDoc for insight on the methods. 
+
+![GitHub Repo stars](https://img.shields.io/github/stars/zakrok09/ts-automata)
 
 ## Usage
 
