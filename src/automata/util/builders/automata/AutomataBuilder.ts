@@ -1,8 +1,9 @@
 import {IllegalArgument} from "../../../../exceptions/exceptions";
 import {Automaton} from "../../../Automaton";
 import {EPSILON} from "../../../../types";
+import {State} from "../../../../states/State";
 
-export abstract class AutomataBuilder<T extends Automaton> {
+export abstract class AutomataBuilder<T extends Automaton<State>> {
     protected _stateMap:Map<string, StateBuildTuple>;
     protected readonly _edges:Edge[]
     protected readonly _alphabetString:string;

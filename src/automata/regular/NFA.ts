@@ -7,9 +7,15 @@ import {Alphabet} from "../Alphabet";
 import {NFAConverter} from "../util/NFAConverter";
 
 /**
- * Class representation of a non-deterministic finite automaton.
+ * Nondeterministic finite automaton.
  *
  * @extends FiniteAutomaton with NFAState.
+ * @classdesc a NFA is a 5-tuple of its states, alphabet, transition function, starting state
+ * and a set of accepting states.
+ * It has equivalent power to DFAs and GNFAs.
+ * Decides Regular languages.
+ * @link https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
+ * @since 0.1.0
  */
 export class NFA extends FiniteAutomaton<NFAState> {
 
@@ -46,9 +52,8 @@ export class NFA extends FiniteAutomaton<NFAState> {
      *
      * @param {string} stateName - The name of the state from which the epsilon edge originates.
      * @param {string} to - The name of the state to which the epsilon edge leads.
-     * @return {boolean} - Returns true if the epsilon edge is successfully added, false otherwise.
      */
-    public addEpsilonEdge(stateName:string, to:string):boolean {
+    public addEpsilonEdge(stateName:string, to:string):void {
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
@@ -56,7 +61,6 @@ export class NFA extends FiniteAutomaton<NFAState> {
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
 
         state.insertTransition(EPSILON, toState);
-        return true;
     }
 
     /**

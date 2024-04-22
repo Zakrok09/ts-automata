@@ -1,3 +1,3 @@
-import {DFA, NFA, DFABuilder, NFABuilder} from "./automata";
+import {DFA, NFA, PDA, DFABuilder, NFABuilder} from "./automata";
 
-export {DFA, NFA, DFABuilder, NFABuilder}
+export {DFA, NFA, PDA, DFABuilder, NFABuilder}

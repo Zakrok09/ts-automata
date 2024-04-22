@@ -8,7 +8,7 @@ type EpsiEdge = {
 }
 
 export class NFABuilder extends AutomataBuilder<NFA>{
-    private _epsilonEdges: EpsiEdge[];
+    private readonly _epsilonEdges: EpsiEdge[];
 
     constructor(alphabetString: string) {
         super(alphabetString);
