@@ -3,6 +3,7 @@ import {NFABuilder} from "../src/automata/util/builders/automata/NFABuilder";
 import {PDA} from "../src/automata/context-free/PDA";
 import {PDAState} from "../src/states/PDAState";
 import {Alphabet, EPSILON} from "../src/automata";
+import {GNFA} from "../src/automata/regular/GNFA";
 
 /**
  * Creates a valid DFA fixture
@@ -133,4 +134,18 @@ function genericPDA():PDA {
     return pda;
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA}
+function genericGNFA():GNFA {
+    let gnfa = new GNFA("ab", "start", "end")
+
+    gnfa.insertStates("q1", "q2")
+
+    gnfa.addEdge("start", "q1", EPSILON)
+    gnfa.addEdge("q1", "q1", "a")
+    gnfa.addEdge("q1", "q2", "b")
+    gnfa.addEdge("q2", "q2", "a|b")
+    gnfa.addEdge("q2", "end", EPSILON)
+
+    return gnfa;
+}
+
+export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}

@@ -148,3 +148,70 @@ export class DFAState extends State implements RegularState {
         return res;
     }
 }
+
+type StateRegexTuple = { regex:string, state:GNFAState };
+
+/**
+ * Represents a state in a Generalized Non-Deterministic Finite Automaton (GNFA).
+ */
+export class GNFAState extends State {
+    private readonly _transitions: Map<string, GNFAState>
+    private readonly _incoming: Set<StateRegexTuple>
+
+    /**
+     * Creates a new GNFAState object.
+     * @param name the name of the state.
+     */
+    constructor(name: string) {
+        super(name);
+        this._transitions = new Map<string, GNFAState>();
+        this._incoming = new Set<StateRegexTuple>();
+    }
+
+    /**
+     * Retrieves the transitions of the GNFAState.
+     *
+     * @return {Map<string, GNFAState>} The transitions of the GNFAState.
+     */
+    getInputAlphabet(): Set<string> {
+        return new Set<string>(this._transitions.keys());
+    }
+
+    /**
+     * Gives the set of characters this state accepts.
+     * These are the characters that are bound to an outgoing edge of this graph.
+     *
+     * @return {Set<char>} the char inputs this state takes without
+     * the state it reaches.
+     * Used to see what input can this state recognise
+     */
+    public insertTransition(regex: string, to: GNFAState): void {
+        this._transitions.set(regex, to);
+        if (!to._incoming.has({regex, state:this})) to._incoming.add({regex, state:this});
+    }
+
+    /**
+     * Removes a transition for this GNFAState.
+     * @param regex the input character representing the transition to remove.
+     * @param state the state to be removed (since, there can be more than one outgoing state on that input)
+     */
+    public removeTransition(regex:string, state:GNFAState):boolean {
+        state._incoming.delete({regex, state});
+        return this._transitions.delete(regex);
+    }
+
+    public getRegexForState(state:GNFAState):string {
+        for (let {regex, state: st} of this._incoming) {
+            if (st === state) return regex;
+        }
+        throw new IllegalArgument("State not found");
+    }
+
+    get incoming(): Set<StateRegexTuple> {
+        return this._incoming;
+    }
+
+    get outgoing(): Map<string, GNFAState> {
+        return this._transitions;
+    }
+}

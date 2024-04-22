@@ -1,5 +1,3 @@
-import {char} from "../types";
-
 /**
  * Represents a state in an automaton.
  */
@@ -43,14 +41,4 @@ export abstract class State {
     public set accepting(value: boolean) {
         this._accepting = value;
     }
-
-    /**
-     * Gives the set of characters this state accepts.
-     * These are the characters that are bound to an outgoing edge of this graph.
-     *
-     * @return {Set<char>} the char inputs this state takes without
-     * the state it reaches.
-     * Used to see what input can this state recognise
-     */
-    public abstract getInputAlphabet():Set<char>;
 }
