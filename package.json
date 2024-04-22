@@ -1,6 +1,6 @@
 {
   "name": "ts-automata",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Automata utility package for FSMs, PDAs, TMs in JS/TS.",
   "keywords": [
     "automata","typescript", "math",
