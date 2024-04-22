@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org"
+          node-version-file: '.nvmrc'
+          cache: 'npm'
       - run: npm ci
       - run: npm test
 
