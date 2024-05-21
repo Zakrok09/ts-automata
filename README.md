@@ -22,7 +22,7 @@ A TypeScript/JavaScript library for managing automata.
 npm i ts-automata
 ```
 
-> Check out dnbln's Agda package for Automata proofs: [https://dnbln.dev/agdomaton ](https://dnbln.dev/agdomaton)
+> **Check out dnbln's Agda package for Automata proofs: [https://dnbln.dev/agdomaton ](https://dnbln.dev/agdomaton)**
 
 ## Overview
 
