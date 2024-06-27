@@ -86,3 +86,12 @@ const dfa = new DFABuilder("ab")
     .getResult()
 ```
 _Figure 3: Creating a DFA using a `DFABuilder`._
+
+## Roadmap
+_As of 27th June 2024_
+
+1. Turing machine simulation
+2. CFG simulation and parsing
+3. WriterSide documentation
+4. GUI (out of scope for this repo)
+
