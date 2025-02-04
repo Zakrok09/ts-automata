@@ -12,6 +12,7 @@ A TypeScript/JavaScript library for managing automata.
 [![NPM Package](https://img.shields.io/npm/v/ts-automata.svg?style=flat)](https://npmjs.org/package/ts-automata "View this project on npm")
 ![NPM Downloads](https://img.shields.io/npm/d18m/ts-automata)
 ![GitHub License](https://img.shields.io/github/license/Zakrok09/ts-automata)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9987/badge)]
 
 
 
