@@ -14,8 +14,6 @@ A TypeScript/JavaScript library for managing automata.
 ![GitHub License](https://img.shields.io/github/license/Zakrok09/ts-automata)
 ![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9987/badge)
 
-
-
 </h6>
 
 
