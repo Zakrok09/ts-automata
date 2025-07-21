@@ -152,6 +152,17 @@ function mediumTM(): TM{
 
 }
 
+function simpleNDTM(): TM {
+    let start = new TMState("start");
+    start.accepting = false;
+    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
+    tm.addState("qacc", false, true);
+    tm.addState("qreject", true,false);
+    tm.addEdge("start", "a", EMPTY, 'R', "qacc");
+    tm.addEdge("start", "a", EMPTY, 'R', "qreject");
+    return tm;
+}
+
 function genericGNFA():GNFA {
     let gnfa = new GNFA("ab", "start", "end")
 
@@ -166,4 +177,4 @@ function genericGNFA():GNFA {
     return gnfa;
 }
 
-export default {mediumTM,genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}
+export default {simpleNDTM,mediumTM,genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}
