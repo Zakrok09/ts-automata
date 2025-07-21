@@ -1,13 +1,12 @@
 import {State} from "../states/State";
-import {char} from "../types";
+import {char,Move} from "../types";
 
 export type TMEdge = {
     readTape : char,
     writeTape: char,
-    move: 'L' | 'R',
-    to: String
+    move: Move,
+    to: string
 }
-export type Move = 'L' | 'R';
 
 export class TMState extends State {
     private readonly _transitions: Map<char, Set<TMEdge>>

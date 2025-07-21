@@ -6,5 +6,6 @@ import {NFA} from "./regular/NFA";
 import {DFABuilder, NFABuilder, AutomataBuilder, NFAConverter} from "./util";
 import {EPSILON} from "../types";
 import {PDA} from "./context-free/PDA";
+import {TM} from "./non-context-free/TM";
 
-export {Alphabet, NFA, NFABuilder, DFABuilder, DFA, AutomataBuilder, NFAConverter, FiniteAutomaton, Automaton, PDA, EPSILON}
+export {Alphabet, NFA, NFABuilder, DFABuilder, DFA, AutomataBuilder, NFAConverter, FiniteAutomaton, Automaton, PDA, EPSILON, TM}

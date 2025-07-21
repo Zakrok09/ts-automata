@@ -1,7 +1,7 @@
 import {Automaton} from "../../automata/Automaton";
 import {Alphabet} from "../../automata/Alphabet";
-import {toChar, EPSILON} from "../../types";
-import {TMState,Move} from "../../states/TMState";
+import {toChar, EPSILON, Move, EMPTY} from "../../types";
+import {TMState} from "../../states/TMState";
 import {IllegalArgument} from "../../exceptions/exceptions";
 
 /**
@@ -50,8 +50,8 @@ export class TM extends Automaton<TMState> {
         const toState = this.states.get(to);
 
         if (input !== EPSILON) this.testSymbolAgainstAlphabet(input);
-        if (readStack !== EPSILON) this.testSymbolAgainstAlphabet(readStack, this.tapeAlphabet)
-        if (writeStack !== EPSILON) this.testSymbolAgainstAlphabet(writeStack, this.tapeAlphabet)
+        if (readStack !== EMPTY) this.testSymbolAgainstAlphabet(readStack, this.tapeAlphabet)
+        if (writeStack !== EMPTY) this.testSymbolAgainstAlphabet(writeStack, this.tapeAlphabet)
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
 
