@@ -1,6 +1,7 @@
 import {char, EMPTY, EPSILON, toChar, Move} from "../../types";
 import {TM} from "../../automata";
 import {TMEdge, TMState} from "../../states/TMState";
+import { error } from "console";
 
 type tapeHead = number 
 type StateConfiguration = {stateName: string, tapeContents:string[], currentIndex: tapeHead};
@@ -24,17 +25,22 @@ export class TMRunner {
      */
     public runString(str: string, startState: TMState): boolean {
         let activeConfigs:StateConfiguration[] =
-            this.epsilonClosure([{stateName: startState.name, tapeContents: [], currentIndex: 0}])
+            [{stateName: startState.name, tapeContents: [...str, EMPTY], currentIndex: 0}]
 
-        while (str.length > 0 && activeConfigs.length > 0) {
-            const symbol = toChar(str[0])
-            str = str.slice(1)
+        while (activeConfigs.length > 0) {
 
-            let nextActiveConfigs = this.processNextConfigs(activeConfigs, symbol);
-            activeConfigs = this.epsilonClosure(nextActiveConfigs);
+            activeConfigs = this.processNextConfigs(activeConfigs);
+
+            if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)){
+                return true;
+            }
+            if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.rejectState)){
+                return false;
+            }
         }
 
-        return activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)
+
+        return false
     }
 
     /**
@@ -44,11 +50,11 @@ export class TMRunner {
      * @returns the set of next state configurations.
      * @private
      */
-    private processNextConfigs(activeConfigs: StateConfiguration[], symbol: char) {
+    private processNextConfigs(activeConfigs: StateConfiguration[]) {
         let nextConfigs: StateConfiguration[] = []
         for (const {stateName, tapeContents, currentIndex} of activeConfigs) {
             let state = this.tm.getState(stateName)!
-
+            let symbol = toChar(tapeContents[currentIndex]);
             state.transition(symbol).forEach(t =>
                 this.processTransition(t, tapeContents, currentIndex, nextConfigs)
             );
@@ -64,67 +70,29 @@ export class TMRunner {
      * @private
      */
     private processTransition(transition: TMEdge, tapeContents: string[], currentIndex: tapeHead, nextConfigs: StateConfiguration[]) {
-        if (transition.readTape !== EPSILON
-            && (tapeContents[tapeContents.length - 1] !== transition.readTape)) {
-            return;
-        }
+        console.log("a");
         if (currentIndex < 0 || currentIndex >= tapeContents.length) {
             throw new Error(`Current index ${currentIndex} is out of bounds for tape contents of length ${tapeContents.length}`);
         }
         let curr_state = this.tm.getState(transition.to)!
         let updatedTape = [...tapeContents]
         let updatedCurrentIndex = currentIndex;
-        if (transition.writeTape !== EPSILON) updatedTape[currentIndex] = transition.writeTape;
+        updatedTape[currentIndex] = transition.writeTape;
         updatedCurrentIndex = this.processTapeHead(updatedTape, updatedCurrentIndex, transition.move);
 
         nextConfigs.push({stateName: curr_state.name, tapeContents: updatedTape, currentIndex: updatedCurrentIndex})
     }
 
-    /**
-     * Process the epsilon closure of the given state configuration bunch.
-     * The Epsilon closure in the context of a PDA here is defined as all the states
-     * that can be reached on epsilon input - empty input.
-     * The method returns all the states reachable via epsilon edges and the stack after reaching them.
-     * @param stateConfigBunch the bunch of state configuration from which we will look for the epsilon edges.
-     * @returns all the states that are reachable via epsilon edges and the stack after reaching them.
-     */
-    public epsilonClosure(stateConfigBunch:StateConfiguration[]): StateConfiguration[] {
-        const stack:StateConfiguration[] = [...stateConfigBunch];
-        const closureStateConfigs = new Set<StateConfiguration>(stack);
-
-        while (stack.length > 0) {
-            const { stateName, tapeContents, currentIndex } = stack.pop()!;
-            let state = this.tm.getState(stateName)!
-
-            state.transition(EPSILON).forEach(e =>
-                this.processEdge(tapeContents, currentIndex, e, closureStateConfigs, stack));
-        }
-
-        return Array.from(closureStateConfigs);
-    }
+    
 
     /**
-     * Process an epsilon edge from the current state.
-     * @param tapeContents the contents of the tape at the current state.
-     * @param edge the edge we are processing
-     * @param closureStateConfigs the total closure of state configurations
-     * @param stack the stack to which we will push in case we reach a configuration we haven't
+     * Process the tape head movement based on the move direction.
+     * @param tapeContents the current contents of the tape
+     * @param currentIndex the current index of the tape head
+     * @param move the move direction (either 'R' for right or 'L' for left)
+     * @returns updated current index after processing the move.
      * @private
      */
-    private processEdge(tapeContents: string[],currentIndex:number, edge: TMEdge, closureStateConfigs: Set<StateConfiguration>, stack: StateConfiguration[]) {
-        const tapeContentsCopy = [...tapeContents]
-        if (edge.readTape === tapeContents[currentIndex]){
-            tapeContentsCopy[currentIndex] = edge.writeTape;
-        }
-        let updatedCurrentIndex = currentIndex;
-        updatedCurrentIndex = this.processTapeHead(tapeContentsCopy, updatedCurrentIndex, edge.move);
-
-        let instance = {stateName: edge.to, tapeContents: tapeContentsCopy, currentIndex: updatedCurrentIndex};
-        if (!closureStateConfigs.has(instance)) {
-            closureStateConfigs.add(instance);
-            stack.push(instance)
-        }
-    }
     private processTapeHead(tapeContents:string[], currentIndex:tapeHead, move: Move){
         if (move === 'R') {
             if (currentIndex == tapeContents.length - 1) tapeContents.push(EMPTY);

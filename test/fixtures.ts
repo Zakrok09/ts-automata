@@ -2,9 +2,10 @@ import {DFA, DFABuilder, NFA} from "../src";
 import {NFABuilder} from "../src/automata/util/builders/automata/NFABuilder";
 import {PDA} from "../src/automata/context-free/PDA";
 import {PDAState} from "../src/states/PDAState";
-import {Alphabet, EPSILON} from "../src/automata";
+import {Alphabet, EPSILON, EMPTY} from "../src/automata";
 import {GNFA} from "../src/automata/regular/GNFA";
-
+import {TM} from "../src/automata/non-context-free/TM";
+import { TMState } from "../src/states/TMState";
 /**
  * Creates a valid DFA fixture
  *
@@ -133,6 +134,23 @@ function genericPDA():PDA {
 
     return pda;
 }
+// The language of words that do not have 2 a’s directly following each other.
+function mediumTM(): TM{
+    let start = new TMState("start");
+    start.accepting = false;
+    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
+    tm.addState("qacc",false,true);
+    tm.addState("middle",false,false);
+    tm.addEdge("start","a",EMPTY,'L',"start");
+    tm.addEdge("start","b","b",'R',"start");
+    tm.addEdge("start",EMPTY,EMPTY,'R',"middle");
+    tm.addEdge("middle","a","a",'L',"start");
+    tm.addEdge("middle","b","b",'R',"start");
+    tm.addEdge("middle",EMPTY,EMPTY,'R',"qacc");
+
+    return tm;
+
+}
 
 function genericGNFA():GNFA {
     let gnfa = new GNFA("ab", "start", "end")
@@ -148,4 +166,4 @@ function genericGNFA():GNFA {
     return gnfa;
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}
+export default {mediumTM,genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}

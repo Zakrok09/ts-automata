@@ -3,6 +3,7 @@ import {Alphabet} from "../../automata/Alphabet";
 import {toChar, EPSILON, Move, EMPTY} from "../../types";
 import {TMState} from "../../states/TMState";
 import {IllegalArgument} from "../../exceptions/exceptions";
+import { TMRunner } from "../util/TMRunner";
 
 /**
  * Turing machine.
@@ -17,7 +18,7 @@ export class TM extends Automaton<TMState> {
         this.tapeAlphabet = tapeAlphabet;
     }
     runString(str: string): boolean {
-        throw new Error("Method not implemented.");
+        return new TMRunner(this).runString(str, this._startState);
     }
     public get machineType(): string {
         return "TM";
@@ -30,8 +31,16 @@ export class TM extends Automaton<TMState> {
      * @param final whether the added state should be accepting.
      * Defaults to false
      */
-    addState(name: string, final?: boolean): void {
-        super.insertState(new TMState(name), final);
+    addState(name: string,rejectState? : boolean, final?: boolean): void {
+        super.insertState(new TMState(name, rejectState), final);
+        // check there is one accepting state
+        if (Array.from(this.states.values()).filter(s => s.accepting).length > 1) {
+            throw new IllegalArgument("There can only be one accepting state in a Turing machine!");
+        }
+        // check there is one reject state
+        if (Array.from(this.states.values()).filter(s => s.rejectState).length > 1) {
+            throw new IllegalArgument("There can only be at most one reject state in a Turing machine!");
+        }
     }
     /**
      * Verify inputs.
@@ -39,23 +48,25 @@ export class TM extends Automaton<TMState> {
      * @throws IllegalArgument to an illegal inputs on either read, write, to or state names.
      * @private
      */
-    private verifyInputsAndStates(verify:{stateName: string, inputStr: string, readStr: string, writeStr: string, move: Move, to: string}) {
-        let {inputStr, readStr, writeStr, stateName, move, to} = verify
+    private verifyInputsAndStates(verify:{stateName: string, inputStr: string, writeStr: string, move: Move, to: string}) {
+        let {inputStr, writeStr, stateName, move, to} = verify
         if (inputStr.length !== 1) throw new IllegalArgument("Input longer than 1 ")
 
         let input = toChar(inputStr)
-        let readStack = toChar(readStr)
         let writeStack = toChar(writeStr)
         const state = this.states.get(stateName);
         const toState = this.states.get(to);
 
-        if (input !== EPSILON) this.testSymbolAgainstAlphabet(input);
-        if (readStack !== EMPTY) this.testSymbolAgainstAlphabet(readStack, this.tapeAlphabet)
+        if (input !== EMPTY) this.testSymbolAgainstAlphabet(input);
         if (writeStack !== EMPTY) this.testSymbolAgainstAlphabet(writeStack, this.tapeAlphabet)
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
+        if (state.rejectState) throw new IllegalArgument(`State ${stateName} is a reject state and cannot have transitions!`);
+        if (state.accepting) throw new IllegalArgument(`State ${stateName} is an accepting state and cannot have transitions!`);
 
-        return {input, readStack, writeStack, state, move,toState}
+
+
+        return {input, writeStack, state, move,toState}
     }
 
     /**
@@ -69,11 +80,11 @@ export class TM extends Automaton<TMState> {
      * if the input character is not part of the alphabet or is longer than a char,
      * the given state does not exist or the destination state does not exist.
      */
-    public addEdge(stateName:string, inputStr:string, readStr:string, writeStr:string, move : Move, to: string):void {
-        let {input, readStack, writeStack, state, toState}
-            = this.verifyInputsAndStates({stateName, inputStr, readStr, writeStr,move, to})
+    public addEdge(stateName:string, inputStr:string, writeStr:string, move : Move, to: string):void {
+        let {input, writeStack, state, toState}
+            = this.verifyInputsAndStates({stateName, inputStr, writeStr,move, to})
 
-        state.insertTransition(input, readStack, writeStack, move, toState.name);
+        state.insertTransition(input, writeStack, move, toState.name);
     }
     /**
      * Remove an edge from the nondeterministic push-down automaton.
@@ -86,11 +97,11 @@ export class TM extends Automaton<TMState> {
      * if the input character is not part of the alphabet or is longer than a char,
      * the given state does not exist or the destination state does not exist.
      */
-    public removeEdge(stateName:string, inputStr:string, readStr:string, writeStr:string, move : Move, to:string):boolean {
-        let {input, readStack, writeStack, state, toState}
-            = this.verifyInputsAndStates({stateName, inputStr, readStr, writeStr, move,to})
+    public removeEdge(stateName:string, inputStr:string, writeStr:string, move : Move, to:string):boolean {
+        let {input, writeStack, state, toState}
+            = this.verifyInputsAndStates({stateName, inputStr,  writeStr, move,to})
 
-        return state.removeTransition(input, readStack, writeStack, move, toState.name)
+        return state.removeTransition(input, writeStack, move, toState.name)
     }
 
 
