@@ -24,8 +24,9 @@ export class TMRunner {
      * @return true iff the string was accepted.
      */
     public runString(str: string, startState: TMState): boolean {
+        console.log("Running TM with string: ", str);
         let activeConfigs:StateConfiguration[] =
-            [{stateName: startState.name, tapeContents: [...str, EMPTY], currentIndex: 0}]
+            [{stateName: startState.name, tapeContents: [...str,EMPTY], currentIndex: 0}]
 
         while (activeConfigs.length > 0) {
 
@@ -34,9 +35,7 @@ export class TMRunner {
             if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)){
                 return true;
             }
-            if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.rejectState)){
-                return false;
-            }
+            
         }
 
 
@@ -59,6 +58,7 @@ export class TMRunner {
                 this.processTransition(t, tapeContents, currentIndex, nextConfigs)
             );
         }
+        console.log("Next configs: ", nextConfigs);
         return nextConfigs;
     }
 
