@@ -14,7 +14,7 @@ type StateConfiguration = {stateName: string, stackContents:string[]};
  * @extends Automaton with PDAState.
  * @classdesc a PDA is a 6-tuple of its states, input alphabet, stack alphabet, transition function, starting state
  * and a set of accepting states.
- * It has equivalent power to DFAs and GNFAs.
+ * It is more powerful compared to DFAs and GNFAs.
  * Decides Context-free languages.
  * @link https://en.wikipedia.org/wiki/Pushdown_automaton
  * @since 0.5.0
