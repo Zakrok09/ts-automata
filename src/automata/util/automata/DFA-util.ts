@@ -34,7 +34,7 @@ export class DFAUtil extends AutomatonUtil<DFAState> {
      */
     public isLanguageEmpty(): boolean {
         let visited = this.dfs();
-        return Array.from(visited).some(state => state.accepting);
+        return Array.from(visited).every(state => !state.accepting);
     }
     /**
      * Checks if the language of the DFA contains all strings(sigma star).

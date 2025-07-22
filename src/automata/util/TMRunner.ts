@@ -30,7 +30,6 @@ export class TMRunner {
             [{stateName: startState.name, tapeContents: [...str,EMPTY], currentIndex: 0}]
 
         while (activeConfigs.length > 0) {
-            console.log("Active configurations: ", activeConfigs);
 
             activeConfigs = this.processNextConfigs(activeConfigs);
             if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)){
