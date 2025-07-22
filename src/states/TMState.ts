@@ -9,20 +9,15 @@ export type TMEdge = {
 
 export class TMState extends State {
     private readonly _transitions: Map<char, Set<TMEdge>>
-    private readonly _rejectState : boolean = false;
-    constructor(name: string, rejectState?: boolean) {
+    constructor(name: string) {
         super(name);
         this._transitions = new Map<char, Set<TMEdge>>();
-        this._rejectState = rejectState ?? false;
     }
 
     get transitions(): Map<char, Set<TMEdge>> {
         return this._transitions;
     }
 
-    get rejectState(): boolean {
-        return this._rejectState;
-    }
 
     public insertTransition(input: char,  writeTape: char, move: Move, to: string): void {
         let bucket = this._transitions.get(input);

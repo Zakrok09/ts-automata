@@ -6,6 +6,7 @@ import {Alphabet, EPSILON, EMPTY} from "../src/automata";
 import {GNFA} from "../src/automata/regular/GNFA";
 import {TM} from "../src/automata/non-context-free/TM";
 import { TMState } from "../src/states/TMState";
+import {TMBuilder} from "../src/automata/util/builders/automata/TMBuilder";
 /**
  * Creates a valid DFA fixture
  *
@@ -141,8 +142,8 @@ function mediumTM(): TM{
     let start = new TMState("start");
     start.accepting = false;
     let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
-    tm.addState("qacc",false,true);
-    tm.addState("middle",false,false);
+    tm.addState("qacc",true);
+    tm.addState("middle",false);
     tm.addEdge("start","a",EMPTY,'L',"start");
     tm.addEdge("start","b","b",'R',"start");
     tm.addEdge("start",EMPTY,EMPTY,'R',"middle");
@@ -157,14 +158,12 @@ function mediumTM(): TM{
 function simpleNDTM(): TM {
     // Recognizes the language of words with that start with "a".
     // Image of TM in : https://imgur.com/a/uEUgDq2
-    let start = new TMState("start");
-    start.accepting = false;
-    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
-    tm.addState("qacc", false, true);
-    tm.addState("qreject", true,false);
-    tm.addEdge("start", "a", EMPTY, 'R', "qacc");
-    tm.addEdge("start", "a", EMPTY, 'R', "qreject");
-    return tm;
+    return new TMBuilder("ab", "ab")
+            .withNotFinalStates("start", "q1")
+            .withFinalStates("q2")
+            .withEdges.from("start").to("q1").over("aaL")
+            .withEdges.from("start").to("q2").over("aaL")
+            .getResult();
 }
 
 function equalAandB() : TM {
@@ -176,11 +175,13 @@ function equalAandB() : TM {
     start.accepting = false;
     let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("abXS"), start);
     
-    tm.addState("q4", false, true);
-    tm.addState("q0", false, false);
-    tm.addState("q1", false, false);
-    tm.addState("q2", false, false);
-    tm.addState("q3", false, false);
+    tm.addState("q4", true);
+    tm.addState("q0", false);
+    tm.addState("q1", false);
+    tm.addState("q2", false);
+    tm.addState("q3", false);
+
+
     tm.addEdge("q0","X","X",'R',"q0")
     tm.addEdge("q0",EMPTY,EMPTY,'R',"q4")
     tm.addEdge("q0","a","X",'R',"q1")

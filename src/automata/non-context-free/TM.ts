@@ -35,15 +35,11 @@ export class TM extends Automaton<TMState> {
      * @param final whether the added state should be accepting.
      * Defaults to false
      */
-    addState(name: string,rejectState? : boolean, final?: boolean): void {
-        super.insertState(new TMState(name, rejectState), final);
+    addState(name: string, final?: boolean): void {
+        super.insertState(new TMState(name), final);
         // check there is one accepting state
         if (Array.from(this.states.values()).filter(s => s.accepting).length > 1) {
             throw new IllegalArgument("There can only be one accepting state in a Turing machine!");
-        }
-        // check there is one reject state
-        if (Array.from(this.states.values()).filter(s => s.rejectState).length > 1) {
-            throw new IllegalArgument("There can only be at most one reject state in a Turing machine!");
         }
     }
     /**
@@ -65,7 +61,6 @@ export class TM extends Automaton<TMState> {
         this.testSymbolAgainstAlphabet(writeStack, this.tapeAlphabet)
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
-        if (state.rejectState) throw new IllegalArgument(`State ${stateName} is a reject state and cannot have transitions!`);
         if (state.accepting) throw new IllegalArgument(`State ${stateName} is an accepting state and cannot have transitions!`);
 
 
@@ -76,12 +71,11 @@ export class TM extends Automaton<TMState> {
     /**
      * Add an edge to the nondeterministic push-down automaton.
      * @param stateName the name of the state from which the edge goes.
-     * @param inputStr the input of the edge (must be a single char)
-     * @param readStr what should be read from the stack (epsilon for nothing)
-     * @param writeStr what should be written to the stack (epsilon for nothing)
+     * @param inputStr the input of the edge (must be a single char) read from the tape
+     * @param writeStr what should be written to the stack
      * @param to the destination state or where the edge goes
      * @throws IllegalArgument throws an error
-     * if the input character is not part of the alphabet or is longer than a char,
+     * if the input character is not part of the tape alphabet or is longer than a char,
      * the given state does not exist or the destination state does not exist.
      */
     public addEdge(stateName:string, inputStr:string, writeStr:string, move : Move, to: string):void {
@@ -93,8 +87,7 @@ export class TM extends Automaton<TMState> {
     /**
      * Remove an edge from the nondeterministic push-down automaton.
      * @param stateName the name of the state from which the edge goes.
-     * @param inputStr the input of the edge (must be a single char)
-     * @param readStr what should be read from the stack (epsilon for nothing)
+     * @param inputStr the input of the edge (must be a single char) read from the tape
      * @param writeStr what should be written to the stack (epsilon for nothing)
      * @param to the destination state or where the edge goes
      * @throws IllegalArgument throws an error

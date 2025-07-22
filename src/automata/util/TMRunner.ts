@@ -30,9 +30,9 @@ export class TMRunner {
             [{stateName: startState.name, tapeContents: [...str,EMPTY], currentIndex: 0}]
 
         while (activeConfigs.length > 0) {
+            console.log("Active configurations: ", activeConfigs);
 
             activeConfigs = this.processNextConfigs(activeConfigs);
-
             if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)){
                 return true;
             }
@@ -46,7 +46,6 @@ export class TMRunner {
     /**
      * Process the next configs given the symbol and the current active configurations
      * @param activeConfigs the current active configurations
-     * @param symbol the symbol on which we will be going further in the TM
      * @returns the set of next state configurations.
      * @private
      */
@@ -59,7 +58,6 @@ export class TMRunner {
                 this.processTransition(t, tapeContents, currentIndex, nextConfigs)
             );
         }
-        console.log("Next configs: ", nextConfigs);
         return nextConfigs;
     }
 
@@ -67,11 +65,11 @@ export class TMRunner {
      * Process the next transition on that symbol
      * @param transition the transition to process
      * @param tapeContents the current contents of the tape
+     * @param currentIndex the current index of the tape head
      * @param nextConfigs pointer to the next configs which will be pointed.
      * @private
      */
     private processTransition(transition: TMEdge, tapeContents: string[], currentIndex: tapeHead, nextConfigs: StateConfiguration[]) {
-        console.log("a");
         if (currentIndex < 0 || currentIndex >= tapeContents.length) {
             throw new Error(`Current index ${currentIndex} is out of bounds for tape contents of length ${tapeContents.length}`);
         }
