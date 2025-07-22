@@ -20,6 +20,6 @@ export abstract class AutomatonUtil<TState extends State> {
     public equal(other:  Automaton<TState>): boolean {
         return false; // Placeholder for actual implementation
     }
-     
+    
 
 }

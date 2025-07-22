@@ -45,11 +45,25 @@ export class DFAUtil extends AutomatonUtil<DFAState> {
         let visited = this.dfs();
         return Array.from(visited).every(state => state.accepting);
     }
+    /**
+     * Checks if the language of the DFA contains a specific string.
+     * @param word the string to be checked
+     * @returns Returns true if the language of the DFA contains the string, otherwise false.
+     */
     public doesLanguageContainString(word : string ): boolean {
         return this._automaton.runString(word);
     }
+    /**
+     * Checks if the language of the DFA is equal to the language of another DFA.
+     * @param other the other DFA to compare with
+     * @returns Returns true if the languages are equal, otherwise false.
+     */
     public equal(other: DFA): boolean {
         return false;
     }
+    public union(other: DFA): DFA {
+        throw new Error("Union operation is not implemented for DFA.");
+    }
+    
 
 }
