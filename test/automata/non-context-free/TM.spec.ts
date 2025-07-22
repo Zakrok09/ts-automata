@@ -1,6 +1,7 @@
 import {describe, it, expect, beforeEach} from "vitest";
 import {TM} from "../../../src/automata/non-context-free/TM";
 import Fixtures from "../../fixtures";
+import {EMPTY,EPSILON} from "../../../src/types";
 
 
 
@@ -71,5 +72,14 @@ describe("TM: Running string on Equal a's and b's", () => {
         expect(tm.runString("aaaaaaaaabbbbbbbb")).toBe(false);
         expect(tm.runString("bababababaa")).toBe(false);
 
+    })
+    it("Throws Exception on illegal input", () => {  
+        expect(() => tm.runString("aabc")).toThrowError("c is not part of the alphabet of this finite automaton");
+        expect(() => tm.runString("aaaebb")).toThrowError("e is not part of the alphabet of this finite automaton");
+        expect(() => tm.runString("aabbb"+EMPTY)).toThrowError(`${EMPTY} is not part of the alphabet of this finite automaton`);
+        expect(() => tm.runString("aaaaaaabbbbbbbb"+EPSILON)).toThrowError(`${EPSILON} is not part of the alphabet of this finite automaton`);
+        expect(() => tm.runString("Aa")).toThrowError(`A is not part of the alphabet of this finite automaton`);
+        expect(() => tm.runString("ab0")).toThrowError(`0 is not part of the alphabet of this finite automaton`);
+        expect(() => tm.runString("ab"+EMPTY)).toThrowError(`${EMPTY} is not part of the alphabet of this finite automaton`);
     })
 })

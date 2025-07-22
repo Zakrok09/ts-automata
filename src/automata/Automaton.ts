@@ -75,7 +75,7 @@ export abstract class Automaton<TState extends State> {
      * @throws IllegalArgument if the symbol is not part of the alphabet
      */
     public testSymbolAgainstAlphabet(input:char, alphabet: Alphabet = this._alphabet){
-        if(!alphabet.has(input)) throw new IllegalArgument(`${input} is not part fo the alphabet of this finite automaton`)
+        if(!alphabet.has(input)) throw new IllegalArgument(`${input} is not part of the alphabet of this finite automaton`)
     }
 
     /**
