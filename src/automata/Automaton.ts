@@ -10,7 +10,7 @@ import {IllegalArgument} from "../exceptions/exceptions";
 export abstract class Automaton<TState extends State> {
     protected readonly states:Map<string, TState>;
     protected readonly _alphabet:Alphabet;
-    protected readonly _startState:TState;
+    public readonly _startState:TState;
     protected readonly _acceptStates:Set<TState>
 
     protected constructor(alphabet: Alphabet, startState:TState) {
@@ -21,7 +21,6 @@ export abstract class Automaton<TState extends State> {
         this._startState = startState;
         this.states.set(startState.name, startState);
     }
-
     /**
      * Add state method. Each automata class shall implement its own logic of adding states.
      *
