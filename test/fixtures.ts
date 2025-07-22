@@ -163,6 +163,46 @@ function simpleNDTM(): TM {
     return tm;
 }
 
+function equalAandB() : TM {
+    // Recognizes the language of words with equal number of a's and b's.
+    // TM from : https://www.geeksforgeeks.org/theory-of-computation/design-a-turing-machine-for-equal-number-of-as-and-bs/
+    // Changed Slightly because of the fixed tape on the left.
+    // Image of TM in : fixtures-figures\non-context-free\Fig-equalAandB.png
+    let start = new TMState("q5");
+    start.accepting = false;
+    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("abXS"), start);
+    
+    tm.addState("q4", false, true);
+    tm.addState("q0", false, false);
+    tm.addState("q1", false, false);
+    tm.addState("q2", false, false);
+    tm.addState("q3", false, false);
+    tm.addEdge("q0","X","X",'R',"q0")
+    tm.addEdge("q0",EMPTY,EMPTY,'R',"q4")
+    tm.addEdge("q0","a","X",'R',"q1")
+    tm.addEdge("q0","b","X",'R',"q2")
+
+    tm.addEdge("q1","a","a",'R',"q1")
+    tm.addEdge("q1","X","X",'R',"q1")
+    tm.addEdge("q1","b","X",'L',"q3")
+
+    tm.addEdge("q2","b","b",'R',"q2")
+    tm.addEdge("q2","X","X",'R',"q2")
+    tm.addEdge("q2","a","X",'L',"q3")
+
+    tm.addEdge("q3","X","X",'L',"q3")
+    tm.addEdge("q3","a","a",'L',"q3")
+    tm.addEdge("q3","b","b",'L',"q3")
+    tm.addEdge("q3","S","S",'R',"q0")
+
+    tm.addEdge("q5","a","S",'R',"q1")
+    tm.addEdge("q5","b","S",'R',"q2")
+    tm.addEdge("q5",EMPTY,EMPTY,'R',"q4")
+
+
+    return tm;
+}
+
 function genericGNFA():GNFA {
     let gnfa = new GNFA("ab", "start", "end")
 
@@ -177,4 +217,4 @@ function genericGNFA():GNFA {
     return gnfa;
 }
 
-export default {simpleNDTM,mediumTM,genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}
+export default {equalAandB,simpleNDTM,mediumTM,genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}

@@ -27,7 +27,6 @@ describe("TM: Running string on TM-medium", () => {
 describe("TM: Running string on NDTM-simple", () => {
 
     let tm:TM;
-    // THIS TM doesn't halt if it doesn't accept the string.
     tm = Fixtures.simpleNDTM();
     it("simple tests", () => {
 
@@ -37,11 +36,40 @@ describe("TM: Running string on NDTM-simple", () => {
         expect(tm.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
         expect(tm.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
         expect(tm.runString("abbbbbbbbbbbbbbbbbba")).toBe(true);
-
-
-
-
-        
     })
 
+})
+
+describe("TM: Running string on Equal a's and b's", () => {
+    let tm:TM;
+    // THIS TM doesn't halt if it doesn't accept the string.
+    tm = Fixtures.equalAandB();
+    it("general case- TRUE", () => {
+
+        expect(tm.runString("")).toBe(true);
+        expect(tm.runString("ab")).toBe(true);
+        expect(tm.runString("abab")).toBe(true);
+        expect(tm.runString("aabb")).toBe(true);
+        expect(tm.runString("aaabbb")).toBe(true);
+        expect(tm.runString("aaaabbbb")).toBe(true);
+        expect(tm.runString("aaaaabbbbb")).toBe(true);
+        expect(tm.runString("aaaaaaabbbbbbb")).toBe(true);
+        expect(tm.runString("aaaaaaaabbbbbbbb")).toBe(true);
+        expect(tm.runString("bababababa")).toBe(true);
+
+    })
+    it("general case- FALSE", () => {
+        expect(tm.runString("b")).toBe(false);
+        expect(tm.runString("a")).toBe(false);
+        expect(tm.runString("abb")).toBe(false);
+        expect(tm.runString("abaab")).toBe(false);
+        expect(tm.runString("aabbb")).toBe(false);
+        expect(tm.runString("aababbb")).toBe(false);
+        expect(tm.runString("aaaaabbbb")).toBe(false);
+        expect(tm.runString("aaabaabbbbb")).toBe(false);
+        expect(tm.runString("aaabaaaabbbbbbb")).toBe(false);
+        expect(tm.runString("aaaaaaaaabbbbbbbb")).toBe(false);
+        expect(tm.runString("bababababaa")).toBe(false);
+
+    })
 })

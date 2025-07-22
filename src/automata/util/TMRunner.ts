@@ -25,6 +25,7 @@ export class TMRunner {
      */
     public runString(str: string, startState: TMState): boolean {
         console.log("Running TM with string: ", str);
+        str.split("").forEach(c => this.tm.testSymbolAgainstAlphabet(toChar(c), this.tm.tapeAlphabet));
         let activeConfigs:StateConfiguration[] =
             [{stateName: startState.name, tapeContents: [...str,EMPTY], currentIndex: 0}]
 

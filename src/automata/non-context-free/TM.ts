@@ -11,17 +11,21 @@ import { TMRunner } from "../util/TMRunner";
  */
 export class TM extends Automaton<TMState> {
 
-    private readonly tapeAlphabet: Alphabet
+    private readonly _tapeAlphabet: Alphabet
 
     public constructor(alphabet: Alphabet, tapeAlphabet : Alphabet , startState: TMState) {
         super(alphabet, startState);
-        this.tapeAlphabet = tapeAlphabet;
+        this._tapeAlphabet = tapeAlphabet;
+        this._tapeAlphabet.addChar(EMPTY);
     }
     runString(str: string): boolean {
         return new TMRunner(this).runString(str, this._startState);
     }
     public get machineType(): string {
         return "TM";
+    }
+    public get tapeAlphabet(): Alphabet {
+        return this._tapeAlphabet;
     }
     
 
@@ -57,8 +61,8 @@ export class TM extends Automaton<TMState> {
         const state = this.states.get(stateName);
         const toState = this.states.get(to);
 
-        if (input !== EMPTY) this.testSymbolAgainstAlphabet(input);
-        if (writeStack !== EMPTY) this.testSymbolAgainstAlphabet(writeStack, this.tapeAlphabet)
+        this.testSymbolAgainstAlphabet(input, this.tapeAlphabet);
+        this.testSymbolAgainstAlphabet(writeStack, this.tapeAlphabet)
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
         if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
         if (state.rejectState) throw new IllegalArgument(`State ${stateName} is a reject state and cannot have transitions!`);
