@@ -134,8 +134,10 @@ function genericPDA():PDA {
 
     return pda;
 }
-// The language of words that do not have 2 a’s directly following each other.
 function mediumTM(): TM{
+    // The language of words that do not have 2 a’s directly following each other.
+    // Image of TM in : fixtures-figures\non-context-free\Fig-mediumTM.png
+    // This TM doesn't halt if it doesn't accept the string.
     let start = new TMState("start");
     start.accepting = false;
     let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
@@ -153,6 +155,8 @@ function mediumTM(): TM{
 }
 
 function simpleNDTM(): TM {
+    // Recognizes the language of words with that start with "a".
+    // Image of TM in : fixtures-figures\non-context-free\Fig-simpleNDTM.png
     let start = new TMState("start");
     start.accepting = false;
     let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
