@@ -136,7 +136,7 @@ function genericPDA():PDA {
 }
 function mediumTM(): TM{
     // The language of words that do not have 2 a’s directly following each other.
-    // Image of TM in : fixtures-figures\non-context-free\Fig-mediumTM.png
+    // Image of TM in : https://imgur.com/a/LpS5aI3
     // This TM doesn't halt if it doesn't accept the string.
     let start = new TMState("start");
     start.accepting = false;
@@ -156,7 +156,7 @@ function mediumTM(): TM{
 
 function simpleNDTM(): TM {
     // Recognizes the language of words with that start with "a".
-    // Image of TM in : fixtures-figures\non-context-free\Fig-simpleNDTM.png
+    // Image of TM in : https://imgur.com/a/uEUgDq2
     let start = new TMState("start");
     start.accepting = false;
     let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
@@ -171,7 +171,7 @@ function equalAandB() : TM {
     // Recognizes the language of words with equal number of a's and b's.
     // TM from : https://www.geeksforgeeks.org/theory-of-computation/design-a-turing-machine-for-equal-number-of-as-and-bs/
     // Changed Slightly because of the fixed tape on the left.
-    // Image of TM in : fixtures-figures\non-context-free\Fig-equalAandB.png
+    // Image of TM in : https://imgur.com/a/wwwa56I
     let start = new TMState("q5");
     start.accepting = false;
     let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("abXS"), start);

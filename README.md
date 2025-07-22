@@ -66,7 +66,7 @@ _Figure 1: The code for the deterministic finite automaton D._
 
 ![There are three stares: q0, q1 and q2
 q0 is the starting state
-q2 is the only accepting state](https://i.imgur.com/pRuPlEv.jpeg "Image of the DFA described in the code abov")
+q2 is the only accepting state](https://imgur.com/a/srhJ8Jo.png "Image of the DFA described in the code abov")
 _Figure 2: Visual representation of D._
 
 This can also be done using the helpful `DFABuilder`:
