@@ -2,22 +2,21 @@ import { State } from "../../../states/State";
 import { Automaton } from "../../../automata/Automaton";
 
 export abstract class AutomatonUtil<T extends Automaton<State>> {
-    protected readonly _automaton: T;
-    public constructor(automaton: T) {
-        this._automaton = automaton;
+    public constructor() {
+        
     }
 
-    public isLanguageEmpty(): boolean {
+    public isLanguageEmpty(automaton : T): boolean {
         return false; // Placeholder for actual implementation
     }
-    public isLanguageAllStrings(): boolean {
+    public isLanguageAllStrings(automaton : T): boolean {
         return false; // Placeholder for actual implementation
     }
-    public doesLanguageContainString(word : string): boolean {
+    public doesLanguageContainString(automaton : T,word : string): boolean {
         return false; // Placeholder for actual implementation
     }
     // Checks if two automata reconize the same language.
-    public equal(other:  T): boolean {
+    public equal(automaton : T, other:  T): boolean {
         return false; // Placeholder for actual implementation
     }
     

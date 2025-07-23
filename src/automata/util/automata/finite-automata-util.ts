@@ -2,17 +2,18 @@ import { Automaton } from "../../../automata/Automaton";
 import { State } from "../../../states/State";
 import { AutomatonUtil } from "./automata-util";
 export abstract class RegularAutomatonUtil<T extends Automaton<State>> extends AutomatonUtil<T> {
-    protected _automaton: T;
 
-    constructor(automaton: T) {
-        super(automaton);
-        this._automaton = automaton;
+    constructor() {
+        super()
     }
-    public union(other: T): T {
+    public union(automaton : T,other: T): T {
         throw new Error("Method 'union' not implemented.");
     }
-    public intersection(other: T): T {
+    public intersection(automaton : T,other: T): T {
         throw new Error("Method 'intersection' not implemented.");
+    }
+    public negation(automaton: T){
+        throw new Error("Method 'negation' not implement.")
     }
     
     protected nameSeperator(name : string) : string[] {

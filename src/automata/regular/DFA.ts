@@ -121,6 +121,12 @@ export class DFA extends FiniteAutomaton<DFAState> {
 
         return super.toString(transitions);
     }
+    public copy(){
+        let newDFA = new DFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
+        this.states.forEach(state => newDFA.addState(state.name,state.accepting))
+        this.states.forEach(state => state.transitions.entries().forEach(([sym,to]) => newDFA.addEdge(state.name,sym,to.name)))
+        return newDFA;
+    }
 
     /**
      * Returns the machine type of the DFA. The result is always DFA.

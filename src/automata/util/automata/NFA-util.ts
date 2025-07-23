@@ -9,16 +9,16 @@ import {DFAUtil} from "./DFA-util";
 import { off } from "process";
 export class NFAUtil extends AutomatonUtil<NFA> {
 
-    constructor(automaton: NFA) {
-        super(automaton);
+    constructor() {
+        super();
     }
     /**
      * Performs a depth-first search to find all states reachable from the start state.
      * @returns Returns a set of all states reachable from the start state.
      */
-    private dfs() : Set<NFAState> {
+    private dfs(automaton :NFA) : Set<NFAState> {
         let stack: NFAState[] = [];
-        stack.push(this._automaton._startState);
+        stack.push(automaton._startState);
         let visited : Set<NFAState> = new Set<NFAState>();
         // Perform a depth-first search to check if there is any accepting state reachable from the start state.
         // If we find an accepting state, the language is not empty.
@@ -37,8 +37,8 @@ export class NFAUtil extends AutomatonUtil<NFA> {
      * A DFA's language is empty if there are no accepting states reachable from the start state
      * @returns Returns true if the language of the DFA is empty, otherwise false.
      */
-    public isLanguageEmpty(): boolean {
-        let visited = this.dfs();
+    public isLanguageEmpty(automaton : NFA ): boolean {
+        let visited = this.dfs(automaton);
         return Array.from(visited).every(state => !state.accepting);
     }
     /**
@@ -46,17 +46,17 @@ export class NFAUtil extends AutomatonUtil<NFA> {
      * A DFA's language contains all strings if all states reachable from the start are accepting state.
      * @returns Returns true if the language of the DFA contains all strings, otherwise false.
      */
-    public isLanguageAllStrings(): boolean {
-        let transformedToDFA = new NFAConverter(this._automaton).toDFA();
-        return new DFAUtil(transformedToDFA).isLanguageAllStrings();
+    public isLanguageAllStrings(automaton: NFA, dfaUtil = new DFAUtil()): boolean {
+        let transformedToDFA = new NFAConverter(automaton).toDFA();
+        return dfaUtil.isLanguageAllStrings(transformedToDFA);
     }
     /**
      * Checks if the language of the DFA contains a specific string.
      * @param word the string to be checked
      * @returns Returns true if the language of the DFA contains the string, otherwise false.
      */
-    public doesLanguageContainString(word : string ): boolean {
-        return this._automaton.runString(word);
+    public doesLanguageContainString(automaton : NFA, word : string ): boolean {
+        return automaton.runString(word);
     }
     /**
      * Checks if the language of the DFA is equal to the language of another DFA.
@@ -64,20 +64,22 @@ export class NFAUtil extends AutomatonUtil<NFA> {
      * @returns Returns true if the languages are equal, otherwise false.
      */
     public equal(other: NFA): boolean {
-        return false;
+        let symmetricDifference = this.negation(this.intersection(automaton,other))
+        let unionOfBoth = this.union(automaton,other)
+        return this.isLanguageEmpty(this.intersection(symmetricDifference,unionOfBoth));
     }
-    public union(other: NFA): NFA {
-        let thisNFA = this._automaton as NFA
+    public union(automaton : NFA, other: NFA): NFA {
+        let thisNFA = automaton as NFA
         let combinedAlphabet = (thisNFA.alphabet.joinToString()+other.alphabet.joinToString());
         let newStartStateName = "union["+thisNFA.startState.name+":"+other.startState.name+"]";
         let newNFA = new NFA(combinedAlphabet, newStartStateName,false);
 
-        let statesOfThisNFA = this.dfs();
+        let statesOfThisNFA = this.dfs(automaton);
         
         for(let state of statesOfThisNFA) {
             newNFA.addState("1-" + state.name);
         }
-        let statesOfOtherNFA = new NFAUtil(other).dfs();
+        let statesOfOtherNFA = this.dfs(newNFA);
         for(let state of statesOfOtherNFA) {
             newNFA.addState("2-" + state.name);
         }
@@ -106,10 +108,9 @@ export class NFAUtil extends AutomatonUtil<NFA> {
         return newNFA;
     }
 
-    public intersection(other: NFA): NFA {
-        let newDFAUtil = new DFAUtil(this._automaton.toDFA());
-        let newDFA = newDFAUtil.intersection(other.toDFA());
-        return  new DFAUtil(newDFA).toNFA();
+    public intersection(automaton : NFA , other: NFA, util = new DFAUtil()): NFA {
+        let newDFA = util.intersection(automaton.toDFA(),other.toDFA());
+        return  util.toNFA(newDFA);
     }
 
     
