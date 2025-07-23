@@ -2,7 +2,7 @@ import { TM } from "../../../automata/non-context-free/TM";
 import { TMState } from "../../../states/TMState";
 import { AutomatonUtil } from "./automata-util";
 import { UndecidableProblem } from "../../../exceptions/exceptions";
-export class TMUtil extends AutomatonUtil<TMState> {
+export class TMUtil extends AutomatonUtil<TM> {
     
     constructor(automaton: TM) {
         super(automaton);

@@ -1,8 +1,11 @@
 import { DFAState } from "~/states/RegularStates";
 import { AutomatonUtil } from "./automata-util";
 import {DFA} from "../../regular/DFA";
+import {NFA} from "../../regular/NFA";
+import { NFAUtil } from "./NFA-util";
+import { RegularAutomatonUtil } from "./finite-automata-util";
 
-export class DFAUtil extends AutomatonUtil<DFAState> {
+export class DFAUtil extends RegularAutomatonUtil<DFA> {
 
     constructor(automaton: DFA) {
         super(automaton);
@@ -59,10 +62,50 @@ export class DFAUtil extends AutomatonUtil<DFAState> {
      * @returns Returns true if the languages are equal, otherwise false.
      */
     public equal(other: DFA): boolean {
-        return false;
+        return new DFAUtil(this.union(other)).equal(this.intersection(other));
     }
+    /**
+     * Unions the DFA with another DFA.
+     * @param other the other DFA to union with
+     * @returns the resulting DFA after the union
+     */
     public union(other: DFA): DFA {
-        throw new Error("Union operation is not implemented for DFA.");
+        let thisDFAasNFA = this.toNFA();
+        let otherDFAasNFA = new DFAUtil(other).toNFA();
+        let newNFA = new NFAUtil(thisDFAasNFA).union(otherDFAasNFA);
+        return newNFA.toDFA();
+    }
+    public intersection(other: DFA): DFA {
+        let newDFA = this.union(other);
+        let states = new DFAUtil(newDFA).dfs();
+        // regex for separating names of "{ab}{cd}{{ef}}" to // ["ab", "cd", "{ef}"]
+        let resultDFA = new DFA(newDFA.alphabet.joinToString(), newDFA._startState.name, newDFA._startState.accepting);
+        states.forEach(state => {
+            let namesInThisDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("1-")).map(name => name.slice(2));
+            let namesInOtherDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("2-")).map(name => name.slice(2));
+            let isAnyAcceptingInThisDFA = namesInThisDFA.some(name => this._automaton.getState(name)?.accepting);
+            let isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)?.accepting);
+            resultDFA.addState(state.name, isAnyAcceptingInOtherDFA && isAnyAcceptingInThisDFA);
+        })
+        states.forEach(state => {state.transitions.forEach((nextState, symbol) => {newDFA.addEdge(state.name, symbol, nextState.name)})});
+        return newDFA;
+    }
+    
+    /**
+     * Converts the DFA to an NFA.
+     */
+    public toNFA(): NFA {
+        let thisDFA = this._automaton;
+        let newNfa = new NFA(thisDFA.alphabet.joinToString(),thisDFA._startState.name,thisDFA.startState.accepting);
+
+        let statesThisDFA = this.dfs();
+        statesThisDFA.forEach(state => {
+            newNfa.addState(state.name, state.accepting);
+            state.transitions.forEach((nextState, symbol) => {
+                newNfa.addEdge(state.name, symbol, nextState.name);
+            });
+        });
+        return newNfa;
     }
     
 

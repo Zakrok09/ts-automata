@@ -7,7 +7,7 @@ import { NFAConverter } from "../NFAConverter";
 import { Alphabet } from "../../Alphabet";
 import {DFAUtil} from "./DFA-util";
 import { off } from "process";
-export class NFAUtil extends AutomatonUtil<NFAState> {
+export class NFAUtil extends AutomatonUtil<NFA> {
 
     constructor(automaton: NFA) {
         super(automaton);
@@ -47,7 +47,7 @@ export class NFAUtil extends AutomatonUtil<NFAState> {
      * @returns Returns true if the language of the DFA contains all strings, otherwise false.
      */
     public isLanguageAllStrings(): boolean {
-        let transformedToDFA = new NFAConverter(this._automaton as NFA).toDFA();
+        let transformedToDFA = new NFAConverter(this._automaton).toDFA();
         return new DFAUtil(transformedToDFA).isLanguageAllStrings();
     }
     /**
@@ -104,6 +104,12 @@ export class NFAUtil extends AutomatonUtil<NFAState> {
             }
         }
         return newNFA;
+    }
+
+    public intersection(other: NFA): NFA {
+        let newDFAUtil = new DFAUtil(this._automaton.toDFA());
+        let newDFA = newDFAUtil.intersection(other.toDFA());
+        return  new DFAUtil(newDFA).toNFA();
     }
 
     

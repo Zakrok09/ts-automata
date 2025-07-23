@@ -128,4 +128,5 @@ export class DFA extends FiniteAutomaton<DFAState> {
     get machineType(): string {
         return "DFA";
     }
+    
 }

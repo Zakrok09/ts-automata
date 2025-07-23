@@ -1,9 +1,9 @@
 import { State } from "../../../states/State";
 import { Automaton } from "../../../automata/Automaton";
 
-export abstract class AutomatonUtil<TState extends State> {
-    protected readonly _automaton: Automaton<TState>;
-    public constructor(automaton: Automaton<TState>) {
+export abstract class AutomatonUtil<T extends Automaton<State>> {
+    protected readonly _automaton: T;
+    public constructor(automaton: T) {
         this._automaton = automaton;
     }
 
@@ -17,7 +17,7 @@ export abstract class AutomatonUtil<TState extends State> {
         return false; // Placeholder for actual implementation
     }
     // Checks if two automata reconize the same language.
-    public equal(other:  Automaton<TState>): boolean {
+    public equal(other:  T): boolean {
         return false; // Placeholder for actual implementation
     }
     
