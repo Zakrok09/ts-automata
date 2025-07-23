@@ -63,10 +63,9 @@ dfa.runString("aa") // true
 dfa.runString("abb") // false
 ```
 _Figure 1: The code for the deterministic finite automaton D._
+<img width="898" height="626" alt="README-image" src="https://github.com/user-attachments/assets/0b78c354-5991-4d0c-aba1-9606debc476d" />
 
-![There are three stares: q0, q1 and q2
-q0 is the starting state
-q2 is the only accepting state](https://i.imgur.com/pRuPlEv.jpeg "Image of the DFA described in the code abov")
+
 _Figure 2: Visual representation of D._
 
 This can also be done using the helpful `DFABuilder`:

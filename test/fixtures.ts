@@ -2,9 +2,11 @@ import {DFA, DFABuilder, NFA} from "../src";
 import {NFABuilder} from "../src/automata/util/builders/automata/NFABuilder";
 import {PDA} from "../src/automata/context-free/PDA";
 import {PDAState} from "../src/states/PDAState";
-import {Alphabet, EPSILON} from "../src/automata";
+import {Alphabet, EPSILON, EMPTY} from "../src/automata";
 import {GNFA} from "../src/automata/regular/GNFA";
-
+import {TM} from "../src/automata/non-context-free/TM";
+import { TMState } from "../src/states/TMState";
+import {TMBuilder} from "../src/automata/util/builders/automata/TMBuilder";
 /**
  * Creates a valid DFA fixture
  *
@@ -133,6 +135,78 @@ function genericPDA():PDA {
 
     return pda;
 }
+function mediumTM(): TM{
+    // The language of words that do not have 2 a’s directly following each other.
+    // Image of TM in : https://imgur.com/a/LpS5aI3
+    // This TM doesn't halt if it doesn't accept the string.
+    let start = new TMState("start");
+    start.accepting = false;
+    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
+    tm.addState("qacc",true);
+    tm.addState("middle",false);
+    tm.addEdge("start","a",EMPTY,'L',"start");
+    tm.addEdge("start","b","b",'R',"start");
+    tm.addEdge("start",EMPTY,EMPTY,'R',"middle");
+    tm.addEdge("middle","a","a",'L',"start");
+    tm.addEdge("middle","b","b",'R',"start");
+    tm.addEdge("middle",EMPTY,EMPTY,'R',"qacc");
+
+    return tm;
+
+}
+
+function simpleNDTM(): TM {
+    // Recognizes the language of words with that start with "a".
+    // Image of TM in : https://imgur.com/a/uEUgDq2
+    return new TMBuilder("ab", "ab")
+            .withNotFinalStates("start", "q1")
+            .withFinalStates("q2")
+            .withEdges.from("start").to("q1").over("aaL")
+            .withEdges.from("start").to("q2").over("aaL")
+            .getResult();
+}
+
+function equalAandB() : TM {
+    // Recognizes the language of words with equal number of a's and b's.
+    // TM from : https://www.geeksforgeeks.org/theory-of-computation/design-a-turing-machine-for-equal-number-of-as-and-bs/
+    // Changed Slightly because of the fixed tape on the left.
+    // Image of TM in : https://imgur.com/a/wwwa56I
+    let start = new TMState("q5");
+    start.accepting = false;
+    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("abXS"), start);
+    
+    tm.addState("q4", true);
+    tm.addState("q0", false);
+    tm.addState("q1", false);
+    tm.addState("q2", false);
+    tm.addState("q3", false);
+
+
+    tm.addEdge("q0","X","X",'R',"q0")
+    tm.addEdge("q0",EMPTY,EMPTY,'R',"q4")
+    tm.addEdge("q0","a","X",'R',"q1")
+    tm.addEdge("q0","b","X",'R',"q2")
+
+    tm.addEdge("q1","a","a",'R',"q1")
+    tm.addEdge("q1","X","X",'R',"q1")
+    tm.addEdge("q1","b","X",'L',"q3")
+
+    tm.addEdge("q2","b","b",'R',"q2")
+    tm.addEdge("q2","X","X",'R',"q2")
+    tm.addEdge("q2","a","X",'L',"q3")
+
+    tm.addEdge("q3","X","X",'L',"q3")
+    tm.addEdge("q3","a","a",'L',"q3")
+    tm.addEdge("q3","b","b",'L',"q3")
+    tm.addEdge("q3","S","S",'R',"q0")
+
+    tm.addEdge("q5","a","S",'R',"q1")
+    tm.addEdge("q5","b","S",'R',"q2")
+    tm.addEdge("q5",EMPTY,EMPTY,'R',"q4")
+
+
+    return tm;
+}
 
 function genericGNFA():GNFA {
     let gnfa = new GNFA("ab", "start", "end")
@@ -148,4 +222,4 @@ function genericGNFA():GNFA {
     return gnfa;
 }
 
-export default {genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}
+export default {equalAandB,simpleNDTM,mediumTM,genericValidDFA, genericSingleStateValidDFA, genericEpsilonNFALargerAlphabet, genericInvalidDFA, genericEpsilonNFA, genericNFA, genericPDA, genericGNFA}
