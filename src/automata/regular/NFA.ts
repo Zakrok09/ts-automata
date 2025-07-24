@@ -177,4 +177,13 @@ export class NFA extends FiniteAutomaton<NFAState> {
         const nfaConverter = new NFAConverter(this);
         return nfaConverter.toDFA();
     }
+
+    public copy() : NFA{
+        let newNFA = new NFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
+        this.states.forEach(state => newNFA.addState(state.name,state.accepting))
+        this.states.forEach(state => state.transitions.entries()
+                            .forEach(([sym,possible_to]) => possible_to
+                                    .forEach(to => newNFA.addEdge(state.name,sym,to.name))))
+        return newNFA;
+    }
 }

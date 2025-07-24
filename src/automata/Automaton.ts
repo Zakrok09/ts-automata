@@ -45,6 +45,8 @@ export abstract class Automaton<TState extends State> {
      */
     public abstract get machineType():string;
 
+    public abstract copy() : Automaton<TState>
+
     /**
      * Adds states to the current object.
      *

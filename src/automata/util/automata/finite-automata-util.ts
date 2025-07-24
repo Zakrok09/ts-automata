@@ -6,15 +6,11 @@ export abstract class RegularAutomatonUtil<T extends Automaton<State>> extends A
     constructor() {
         super()
     }
-    public union(automaton : T,other: T): T {
-        throw new Error("Method 'union' not implemented.");
-    }
-    public intersection(automaton : T,other: T): T {
-        throw new Error("Method 'intersection' not implemented.");
-    }
-    public negation(automaton: T){
-        throw new Error("Method 'negation' not implement.")
-    }
+    public abstract union(automaton : T,other: T): T 
+    
+    public abstract intersection(automaton : T,other: T): T 
+    
+    public abstract negation(automaton: T) :  T
     
     protected nameSeperator(name : string) : string[] {
         let openBrackets = 0;

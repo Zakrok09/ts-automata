@@ -66,6 +66,11 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
         let unionOfBoth = this.union(automaton,other)
         return this.isLanguageEmpty(this.intersection(symmetricDifference,unionOfBoth));
     }
+    /**
+     * Return a DFA that accepts the complement of the language of the given DFA
+     * @param automaton the dfa to be negated
+     * @returns the negated DFA
+     */
     public negation(automaton: DFA): DFA {
         let newDFA = automaton.copy()
         this.dfs(newDFA).forEach(state => state.accepting=!state.accepting)
@@ -82,13 +87,26 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
         let newNFA = nfaUtil.union(thisDFAasNFA,otherDFAasNFA);
         return newNFA.toDFA();
     }
+    /**
+     * Return a DFA that accepts the intersection of the two languages
+     * @param automaton DFA that recognizes a language R1
+     * @param other DFA that recognizes a language R2
+     * @returns DFA that recognizes words both in R1 and R2
+     */
     public intersection(automaton : DFA, other: DFA): DFA {
+
+        // Use procedure from Sipser. 
         let newDFA = this.union(automaton,other);
         let states = this.dfs(newDFA);
-        // regex for separating names of "{ab}{cd}{{ef}}" to // ["ab", "cd", "{ef}"]
         let resultDFA = new DFA(newDFA.alphabet.joinToString(), newDFA._startState.name, newDFA._startState.accepting);
+        // Mark each state in the union DFA to be accepting if it represents a super position of states
+        // Such that it both represents being in an accepting state in the first dfa AND the second. 
         states.forEach(state => {
+            // Extract the names from the unioned DFA. Example {1-statex}{2-statey}{1-{statez}}
+
+            // Get names of the states in the first DFA. Example from the upper comment: statex, {statez}
             let namesInThisDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("1-")).map(name => name.slice(2));
+            // Get names of the states in the second DFA. Example from the upper comment: statey
             let namesInOtherDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("2-")).map(name => name.slice(2));
             let isAnyAcceptingInThisDFA = namesInThisDFA.some(name => automaton.getState(name)?.accepting);
             let isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)?.accepting);

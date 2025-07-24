@@ -58,18 +58,25 @@ export class NFAUtil extends AutomatonUtil<NFA> {
     public doesLanguageContainString(automaton : NFA, word : string ): boolean {
         return automaton.runString(word);
     }
+
+
+    public negation(automaton: NFA): NFA {
+        let newNFA = automaton.copy()
+        this.dfs(newNFA).forEach(state => state.accepting=!state.accepting)
+        return newNFA;
+    }
     /**
      * Checks if the language of the DFA is equal to the language of another DFA.
      * @param other the other DFA to compare with
      * @returns Returns true if the languages are equal, otherwise false.
      */
-    public equal(other: NFA): boolean {
+    public equal(automaton : NFA , other: NFA): boolean {
         let symmetricDifference = this.negation(this.intersection(automaton,other))
         let unionOfBoth = this.union(automaton,other)
         return this.isLanguageEmpty(this.intersection(symmetricDifference,unionOfBoth));
     }
     public union(automaton : NFA, other: NFA): NFA {
-        let thisNFA = automaton as NFA
+        let thisNFA = automaton
         let combinedAlphabet = (thisNFA.alphabet.joinToString()+other.alphabet.joinToString());
         let newStartStateName = "union["+thisNFA.startState.name+":"+other.startState.name+"]";
         let newNFA = new NFA(combinedAlphabet, newStartStateName,false);

@@ -6,19 +6,11 @@ export abstract class AutomatonUtil<T extends Automaton<State>> {
         
     }
 
-    public isLanguageEmpty(automaton : T): boolean {
-        return false; // Placeholder for actual implementation
-    }
-    public isLanguageAllStrings(automaton : T): boolean {
-        return false; // Placeholder for actual implementation
-    }
-    public doesLanguageContainString(automaton : T,word : string): boolean {
-        return false; // Placeholder for actual implementation
-    }
+    public abstract isLanguageEmpty(automaton : T): boolean
+    public abstract isLanguageAllStrings(automaton : T): boolean 
+    public abstract doesLanguageContainString(automaton : T,word : string): boolean 
     // Checks if two automata reconize the same language.
-    public equal(automaton : T, other:  T): boolean {
-        return false; // Placeholder for actual implementation
-    }
+    public abstract equal(automaton : T, other:  T): boolean 
     
 
 }
