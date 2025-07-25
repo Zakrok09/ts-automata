@@ -9,7 +9,7 @@ import { TMState } from "../src/states/TMState";
 import {TMBuilder} from "../src/automata/util/builders/automata/TMBuilder";
 /**
  * Creates a valid DFA fixture
- *
+ * visualized here: https://imgur.com/a/HUdCD8p
  * @constructor
  * @return the created DFA fixture
  */
@@ -63,6 +63,7 @@ function genericInvalidDFA():DFA {
 }
 
 function genericEpsilonNFALargerAlphabet():NFA {
+    // Visualized here: https://imgur.com/a/aRjHNrd
     return new NFABuilder("abcd")
         .withNotFinalStates("start", "q1", "q3", "q4")
         .withFinalStates("end","q2")
@@ -89,6 +90,8 @@ function genericEpsilonNFALargerAlphabet():NFA {
 }
 
 function genericEpsilonNFA():NFA {
+    // NFA visualized here: https://imgur.com/a/MLYY5Y4
+    // Recognizes {ab,ba*a,b*}
     return new NFABuilder("ab")
         .withNotFinalStates("start", "1", "11", "2", "22")
         .withFinalStates("3","33","end")
@@ -109,6 +112,7 @@ function genericEpsilonNFA():NFA {
 }
 
 function genericNFA():NFA {
+    // visualized here: https://imgur.com/a/K9wYgii
     return new NFABuilder("ab")
         .withNotFinalStates("start", "1", "2")
         .withFinalStates("end")
