@@ -11,7 +11,7 @@ export abstract class RegularAutomatonUtil<T extends Automaton<State>> extends A
     public abstract intersection(automaton : T,other: T): T 
     
     public abstract negation(automaton: T) :  T
-    
+    public abstract dfs(automaton : T) : Set<State>
     protected nameSeperator(name : string) : string[] {
         let openBrackets = 0;
         let result = [];

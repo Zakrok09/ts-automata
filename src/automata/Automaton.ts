@@ -103,4 +103,11 @@ export abstract class Automaton<TState extends State> {
     public get acceptStates(): Set<TState> {
         return this._acceptStates;
     }
+    public setAccepting(stateName : string , final : boolean) : void {
+        let state = this.getState(stateName)!
+        state.accepting = final 
+        if(!this._acceptStates.delete(state)){
+            this.acceptStates.add(state)
+        }
+    }
 }

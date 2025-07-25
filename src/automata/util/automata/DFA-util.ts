@@ -14,19 +14,20 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * Performs a depth-first search to find all states reachable from the start state.
      * @returns Returns a set of all states reachable from the start state.
      */
-    private dfs(automaton : DFA) : Set<DFAState> {
-        let stack: DFAState[] = [];
-        stack.push(automaton._startState);
+    public dfs(automaton : DFA) : Set<DFAState> {
+        let stack: string[] = [];
+        stack.push(automaton._startState.name);
         let visited : Set<DFAState> = new Set<DFAState>();
         // Perform a depth-first search to check if there is any accepting state reachable from the start state.
         // If we find an accepting state, the language is not empty.
         while (stack.length > 0) {
-            let state = stack.pop()!;
+            let state = automaton.getState(stack.pop()!)!;
             if (visited.has(state)) continue;
             visited.add(state);
             for (let neighbour of state.transitions.values()) {
-                stack.push(neighbour);
+                stack.push(neighbour.name);
             }
+
         }
         return visited;
     }
@@ -73,7 +74,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      */
     public negation(automaton: DFA): DFA {
         let newDFA = automaton.copy()
-        this.dfs(newDFA).forEach(state => state.accepting=!state.accepting)
+        this.dfs(newDFA).forEach(state => newDFA.setAccepting(state.name,!state.accepting))
         return newDFA;
     }
     /**
@@ -102,18 +103,22 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
         // Mark each state in the union DFA to be accepting if it represents a super position of states
         // Such that it both represents being in an accepting state in the first dfa AND the second. 
         states.forEach(state => {
-            // Extract the names from the unioned DFA. Example {1-statex}{2-statey}{1-{statez}}
-
-            // Get names of the states in the first DFA. Example from the upper comment: statex, {statez}
-            let namesInThisDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("1-")).map(name => name.slice(2));
-            // Get names of the states in the second DFA. Example from the upper comment: statey
-            let namesInOtherDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("2-")).map(name => name.slice(2));
-            let isAnyAcceptingInThisDFA = namesInThisDFA.some(name => automaton.getState(name)?.accepting);
-            let isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)?.accepting);
-            resultDFA.addState(state.name, isAnyAcceptingInOtherDFA && isAnyAcceptingInThisDFA);
+                // Extract the names from the unioned DFA. Example {1-statex}{2-statey}{1-{statez}}
+                let namesInThisDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("1-")).map(name => name.slice(2));
+                // Get names of the states in the second DFA. Example from the upper comment: statey
+                let namesInOtherDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("2-")).map(name => name.slice(2));
+                let isAnyAcceptingInThisDFA = namesInThisDFA.some(name => automaton.getState(name)!.accepting);
+                let isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)!.accepting);
+                let result = (isAnyAcceptingInOtherDFA && isAnyAcceptingInThisDFA)
+                if(state.name!=resultDFA._startState.name){
+                // Get names of the states in the first DFA. Example from the upper comment: statex, {statez}
+                    resultDFA.addState(state.name);
+                }
+                resultDFA.setAccepting(state.name,result)
+            
         })
-        states.forEach(state => {state.transitions.forEach((nextState, symbol) => {newDFA.addEdge(state.name, symbol, nextState.name)})});
-        return newDFA;
+        states.forEach(state => {newDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {newDFA.addEdge(state.name, symbol, nextState.name)})});
+        return resultDFA;
     }
     
     /**
@@ -122,14 +127,24 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     public toNFA(automaton : DFA ): NFA {
         let thisDFA = automaton;
         let newNfa = new NFA(thisDFA.alphabet.joinToString(),thisDFA._startState.name,thisDFA.startState.accepting);
-
-        let statesThisDFA = this.dfs(automaton);
+        
+        let statesThisDFA = this.dfs(thisDFA);
+        
         statesThisDFA.forEach(state => {
-            newNfa.addState(state.name, state.accepting);
-            state.transitions.forEach((nextState, symbol) => {
+            if(!newNfa.getState(state.name)){
+                newNfa.addState(state.name, state.accepting);
+            }
+            
+            
+        });
+        statesThisDFA.forEach(state =>{
+            thisDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {
                 newNfa.addEdge(state.name, symbol, nextState.name);
             });
-        });
+        })
+        //{{1-{{{end}{reachable}{start}}}}{2-{end}{reachable}{start}}{union[{{{end}{reachable}{start}}}:{end}{reachable}{start}]}}
+        //{{1-{{{end}{reachable}{start}}}}{2-{end}{reachable}{start}}}
+        //{{1-{{{end}{reachable}{start}}}}{2-{end}{reachable}{start}}{union[{{{end}{reachable}{start}}}:{end}{reachable}{start}]}}
         return newNfa;
     }
     

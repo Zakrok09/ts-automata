@@ -53,7 +53,6 @@ export class NFAConverter {
      */
     private processStateBunch(currentBunch:StateBunch, statesToProcess:StateBunch[]):void {
         let isFinal = currentBunch.hasAnyFinalState();
-
         if (!this.dfaBuilder.getState(currentBunch.name))
             this.dfaBuilder.addState(currentBunch.name, isFinal)
 

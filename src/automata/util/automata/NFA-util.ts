@@ -7,7 +7,9 @@ import { NFAConverter } from "../NFAConverter";
 import { Alphabet } from "../../Alphabet";
 import {DFAUtil} from "./DFA-util";
 import { off } from "process";
-export class NFAUtil extends AutomatonUtil<NFA> {
+import { RegularAutomatonUtil } from "./finite-automata-util";
+import { EPSILON } from "../../../types";
+export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
     constructor() {
         super();
@@ -16,7 +18,7 @@ export class NFAUtil extends AutomatonUtil<NFA> {
      * Performs a depth-first search to find all states reachable from the start state.
      * @returns Returns a set of all states reachable from the start state.
      */
-    private dfs(automaton :NFA) : Set<NFAState> {
+    public dfs(automaton :NFA) : Set<NFAState> {
         let stack: NFAState[] = [];
         stack.push(automaton._startState);
         let visited : Set<NFAState> = new Set<NFAState>();
@@ -60,10 +62,9 @@ export class NFAUtil extends AutomatonUtil<NFA> {
     }
 
 
-    public negation(automaton: NFA): NFA {
-        let newNFA = automaton.copy()
-        this.dfs(newNFA).forEach(state => state.accepting=!state.accepting)
-        return newNFA;
+    public negation(automaton: NFA, util = new DFAUtil()): NFA {
+        let negated = util.negation(automaton.toDFA())
+        return util.toNFA(negated);
     }
     /**
      * Checks if the language of the DFA is equal to the language of another DFA.
@@ -84,12 +85,13 @@ export class NFAUtil extends AutomatonUtil<NFA> {
         let statesOfThisNFA = this.dfs(automaton);
         
         for(let state of statesOfThisNFA) {
-            newNFA.addState("1-" + state.name);
+            newNFA.addState("1-" + state.name,state.accepting);
         }
-        let statesOfOtherNFA = this.dfs(newNFA);
+        let statesOfOtherNFA = this.dfs(other);
         for(let state of statesOfOtherNFA) {
-            newNFA.addState("2-" + state.name);
+            newNFA.addState("2-" + state.name,state.accepting);
         }
+        
         // Procedure from Sipser
         newNFA.addEpsilonEdge(newStartStateName, "1-" + thisNFA.startState.name);
         newNFA.addEpsilonEdge(newStartStateName, "2-" + other.startState.name);
@@ -99,16 +101,26 @@ export class NFAUtil extends AutomatonUtil<NFA> {
             let transitions = state.transitions.entries();
             for (let [symbol, nextStates] of transitions){
                 for (let nextState of nextStates) {
-                    newNFA.addEdge("1-"+state.name, symbol, "1-"+nextState.name);
+                    if(symbol==EPSILON){
+                        newNFA.addEpsilonEdge("1-"+state.name,  "1-"+nextState.name);
+                    }else{
+                        newNFA.addEdge("1-"+state.name, symbol, "1-"+nextState.name);
+                    }
                 }
             }
+
         }
+
 
         for( let state of statesOfOtherNFA){
             let transitions = state.transitions.entries();
             for (let [symbol, nextStates] of transitions){
                 for (let nextState of nextStates) {
-                    newNFA.addEdge("2-"+state.name, symbol, "2-"+nextState.name);
+                    if(symbol==EPSILON){
+                        newNFA.addEpsilonEdge("2-"+state.name,  "2-"+nextState.name);
+                    }else{
+                        newNFA.addEdge("2-"+state.name, symbol, "2-"+nextState.name);
+                    }
                 }
             }
         }

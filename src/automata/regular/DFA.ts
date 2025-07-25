@@ -31,6 +31,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
 
         if (startingAccept) {
             this._startState.accepting = true;
+            start.accepting = true
             this._acceptStates.add(start);
         }
     }
@@ -60,6 +61,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
         super.insertState(new DFAState(name), final);
     }
 
+    
     /**
      * Removes an edge from a DFA state.
      *
@@ -80,6 +82,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
 
         return state.removeTransition(char);
     }
+    
 
     /**
      * Runs the given string against the finite state machine.
@@ -123,7 +126,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
     }
     public copy(){
         let newDFA = new DFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
-        this.states.forEach(state => newDFA.addState(state.name,state.accepting))
+        this.states.forEach(state => {if(!newDFA.getState(state.name)) {newDFA.addState(state.name,state.accepting)}})
         this.states.forEach(state => state.transitions.entries().forEach(([sym,to]) => newDFA.addEdge(state.name,sym,to.name)))
         return newDFA;
     }

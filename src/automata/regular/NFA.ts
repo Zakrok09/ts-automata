@@ -180,7 +180,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
 
     public copy() : NFA{
         let newNFA = new NFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
-        this.states.forEach(state => newNFA.addState(state.name,state.accepting))
+        this.states.forEach(state => {if (!newNFA.getState(state.name)){newNFA.addState(state.name,state.accepting)}})
         this.states.forEach(state => state.transitions.entries()
                             .forEach(([sym,possible_to]) => possible_to
                                     .forEach(to => newNFA.addEdge(state.name,sym,to.name))))
