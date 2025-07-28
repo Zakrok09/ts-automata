@@ -3,6 +3,8 @@ import {DFAState} from "../../states/RegularStates";
 import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exceptions";
 import {Alphabet} from "../Alphabet";
 import {FiniteAutomaton} from "./FiniteAutomaton";
+import { NFA } from "./NFA";
+import { DFAUtil } from "../util/automata/DFA-util";
 
 /**
  * Deterministic finite automaton.
@@ -82,6 +84,28 @@ export class DFA extends FiniteAutomaton<DFAState> {
 
         return state.removeTransition(char);
     }
+
+    public toNFA(util = new DFAUtil()){
+        let thisDFA = this;
+        let newNfa = new NFA(thisDFA.alphabet.joinToString(),thisDFA._startState.name,thisDFA.startState.accepting);
+        
+        let statesThisDFA = util.dfs(thisDFA);
+        
+        statesThisDFA.forEach(state => {
+            if(!newNfa.getState(state.name)){
+                newNfa.addState(state.name, state.accepting);
+            }
+            
+            
+        });
+        statesThisDFA.forEach(state =>{
+            thisDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {
+                newNfa.addEdge(state.name, symbol, nextState.name);
+            });
+        })
+        
+        return newNfa;
+    }
     
 
     /**
@@ -127,7 +151,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
     public copy(){
         let newDFA = new DFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
         this.states.forEach(state => {if(!newDFA.getState(state.name)) {newDFA.addState(state.name,state.accepting)}})
-        this.states.forEach(state => state.transitions.entries().forEach(([sym,to]) => newDFA.addEdge(state.name,sym,to.name)))
+        this.states.forEach(state => state.transitions.keys().forEach(sym =>   newDFA.addEdge(state.name,sym,state.transitions.get(sym)!.name)))
         return newDFA;
     }
 

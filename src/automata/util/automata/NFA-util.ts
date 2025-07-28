@@ -41,8 +41,9 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
      */
     public isLanguageEmpty(automaton : NFA ): boolean {
         let visited = this.dfs(automaton);
-        return Array.from(visited).every(state => !state.accepting);
+        return !Array.from(visited).some(state => state.accepting);
     }
+
     /**
      * Checks if the language of the DFA contains all strings(sigma star).
      * A DFA's language contains all strings if all states reachable from the start are accepting state.
@@ -72,14 +73,40 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
      * @returns Returns true if the languages are equal, otherwise false.
      */
     public equal(automaton : NFA , other: NFA): boolean {
-        let symmetricDifference = this.negation(this.intersection(automaton,other))
-        let unionOfBoth = this.union(automaton,other)
-        return this.isLanguageEmpty(this.intersection(symmetricDifference,unionOfBoth));
+        // first Automaton recgonize a language A and the second a language B
+        // if Symmetric difference of A and B is empty, they are equal
+        let commonAlphabet = automaton.alphabet.joinToString()+other.alphabet.joinToString();
+        let automatonExtendedAlphabet = this.extendAlphabet(automaton,commonAlphabet)
+        let otherExtendedAlphabet = this.extendAlphabet(other,commonAlphabet)
+
+        let AminB = this.intersection(automatonExtendedAlphabet,this.negation(otherExtendedAlphabet));
+        let BminA = this.intersection(this.negation(automatonExtendedAlphabet),otherExtendedAlphabet);
+        let intersection = this.union(AminB,BminA);
+        return this.isLanguageEmpty(intersection);
+    }
+    public extendAlphabet(automaton : NFA, newAlphabet : string){
+        let resAutomaton = new NFA(newAlphabet,automaton.startState.name,automaton._startState.accepting)
+        let states = this.dfs(automaton)
+        states.forEach(state => {
+                if(!resAutomaton.getState(state.name)){
+                    resAutomaton.addState(state.name,state.accepting)
+                }
+        })
+        states.forEach(state=> {
+            automaton.getState(state.name)!.transitions.keys().
+                        forEach(key =>state.transitions.get(key)!
+                            .forEach(to =>
+                                {if (key == EPSILON){
+                                    resAutomaton.addEpsilonEdge(state.name,to.name)
+                                }else{
+                                    resAutomaton.addEdge(state.name,key,to.name)}}))
+        })
+        return resAutomaton
     }
     public union(automaton : NFA, other: NFA): NFA {
         let thisNFA = automaton
         let combinedAlphabet = (thisNFA.alphabet.joinToString()+other.alphabet.joinToString());
-        let newStartStateName = "union["+thisNFA.startState.name+":"+other.startState.name+"]";
+        let newStartStateName = "U";
         let newNFA = new NFA(combinedAlphabet, newStartStateName,false);
 
         let statesOfThisNFA = this.dfs(automaton);
@@ -98,8 +125,9 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
 
         for( let state of statesOfThisNFA){
-            let transitions = state.transitions.entries();
-            for (let [symbol, nextStates] of transitions){
+            let transitions = thisNFA.getState(state.name)!.transitions.keys();
+            for (let symbol of transitions){
+                let nextStates = state.transitions.get(symbol)!
                 for (let nextState of nextStates) {
                     if(symbol==EPSILON){
                         newNFA.addEpsilonEdge("1-"+state.name,  "1-"+nextState.name);
@@ -113,8 +141,9 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
 
         for( let state of statesOfOtherNFA){
-            let transitions = state.transitions.entries();
-            for (let [symbol, nextStates] of transitions){
+            let transitions = state.transitions.keys();
+            for (let symbol of transitions){
+                let nextStates = state.transitions.get(symbol)!
                 for (let nextState of nextStates) {
                     if(symbol==EPSILON){
                         newNFA.addEpsilonEdge("2-"+state.name,  "2-"+nextState.name);
@@ -129,7 +158,8 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
     public intersection(automaton : NFA , other: NFA, util = new DFAUtil()): NFA {
         let newDFA = util.intersection(automaton.toDFA(),other.toDFA());
-        return  util.toNFA(newDFA);
+        let newDFAasNFA = util.toNFA(newDFA)
+        return  newDFAasNFA;
     }
 
     

@@ -117,7 +117,9 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
                 resultDFA.setAccepting(state.name,result)
             
         })
-        states.forEach(state => {newDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {newDFA.addEdge(state.name, symbol, nextState.name)})});
+        states.forEach(state => 
+            {newDFA.getState(state.name)!.transitions
+                    .forEach((nextState, symbol) => {resultDFA.addEdge(state.name, symbol, nextState.name)})});
         return resultDFA;
     }
     
@@ -125,27 +127,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * Converts the DFA to an NFA.
      */
     public toNFA(automaton : DFA ): NFA {
-        let thisDFA = automaton;
-        let newNfa = new NFA(thisDFA.alphabet.joinToString(),thisDFA._startState.name,thisDFA.startState.accepting);
-        
-        let statesThisDFA = this.dfs(thisDFA);
-        
-        statesThisDFA.forEach(state => {
-            if(!newNfa.getState(state.name)){
-                newNfa.addState(state.name, state.accepting);
-            }
-            
-            
-        });
-        statesThisDFA.forEach(state =>{
-            thisDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {
-                newNfa.addEdge(state.name, symbol, nextState.name);
-            });
-        })
-        //{{1-{{{end}{reachable}{start}}}}{2-{end}{reachable}{start}}{union[{{{end}{reachable}{start}}}:{end}{reachable}{start}]}}
-        //{{1-{{{end}{reachable}{start}}}}{2-{end}{reachable}{start}}}
-        //{{1-{{{end}{reachable}{start}}}}{2-{end}{reachable}{start}}{union[{{{end}{reachable}{start}}}:{end}{reachable}{start}]}}
-        return newNfa;
+        return automaton.toNFA()
     }
     
 

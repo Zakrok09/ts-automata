@@ -12,6 +12,13 @@ import {GNFAState} from "../../states/RegularStates";
  * @since 0.5.0
  */
 export class GNFA extends Automaton<GNFAState> {
+    public copy(): GNFA {
+        let newGNFA = new GNFA(this._alphabet.joinToString(),this._startState.name,this._finalState.name)
+        this.states.forEach(state => {if (!newGNFA.getState(state.name)){newGNFA.addState(state.name)}})
+        this.states.forEach(state => state.outgoing.keys()
+                            .forEach(sym=> newGNFA.addEdge(state.name,sym,state.outgoing.get(sym)!.name)))
+        return newGNFA;
+    }
     private readonly _finalState: GNFAState;
 
     /**

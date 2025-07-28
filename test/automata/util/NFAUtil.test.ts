@@ -3,7 +3,110 @@ import {describe, it, expect} from "vitest";
 import {NFAUtil} from "../../../src/automata/util/automata/NFA-util";
 import {NFA} from "../../../src/automata/regular/NFA";
 import { NFABuilder } from "../../../src";
+import { EPSILON } from "../../../src/types";
 
+describe("NFAUtil: Union",()=>{
+    it("union two simple nfa",()=>{
+        let automaton1 = new NFABuilder("a")
+                            .withNotFinalStates("start")
+                            .withFinalStates("end")
+                            .withEdges.from("start").to("end").over("a")
+                            .getResult()
+        let automaton2 = new NFABuilder("ab")
+                            .withNotFinalStates("start")
+                            .withFinalStates("end")
+                            .withEdges.from("start").to("end").over("b")
+                            .getResult()
+        let util = new NFAUtil()
+        let unionOfBoth = util.union(automaton1,automaton2)
+        expect(unionOfBoth.runString("a")).toBe(true)
+        expect(unionOfBoth.runString("b")).toBe(true)
+        expect(unionOfBoth.runString("ba")).toBe(false)               
+    })
+
+    it("negation and union with self equal to sigma *",()=>{
+        let automaton1 = new NFABuilder("a")
+                            .withNotFinalStates("start")
+                            .withFinalStates("end")
+                            .withEdges.from("start").to("end").over("a")
+                            .getResult()
+        let util = new NFAUtil()
+        let unionOfBoth = util.union(automaton1,util.negation(automaton1))
+        expect(util.isLanguageAllStrings(unionOfBoth)).toBe(true)          
+    })
+    it("set differenece",()=>{
+        let util = new NFAUtil()
+
+        let automaton1 = new NFABuilder("a")
+                            .withNotFinalStates("start")
+                            .withFinalStates("end")
+                            .withEdges.from("start").to("end").over("a")
+                            .getResult()
+        automaton1 = util.extendAlphabet(automaton1,"ab")
+        let automaton2 = new NFABuilder("ab")
+                            .withFinalStates("start")
+                            .withEdges.from("start").to("start").over("ab")
+                            .getResult()
+        let AminusB = util.intersection(automaton2,util.negation(automaton1))
+        expect(util.doesLanguageContainString(AminusB,"a")).toBe(false)
+        expect(util.doesLanguageContainString(AminusB,"")).toBe(true)
+        expect(util.doesLanguageContainString(AminusB,"aa")).toBe(true)
+        expect(util.doesLanguageContainString(AminusB,"aba")).toBe(true)         
+
+    })
+    it("set differenece to empty language",()=>{
+        let automaton1 = new NFABuilder("a")
+                            .withNotFinalStates("start")
+                            .withFinalStates("end")
+                            .withEdges.from("start").to("end").over("a")
+                            .getResult()
+        let automaton2 = new NFABuilder("a")
+                            .withFinalStates("start")
+                            .withEdges.from("start").to("start").over("a")
+                            .getResult()
+        let util = new NFAUtil()
+        let AminusB = util.intersection(automaton1,util.negation(automaton2))
+        expect(util.doesLanguageContainString(AminusB,"a")).toBe(false)
+        expect(util.doesLanguageContainString(AminusB,"")).toBe(false)
+        expect(util.doesLanguageContainString(AminusB,"aa")).toBe(false)
+        expect(util.isLanguageEmpty(AminusB)).toBe(true)         
+    })
+})
+
+describe("NFAUtil: Intersection",()=>{
+    it("simple intersection",()=>{
+        let automaton1 = new NFABuilder("ab")
+                            .withNotFinalStates("q0","q1")
+                            .withFinalStates("q2")
+                            .withEdges.from("q0").to("q1").over("a")
+                            .withEdges.from("q1").to("q2").over("a")
+                            .getResult()
+    let automaton2 = new NFABuilder("ab")
+                            .withNotFinalStates("q0")
+                            .withFinalStates("q1")
+                            .withEdges.from("q0").to("q0").over("a")
+                            .withEdges.from("q0").to("q1").over("a")
+                            .getResult()
+    let util = new NFAUtil()
+    let intersected = util.intersection(automaton1,automaton2)
+    console.log(intersected)
+    
+    expect(util.doesLanguageContainString(intersected,"aa")).toBe(true)
+    expect(util.doesLanguageContainString(intersected,"aaa")).toBe(false)
+    })
+
+    it("complex intersection",()=>{
+    let automaton1 = Fixtures.genericEpsilonNFALargerAlphabet()
+    let automaton2 = Fixtures.genericEpsilonNFA()
+    let util = new NFAUtil()
+    let intersected = util.intersection(automaton1,automaton2)
+    console.log(intersected)
+    
+    expect(util.doesLanguageContainString(intersected,"ba")).toBe(true)
+    expect(util.doesLanguageContainString(intersected,"aaa")).toBe(false)
+    })
+
+})
 describe("NFAUtil: Empty", () => {
     it("should return true for non-empty NFA", () => {
         let nfa = Fixtures.genericEpsilonNFA();
@@ -157,6 +260,17 @@ describe(("NFAUtil: Negation"), () =>   {
         let negated = util.negation(nfa)
         expect(util.isLanguageAllStrings(negated)).toBe(true)
     })
+    it("accepts new string with unused character",()=>{
+        let nfa = new NFABuilder("abcdef")
+                    .withNotFinalStates("start")
+                    .withFinalStates("unreachable")
+                    .addEpsilonEdge("unreachable","start")
+                    .withEdges.from("start").to("start").over("abcde")
+                    .getResult()
+        let util = new NFAUtil()
+        let negated = util.negation(nfa)
+        expect(util.doesLanguageContainString(negated,"f")).toBe(true)
+    })
 
 
     it("empty language - complicated",()=>{
@@ -200,7 +314,6 @@ describe(("NFAUtil: Negation"), () =>   {
         let nfa = Fixtures.genericEpsilonNFALargerAlphabet()
         let util = new NFAUtil();
         let finalNFA = util.intersection(nfa,util.negation(nfa))
-        console.log(finalNFA)
         expect(util.isLanguageEmpty(finalNFA)).toBe(true);
     });
 
@@ -225,12 +338,85 @@ describe(("NFAUtil: Negation"), () =>   {
             expect(util.doesLanguageContainString(negated,word)).toBe(false)
             expect(util.doesLanguageContainString(nfa,word)).toBe(true)
         }
-        
-
-        
     })
 
     
 
     
+});
+
+describe("equals",()=>{
+    it("copy should be equal to itself",()=>{
+        let automatons = [Fixtures.genericNFA(),Fixtures.genericEpsilonNFA(),Fixtures.genericEpsilonNFALargerAlphabet()]
+        let util = new NFAUtil()
+        for(let automaton of automatons){
+            expect(util.equal(automaton,automaton.copy()))
+        }
+    });
+    it("intersection with itself be equal to itself",()=>{
+        let automatons = [Fixtures.genericNFA(),Fixtures.genericEpsilonNFA(),Fixtures.genericEpsilonNFALargerAlphabet()]
+        let util = new NFAUtil()
+        for(let automaton of automatons){
+            expect(util.equal(automaton,util.intersection(automaton,automaton.copy())))
+        }
+    });
+
+    
+
+    it("should recogonize theoretically not equivalent automata",()=>{
+        let automaton1 = new NFABuilder("ab")
+                            .withFinalStates("end")
+                            .withEdges.from("end").to("end").over("ab")
+                            .getResult()
+        let automaton2 = new NFABuilder("abcdefghi")
+                         .withFinalStates("q0","q1")
+                         .withEdges.from("q0").to("q1").over("a")
+                         .addEpsilonEdge("q0","q1")
+                         .withEdges.from("q1").to("q0").over("b")
+                         .getResult()
+        let util = new NFAUtil()
+        expect(util.equal(automaton1,automaton2)).toBe(false)
+                        
+    })
+    it("should recogonize theoretically not equivalent automata ",()=>{
+        let automaton1 = new NFABuilder("ab")
+                            .withFinalStates("end")
+                            .withEdges.from("end").to("end").over("ab")
+                            .getResult()
+        let automaton2 = new NFABuilder("abcdefghi")
+                         .withFinalStates("q0","q1")
+                         .withNotFinalStates("q2")
+                         .withEdges.from("q0").to("q1").over("a")
+                         .withEdges.from("q1").to("q0").over("b")
+                         .withEdges.from("q1").to("q2").over("a")
+                        
+                         .getResult()
+        let util = new NFAUtil()
+        expect(util.equal(automaton1,automaton2)).toBe(false)
+                        
+    })
+    it("should recogonize theoretically not equivalent automata - small ",()=>{
+        let automaton1 = new NFABuilder("ab")
+                            .withFinalStates("a")
+                            .withEdges.from("a").to("a").over("ab")
+                            .getResult()
+        let automaton2 = new NFABuilder("a")
+                         .withFinalStates("b","c")
+                         .withEdges.from("b").to("c").over("a")
+                         .getResult()
+        let util = new NFAUtil()
+
+        expect(util.equal(automaton1,automaton2)).toBe(false)
+                        
+    })
+    it("should recogonize itself after two transformations",()=>{
+        let automaton1 = new NFABuilder("ab")
+                            .withFinalStates("end")
+                            .withEdges.from("end").to("end").over("ab")
+                            .getResult()
+        let util = new NFAUtil()
+
+        expect(util.equal(automaton1,automaton1.toDFA().toNFA())).toBe(true)
+                        
+    })
 });

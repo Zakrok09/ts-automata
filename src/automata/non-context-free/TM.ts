@@ -104,9 +104,9 @@ export class TM extends Automaton<TMState> {
     public copy(): Automaton<TMState> {
         let resultTM = new TM(this._alphabet,this.tapeAlphabet,this._startState)
         this.states.forEach(state => resultTM.addState(state.name,state.accepting))
-        this.states.forEach(state=> state.transitions.entries()
-                        .forEach(([sym,edges])=> edges
-                            .forEach(edge => resultTM.addEdge(state.name,sym,edge.writeTape,edge.move,edge.to))))
+        this.states.forEach(state=> state.transitions.keys()
+                        .forEach(sym => state.transitions.get(sym)!
+                        .forEach((edge)=>  resultTM.addEdge(state.name,sym,edge.writeTape,edge.move,edge.to))))
         return resultTM;
     }
 

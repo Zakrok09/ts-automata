@@ -1,7 +1,6 @@
 import {char, EMPTY, EPSILON, toChar, Move} from "../../types";
 import {TM} from "../../automata";
 import {TMEdge, TMState} from "../../states/TMState";
-import { error } from "console";
 
 type tapeHead = number 
 type StateConfiguration = {stateName: string, tapeContents:string[], currentIndex: tapeHead};
@@ -24,7 +23,6 @@ export class TMRunner {
      * @return true iff the string was accepted.
      */
     public runString(str: string, startState: TMState): boolean {
-        console.log("Running TM with string: ", str);
         str.split("").forEach(c => this.tm.testSymbolAgainstAlphabet(toChar(c)));
         let activeConfigs:StateConfiguration[] =
             [{stateName: startState.name, tapeContents: [...str,EMPTY], currentIndex: 0}]
