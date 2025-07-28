@@ -89,7 +89,6 @@ describe("NFAUtil: Intersection",()=>{
                             .getResult()
     let util = new NFAUtil()
     let intersected = util.intersection(automaton1,automaton2)
-    console.log(intersected)
     
     expect(util.doesLanguageContainString(intersected,"aa")).toBe(true)
     expect(util.doesLanguageContainString(intersected,"aaa")).toBe(false)
@@ -100,7 +99,6 @@ describe("NFAUtil: Intersection",()=>{
     let automaton2 = Fixtures.genericEpsilonNFA()
     let util = new NFAUtil()
     let intersected = util.intersection(automaton1,automaton2)
-    console.log(intersected)
     
     expect(util.doesLanguageContainString(intersected,"ba")).toBe(true)
     expect(util.doesLanguageContainString(intersected,"aaa")).toBe(false)
