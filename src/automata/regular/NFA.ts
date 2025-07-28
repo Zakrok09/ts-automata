@@ -171,13 +171,16 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * Conversion is done
      * using the algorithm described by Micheal Sipser in his book "Introduction to the Theory of Computation"
      *
-     * @return a DFA of the NFA using Sipper's algorithm.
+     * @return a DFA of the NFA using Sipser's algorithm.
      */
     public toDFA(): DFA {
         const nfaConverter = new NFAConverter(this);
         return nfaConverter.toDFA();
     }
-
+    /**
+     * Create a copy of this NFA
+     * @returns a deep copy of this NFA
+     */
     public copy() : NFA{
         let newNFA = new NFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
         this.states.forEach(state => {if (!newNFA.getState(state.name)){newNFA.addState(state.name,state.accepting)}})

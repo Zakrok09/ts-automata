@@ -84,7 +84,11 @@ export class DFA extends FiniteAutomaton<DFAState> {
 
         return state.removeTransition(char);
     }
-
+    /**
+     * Give an equivallent NFA
+     * @param util DFA util
+     * @returns an equivallent NFA as this DFA
+     */
     public toNFA(util = new DFAUtil()){
         let thisDFA = this;
         let newNfa = new NFA(thisDFA.alphabet.joinToString(),thisDFA._startState.name,thisDFA.startState.accepting);
@@ -148,6 +152,10 @@ export class DFA extends FiniteAutomaton<DFAState> {
 
         return super.toString(transitions);
     }
+    /**
+     * Create a copy of the DFA
+     * @returns Deep copy of the current DFA
+     */
     public copy(){
         let newDFA = new DFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
         this.states.forEach(state => {if(!newDFA.getState(state.name)) {newDFA.addState(state.name,state.accepting)}})

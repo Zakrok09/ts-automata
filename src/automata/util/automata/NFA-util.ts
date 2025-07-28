@@ -16,6 +16,7 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     }
     /**
      * Performs a depth-first search to find all states reachable from the start state.
+     * @param automaton the automaton to do DFS on
      * @returns Returns a set of all states reachable from the start state.
      */
     public dfs(automaton :NFA) : Set<NFAState> {
@@ -37,6 +38,7 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     /**
      * Checks if the language of the DFA is empty.
      * A DFA's language is empty if there are no accepting states reachable from the start state
+     * @param automaton automaton to check
      * @returns Returns true if the language of the DFA is empty, otherwise false.
      */
     public isLanguageEmpty(automaton : NFA ): boolean {
@@ -47,6 +49,8 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     /**
      * Checks if the language of the DFA contains all strings(sigma star).
      * A DFA's language contains all strings if all states reachable from the start are accepting state.
+     * @param automaton automaton to check
+     * @param dfaUtil the DFA util
      * @returns Returns true if the language of the DFA contains all strings, otherwise false.
      */
     public isLanguageAllStrings(automaton: NFA, dfaUtil = new DFAUtil()): boolean {
@@ -55,6 +59,7 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     }
     /**
      * Checks if the language of the DFA contains a specific string.
+     * @param automaton the automaton to check
      * @param word the string to be checked
      * @returns Returns true if the language of the DFA contains the string, otherwise false.
      */
@@ -62,14 +67,20 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         return automaton.runString(word);
     }
 
-
+    /**
+     * Get an NFA that recognizes the complement of the language
+     * @param automaton An automaton that recognizes a language L1
+     * @param util DFA util object
+     * @returns An automaton that recognizes all words not in L1
+     */
     public negation(automaton: NFA, util = new DFAUtil()): NFA {
         let negated = util.negation(automaton.toDFA())
         return util.toNFA(negated);
     }
     /**
-     * Checks if the language of the DFA is equal to the language of another DFA.
-     * @param other the other DFA to compare with
+     * Checks if the language of the nFA is equal to the language of another NFA.
+     * @param automaton the first NFA
+     * @param other the other NFA to compare with
      * @returns Returns true if the languages are equal, otherwise false.
      */
     public equal(automaton : NFA , other: NFA): boolean {
@@ -84,6 +95,12 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         let intersection = this.union(AminB,BminA);
         return this.isLanguageEmpty(intersection);
     }
+    /**
+     * Extending the alphabet of an NFA
+     * @param automaton An NFA with an alphabet A
+     * @param newAlphabet The new alphabet to extend to
+     * @returns The same NFA with a larger alphabet
+     */
     public extendAlphabet(automaton : NFA, newAlphabet : string){
         let resAutomaton = new NFA(newAlphabet,automaton.startState.name,automaton._startState.accepting)
         let states = this.dfs(automaton)
@@ -103,14 +120,22 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         })
         return resAutomaton
     }
+    /**
+     * Get an NFA that recognizes the union of two NFAs
+     * @param automaton Automaton that recognizes a language L1
+     * @param other Automaton that recognizes a language L2
+     * @returns NFA that recognizes L1 union L2
+     */
     public union(automaton : NFA, other: NFA): NFA {
         let thisNFA = automaton
         let combinedAlphabet = (thisNFA.alphabet.joinToString()+other.alphabet.joinToString());
+        // Create new start node
         let newStartStateName = "U";
         let newNFA = new NFA(combinedAlphabet, newStartStateName,false);
 
         let statesOfThisNFA = this.dfs(automaton);
-        
+        // All states from the first NFA are marked with 1- and similarly 2- for the other
+        // this prevents issues with states with same names
         for(let state of statesOfThisNFA) {
             newNFA.addState("1-" + state.name,state.accepting);
         }
@@ -119,41 +144,40 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
             newNFA.addState("2-" + state.name,state.accepting);
         }
         
-        // Procedure from Sipser
+        // Procedure from Sipser 2 epsilon edhes
         newNFA.addEpsilonEdge(newStartStateName, "1-" + thisNFA.startState.name);
         newNFA.addEpsilonEdge(newStartStateName, "2-" + other.startState.name);
+        
+        // Recreate the original edges
+        statesOfThisNFA.forEach(state=> state.transitions
+                            .forEach((nextStates,symbol)=> 
+                                nextStates.forEach(nextState=> {
+                                    if(symbol==EPSILON){
+                                        newNFA.addEpsilonEdge("1-"+state.name,"1-"+nextState.name)
+                                    }else{
+                                        newNFA.addEdge("1-"+state.name,symbol,"1-"+nextState.name)
+                                    }
+                                })))
+        // Recreate the original edges
+        statesOfOtherNFA.forEach(state=> state.transitions
+                            .forEach((nextStates,symbol)=> 
+                                nextStates.forEach(nextState=> {
+                                    if(symbol==EPSILON){
+                                        newNFA.addEpsilonEdge("2-"+state.name,"2-"+nextState.name)
+                                    }else{
+                                        newNFA.addEdge("2-"+state.name,symbol,"2-"+nextState.name)
+                                    }
+                                })))
 
-
-        for( let state of statesOfThisNFA){
-            let transitions = thisNFA.getState(state.name)!.transitions;
-            for (let [symbol,nextStates] of transitions){
-                for (let nextState of nextStates) {
-                    if(symbol==EPSILON){
-                        newNFA.addEpsilonEdge("1-"+state.name,  "1-"+nextState.name);
-                    }else{
-                        newNFA.addEdge("1-"+state.name, symbol, "1-"+nextState.name);
-                    }
-                }
-            }
-
-        }
-
-
-        for( let state of statesOfOtherNFA){
-            let transitions = state.transitions;
-            for (let [symbol,nextStates] of transitions){
-                for (let nextState of nextStates) {
-                    if(symbol==EPSILON){
-                        newNFA.addEpsilonEdge("2-"+state.name,  "2-"+nextState.name);
-                    }else{
-                        newNFA.addEdge("2-"+state.name, symbol, "2-"+nextState.name);
-                    }
-                }
-            }
-        }
         return newNFA;
     }
-
+    /**
+     * Creates an NFA that recognizes the words that both NFAs recognize
+     * @param automaton Automaton that recognizes a language L1
+     * @param other Automaton that recognizes a language L2
+     * @param util DFA util object
+     * @returns Automaton that recognizes L1 intersection L2
+     */
     public intersection(automaton : NFA , other: NFA, util = new DFAUtil()): NFA {
         let newDFA = util.intersection(automaton.toDFA(),other.toDFA());
         let newDFAasNFA = util.toNFA(newDFA)

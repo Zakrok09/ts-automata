@@ -34,8 +34,9 @@ export class TMState extends State {
     public removeTransition(input: char, writeTape: char, move: Move, to: string): boolean {
         let bucket = this._transitions.get(input);
         if (!bucket) return false;
-
-        return bucket.delete({writeTape, move, to});
+        let oldBucketSize = bucket.size
+        bucket.forEach(x => {if (x.move == move && x.to == to && x.writeTape == writeTape) {bucket.delete(x)}})
+        return bucket.size !=oldBucketSize;
     }
 
     public transition(input: char): Set<TMEdge> {

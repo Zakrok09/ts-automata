@@ -163,10 +163,10 @@ function simpleNDTM(): TM {
     // Recognizes the language of words with that start with "a".
     // Image of TM in : https://imgur.com/a/uEUgDq2
     return new TMBuilder("ab", "ab")
-            .withNotFinalStates("start", "q1")
-            .withFinalStates("q2")
-            .withEdges.from("start").to("q1").over("aaL")
-            .withEdges.from("start").to("q2").over("aaL")
+            .withNotFinalStates("q0", "qrej")
+            .withFinalStates("qacc")
+            .withEdges.from("q0").to("qrej").over('a'+EMPTY+'R')
+            .withEdges.from("q0").to("qacc").over('a'+EMPTY+'R')
             .getResult();
 }
 

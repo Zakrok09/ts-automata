@@ -12,7 +12,14 @@ export abstract class RegularAutomatonUtil<T extends Automaton<State>> extends A
     
     public abstract negation(automaton: T) :  T
     public abstract dfs(automaton : T) : Set<State>
+    /**
+     * Utility for parsing the names of individual states after union procedure by sipser
+     * @param name The statename to parse 
+     * @returns The state names parsed from the original string
+     */
     protected nameSeperator(name : string) : string[] {
+        // The name {q0}{q1}{{q2}} represents a superposition of being in
+        // q0,q1 and {q2}. we check for nested braces. 
         let openBrackets = 0;
         let result = [];
         let current = "";

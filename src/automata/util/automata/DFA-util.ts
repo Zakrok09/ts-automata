@@ -12,6 +12,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     }
     /**
      * Performs a depth-first search to find all states reachable from the start state.
+     * @param automaton the automaton to DFS on
      * @returns Returns a set of all states reachable from the start state.
      */
     public dfs(automaton : DFA) : Set<DFAState> {
@@ -34,6 +35,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     /**
      * Checks if the language of the DFA is empty.
      * A DFA's language is empty if there are no accepting states reachable from the start state
+     * @param automaton the automaton to check
      * @returns Returns true if the language of the DFA is empty, otherwise false.
      */
     public isLanguageEmpty(automaton : DFA): boolean {
@@ -43,6 +45,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     /**
      * Checks if the language of the DFA contains all strings(sigma star).
      * A DFA's language contains all strings if all states reachable from the start are accepting state.
+     * @param automaton the automaton to check
      * @returns Returns true if the language of the DFA contains all strings, otherwise false.
      */
     public isLanguageAllStrings(automaton : DFA): boolean {
@@ -51,6 +54,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     }
     /**
      * Checks if the language of the DFA contains a specific string.
+     * @param automaton the automaton to check for
      * @param word the string to be checked
      * @returns Returns true if the language of the DFA contains the string, otherwise false.
      */
@@ -59,13 +63,15 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     }
     /**
      * Checks if the language of the DFA is equal to the language of another DFA.
+     * @param automaton the first DFA
      * @param other the other DFA to compare with
      * @returns Returns true if the languages are equal, otherwise false.
      */
     public equal(automaton : DFA, other: DFA): boolean {
-        let symmetricDifference = this.negation(this.intersection(automaton,other))
-        let unionOfBoth = this.union(automaton,other)
-        return this.isLanguageEmpty(this.intersection(symmetricDifference,unionOfBoth));
+        let AminB = (this.intersection(this.negation(automaton),other))
+        let BminA= (this.intersection(automaton,this.negation(other)))
+
+        return this.isLanguageEmpty(this.union(AminB,BminA));
     }
     /**
      * Return a DFA that accepts the complement of the language of the given DFA
@@ -78,9 +84,11 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
         return newDFA;
     }
     /**
-     * Unions the DFA with another DFA.
-     * @param other the other DFA to union with
-     * @returns the resulting DFA after the union
+     * Creates an NFA that recognizes the words that either of the DFAs recognize
+     * @param automaton Automaton that recognizes a language L1
+     * @param other Automaton that recognizes a language L2
+     * @param util NFA util object
+     * @returns Automaton that recognizes L1 union L2
      */
     public union(automaton : DFA, other: DFA, nfaUtil = new NFAUtil()): DFA {
         let thisDFAasNFA = this.toNFA(automaton);
@@ -117,14 +125,26 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
                 resultDFA.setAccepting(state.name,result)
             
         })
+        // REcreate the edges
         states.forEach(state => 
             {newDFA.getState(state.name)!.transitions
                     .forEach((nextState, symbol) => {resultDFA.addEdge(state.name, symbol, nextState.name)})});
         return resultDFA;
     }
-    
+    /**
+     * Extend the Alphabet of the DFA
+     * @param automaton The DFA
+     * @param extendAlphabet the Extened alphabet
+     * @param util NFA util
+     * @returns The same DFA with the extended alphabet
+     */
+    public extendAlphabet(automaton : DFA, extendAlphabet: string, util = new NFAUtil()) : DFA{
+        return util.extendAlphabet(automaton.toNFA(),automaton.alphabet.joinToString()+extendAlphabet).toDFA()
+    }
     /**
      * Converts the DFA to an NFA.
+     * @param automaton the DFA to be converted
+     * @return the converted DFA as NFA
      */
     public toNFA(automaton : DFA ): NFA {
         return automaton.toNFA()
