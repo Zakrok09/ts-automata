@@ -93,8 +93,8 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
                 }
         })
         states.forEach(state=> {
-            automaton.getState(state.name)!.transitions.keys().
-                        forEach(key =>state.transitions.get(key)!
+            automaton.getState(state.name)!.transitions.
+                        forEach((possible_to,key) =>possible_to
                             .forEach(to =>
                                 {if (key == EPSILON){
                                     resAutomaton.addEpsilonEdge(state.name,to.name)
@@ -125,9 +125,8 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
 
         for( let state of statesOfThisNFA){
-            let transitions = thisNFA.getState(state.name)!.transitions.keys();
-            for (let symbol of transitions){
-                let nextStates = state.transitions.get(symbol)!
+            let transitions = thisNFA.getState(state.name)!.transitions;
+            for (let [symbol,nextStates] of transitions){
                 for (let nextState of nextStates) {
                     if(symbol==EPSILON){
                         newNFA.addEpsilonEdge("1-"+state.name,  "1-"+nextState.name);
@@ -141,9 +140,8 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
 
         for( let state of statesOfOtherNFA){
-            let transitions = state.transitions.keys();
-            for (let symbol of transitions){
-                let nextStates = state.transitions.get(symbol)!
+            let transitions = state.transitions;
+            for (let [symbol,nextStates] of transitions){
                 for (let nextState of nextStates) {
                     if(symbol==EPSILON){
                         newNFA.addEpsilonEdge("2-"+state.name,  "2-"+nextState.name);

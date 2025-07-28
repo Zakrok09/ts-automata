@@ -181,8 +181,8 @@ export class NFA extends FiniteAutomaton<NFAState> {
     public copy() : NFA{
         let newNFA = new NFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
         this.states.forEach(state => {if (!newNFA.getState(state.name)){newNFA.addState(state.name,state.accepting)}})
-        this.states.forEach(state => state.transitions.keys()
-                            .forEach(sym=> state.transitions.get(sym)!
+        this.states.forEach(state => state.transitions
+                            .forEach((possible_to,sym)=> possible_to
                                 .forEach(to => {if (sym==EPSILON){
                                                     newNFA.addEpsilonEdge(state.name,to.name)
                                                 }else{

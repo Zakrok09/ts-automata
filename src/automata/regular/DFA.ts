@@ -151,7 +151,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
     public copy(){
         let newDFA = new DFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
         this.states.forEach(state => {if(!newDFA.getState(state.name)) {newDFA.addState(state.name,state.accepting)}})
-        this.states.forEach(state => state.transitions.keys().forEach(sym =>   newDFA.addEdge(state.name,sym,state.transitions.get(sym)!.name)))
+        this.states.forEach(state => state.transitions!.forEach((to,sym) =>   newDFA.addEdge(state.name,sym,to.name)))
         return newDFA;
     }
 
