@@ -9,6 +9,7 @@ export abstract class CFGState{
     public equal(other : CFGState) : boolean {
         return false
     }
+    public abstract toString() : string
 }
 
 export class CFGVariable extends CFGState{
@@ -45,9 +46,14 @@ export class CFGVariable extends CFGState{
         }
         return other.symbol == this.symbol
     }
+    public toString(): string {
+        let res = this.symbol + " -> ";
+        return res+ this.transitions.values().map(toString).toArray().join(" | ")
+    }
 
 }
 export class CFGTerminal extends CFGState{
+    
     public constructor(symbol : char){
         super(symbol)
     }
@@ -57,6 +63,10 @@ export class CFGTerminal extends CFGState{
             return false;
         }
         return other.symbol == this.symbol
+    }
+
+    public toString(): string {
+        return this.symbol;
     }
 
 }
