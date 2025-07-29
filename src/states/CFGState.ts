@@ -1,5 +1,5 @@
 import { CFG } from '~/automata/context-free/CFG'
-import { char } from '../types'
+import { char, EPSILON } from '../types'
 
 export abstract class CFGState{
     public symbol : char
@@ -19,7 +19,7 @@ export class CFGVariable extends CFGState{
         super(symbol)
         this.transitions = new Set()
     }
-    public addTransition(states : CFGState[]){
+    public addTransition(...states : CFGState[]){
         this.transitions.add(states)
     }
     public removeTransition(states : CFGState[]) : boolean{
@@ -66,6 +66,9 @@ export class CFGTerminal extends CFGState{
     }
 
     public toString(): string {
+        if(this.symbol==EPSILON){
+            return ""
+        }
         return this.symbol;
     }
 
