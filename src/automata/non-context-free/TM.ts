@@ -10,6 +10,7 @@ import { TMRunner } from "../util/TMRunner";
  * Assumes a tape fixed on the left.
  */
 export class TM extends Automaton<TMState> {
+    
 
     private readonly _tapeAlphabet: Alphabet
 
@@ -99,6 +100,15 @@ export class TM extends Automaton<TMState> {
             = this.verifyInputsAndStates({stateName, inputStr,  writeStr, move,to})
 
         return state.removeTransition(input, writeStack, move, toState.name)
+    }
+    public copy(): Automaton<TMState> {
+        let resultTM = new TM(this._alphabet,this.tapeAlphabet,this._startState)
+        this.states.forEach(state => resultTM.addState(state.name,state.accepting))
+        this.states.forEach(state=> state.transitions
+                        .forEach((nextStates,sym) => 
+                            nextStates.forEach((edge)=>  
+                                resultTM.addEdge(state.name,sym,edge.writeTape,edge.move,edge.to))))
+        return resultTM;
     }
 
 

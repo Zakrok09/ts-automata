@@ -30,13 +30,25 @@ describe("TM: Running string on NDTM-simple", () => {
     let tm:TM;
     tm = Fixtures.simpleNDTM();
     it("simple tests", () => {
-
-        expect(tm.runString("")).toBe(false);
-        expect(tm.runString("b")).toBe(false);
-        expect(tm.runString("a")).toBe(true);
-        expect(tm.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
-        expect(tm.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
-        expect(tm.runString("abbbbbbbbbbbbbbbbbba")).toBe(true);
+        for(let curr of [tm,tm.copy()]){
+        expect(curr.runString("")).toBe(false);
+        expect(curr.runString("b")).toBe(false);
+        expect(curr.runString("a")).toBe(true);
+        expect(curr.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
+        expect(curr.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
+        expect(curr.runString("abbbbbbbbbbbbbbbbbba")).toBe(true);
+        }
+        
+    })
+    it("simple tests: remove edge", () => {
+        let tm2 = tm 
+        tm2.removeEdge("q0","a",EMPTY,"R","qacc")
+        expect(tm2.runString("")).toBe(false);
+        expect(tm2.runString("b")).toBe(false);
+        expect(tm2.runString("a")).toBe(false);
+        expect(tm2.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
+        expect(tm2.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
+        expect(tm2.runString("abbbbbbbbbbbbbbbbbba")).toBe(false);
     })
 
 })

@@ -15,9 +15,7 @@ export class DFABuilder extends AutomataBuilder<DFA> {
      */
     public getResult():DFA {
         if(!this._startingState) throw new IllegalArgument("cannot build a DFA without any states!")
-
         const dfa = new DFA(this._alphabetString, this._startingState.name, this._startingState.isFinal)
-
         for (let {name, isFinal} of this._stateMap.values()) {
             if (name != this._startingState.name)
                 dfa.addState(name, isFinal)

@@ -53,7 +53,6 @@ export class NFAConverter {
      */
     private processStateBunch(currentBunch:StateBunch, statesToProcess:StateBunch[]):void {
         let isFinal = currentBunch.hasAnyFinalState();
-
         if (!this.dfaBuilder.getState(currentBunch.name))
             this.dfaBuilder.addState(currentBunch.name, isFinal)
 
@@ -115,8 +114,8 @@ class StateBunch {
      * If the state name is empty, returns "dead-state".
      */
     private stateName(states: NFAState[]): string {
-        let res = states.map(s => s.name)
-            .sort((a, b) => a.localeCompare(b)).join('-');
+        let res = states.map(s => "{"+s.name+"}")
+            .sort((a, b) => a.localeCompare(b)).join('');
         return res.trim() === "" ? "dead-state" : res;
     }
 
