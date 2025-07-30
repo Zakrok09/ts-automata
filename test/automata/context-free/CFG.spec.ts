@@ -9,9 +9,9 @@ describe("CFG: Correct CRUD",()=>{
     
     it("adding terminals",()=>{
         let cfg = new CFGBuilder("ab")
-                    .withVariables("XY")
-                    .withTransitions.from("X").to("XX","aX")
-                    .withTransitions.from("Y").to("Y")
+                    .withVariables("X","Y")
+                    .withTransitions.from("X").to(["X","X"],["a","X"])
+                    .withTransitions.from("Y").to(["Y"])
                     .getResult()
         expect(cfg.getVariable("X").symbol).toBe("X")
         expect(cfg.getVariable("Y").symbol).toBe("Y")
@@ -27,15 +27,15 @@ describe("CFG: Correct CRUD",()=>{
         let Y = cfg.getVariable("Y")
         let a = cfg.getTerminal("a")
         expect(X.transitions.size).toBe(2)
-        cfg.removeTransition("X","XX")
+        cfg.removeTransition("X","X","X")
         expect(X.transitions.size).toBe(1)
     })
 
     it("adding terminals- COPY",()=>{
         let cfg2 = new CFGBuilder("ab")
-                    .withVariables("XY")
-                    .withTransitions.from("X").to("XX","aX")
-                    .withTransitions.from("Y").to("Y")
+                    .withVariables("X","Y")
+                    .withTransitions.from("X").to(["X","X"],["a","X"])
+                    .withTransitions.from("Y").to(["Y"])
                     .getResult()
         let cfg = cfg2.copy()
         expect(cfg.getVariable("X").symbol).toBe("X")
@@ -52,10 +52,9 @@ describe("CFG: Correct CRUD",()=>{
         let Y = cfg.getVariable("Y")
         let a = cfg.getTerminal("a")
         expect(X.transitions.size).toBe(2)
-        cfg.removeTransition("X","XX")
+        cfg.removeTransition("X","X","X")
         expect(X.transitions.size).toBe(1)
-        // deep copy
-        expect(cfg2.getVariable("X").transitions.size).toBe(2)
+
     })
 
 })

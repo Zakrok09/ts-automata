@@ -4,14 +4,14 @@ import { CFG } from "../../../context-free/CFG";
 
 
 export class CFGBuilder {
-    protected startVariableName : char | undefined
-    protected transitions : Map<char,Set<string>>
-    protected terminals : Set<char>
-    protected variables : Set<char>
+    protected startVariableName : string | undefined
+    protected transitions : Map<string,Set<string[]>>
+    protected terminals : Set<string>
+    protected variables : Set<string>
 
     public constructor(terminals : string) {
         this.terminals = new Set();
-        Array.from(terminals).forEach(terminal => this.terminals.add(terminal as char))
+        Array.from(terminals).forEach(terminal => this.terminals.add(terminal))
         this.variables = new Set()
         this.transitions = new Map()
     }
@@ -25,26 +25,24 @@ export class CFGBuilder {
      * @returns - The instance of the object.
      */
     public addVariable(name: string):this {
-        if (name.length!=1){
-            throw new IllegalArgument("from has to be a variable of one symbol")
+        if(!this.startVariableName){
+            this.startVariableName = name;
         }
-        this.variables.add(name as char)
+        this.variables.add(name)
         return this;
     }
 
  
-    public addTransition(from:string, to:string):this {
+    public addTransition(from:string, ...to:string[]):this {
 
-        if (from.length!=1){
-            throw new IllegalArgument("from has to be a variable of one symbol")
-        }
-        let fromAsChar : char  = from as char
+        
+
         if ( EPSILON in Array.from(to)) throw new IllegalArgument("cannot add EPSILON transitions from general add transition method")
 
-        let bucket = this.transitions.get(fromAsChar)
+        let bucket = this.transitions.get(from)
         if (!bucket){
-            this.transitions.set(fromAsChar,new Set())
-            bucket = this.transitions.get(fromAsChar)!
+            this.transitions.set(from,new Set())
+            bucket = this.transitions.get(from)!
         }
         bucket.add(to);
         return this;
@@ -55,14 +53,14 @@ export class CFGBuilder {
     
     public get withTransitions(): {
         from: (start: string) => {
-            to: (...end: string[]) =>  CFGBuilder 
+            to: (...end: string[][]) =>  CFGBuilder 
         }
     } {
         return {
             from: (start: string ) => ({
-                to : (...end:string[])=>  {
+                to : (...end:string[][])=>  {
                     for (let to of end){
-                        this.addTransition(start,to)
+                        this.addTransition(start,...to)
                     }
                     return this}
             })
@@ -77,12 +75,9 @@ export class CFGBuilder {
         return this;
     }
     
-    public withVariables(names:string):CFGBuilder {
+    public withVariables(...names:string[]):CFGBuilder {
         Array.from(names).forEach(name => {
-                if(!this.startVariableName){
-                    this.startVariableName = name as char;
-                }
-                this.addVariable(name as char)});
+                this.addVariable(name)});
         return this
     }
     public withEpsilonTransition(from : string) : CFGBuilder{
@@ -98,13 +93,16 @@ export class CFGBuilder {
         Array.from(this.variables).forEach(variable => cfg.addVariable(variable))
         Array.from(this.terminals).forEach(terminal => cfg.addTerminal(terminal))
         this.transitions.forEach((to,from) => 
-                                to.forEach(state => {if(state==EPSILON){
+                                to.forEach(state => {if(this.isEpsilonTransition(state)){
                                     cfg.addTransitionToEmptyString(from)
                                 }else{
-                                    cfg.addTransition(from,state)
+                                    cfg.addTransition(from,...state)
                                 }}
                                     ))
         return cfg;
+    }
+    private isEpsilonTransition(transition : string[]) : boolean {
+        return transition.length == 1 && transition[0] == EPSILON
     }
 }
 

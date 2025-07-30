@@ -7,10 +7,10 @@ export class CFG{
     public readonly terminals : Map<string,CFGTerminal>
     public startVariable : CFGVariable
     private epsilon = new CFGTerminal(EPSILON);
-    public constructor(startVariable : char){
+    public constructor(startVariable : string){
         this.variables = new Map()
         this.terminals = new Map()
-        this.variables.set(startVariable,new CFGVariable(startVariable))
+        this.addVariable(startVariable)
         this.startVariable = this.variables.get(startVariable)!
 
     }
@@ -31,13 +31,11 @@ export class CFG{
      * @param from The non-terminal to transition to remove from
      * @param to the string representation of the terminals and nonterminals to remove the transformation of
      */
-    public removeTransition(from : string, to :string){
-        if (from.length!=1){
-            throw new IllegalArgument("symbol has to be of length 1!")
-        }
+    public removeTransition(from : string, ...to :string[]){
+        
         let fromVariable = this.variables.get(from)
         if(fromVariable){
-            fromVariable.removeTransition(Array.from(to).map(nextState => this.getFromSymbol(nextState)))
+            fromVariable.removeTransition((to).map(nextState => this.getFromSymbol(nextState)))
         }else{
             throw new IllegalArgument("Variable doesn't exist!")
         }
@@ -48,9 +46,7 @@ export class CFG{
      */
     public addTransitionToEmptyString(from : string){
         // X -> empty string
-        if (from.length!=1){
-            throw new IllegalArgument("symbol has to be of length 1!")
-        }
+        
         
         let fromVariable = this.variables.get(from)
         if(fromVariable){
@@ -64,32 +60,29 @@ export class CFG{
      * @param from the symbol of the terminal, 1 character.
      * @param to The string containing the symbols to transform into
      */
-    public addTransition(from : string, to : string):void{
+    public addTransition(from : string, ...to : string[]):void{
         // an example would be X -> XXa
-        if (from.length!=1){
-            throw new IllegalArgument("symbol has to be of length 1!")
-        }
-        if(to == EPSILON){
+        
+        if(EPSILON in to){
             throw new IllegalArgument("Cannot add a direct transition to EPSILON with this method")
 
         }
         
         let fromVariable = this.variables.get(from)
+        console.log(this.variables,to)
         if(fromVariable){
-            fromVariable.addTransition(...Array.from(to).map(nextState => this.getFromSymbol(nextState as char)))
+            fromVariable.addTransition(...to.map(nextState => this.getFromSymbol(nextState)))
         }else{
             throw new IllegalArgument("Variable doesn't exist!")
         }
     }
     /**
      * To get a state (either terminal or non-terminal) from the CFg
-     * @param symbol The symbol of the state, 1 character
+     * @param symbol The symbol of the state, character
      * @returns The state from the CFG, if it exists
      */
     private getFromSymbol(symbol : string) : CFGState{
-        if (symbol.length!=1){
-            throw new IllegalArgument("symbol has to be of length 1!")
-        }
+        console.log("babannne ",symbol)
         let nextState : CFGState | undefined = this.variables.get(symbol)
         if (!nextState){
             nextState = this.terminals.get(symbol)
@@ -105,17 +98,15 @@ export class CFG{
      * @param symbol The symbol of the non-terminal. 1 character has to be distinct amongst all terminals and variables
      */
     public addVariable(symbol : string): void {
-        if(symbol == EPSILON){
+        if(symbol == EPSILON || symbol == ""){
             throw new IllegalArgument("Cannot have "+EPSILON+" as variable symbol")
         }
-        if (symbol.length!=1){
-            throw new IllegalArgument("symbol has to be of length 1!")
-        }
+        
         if(this.terminals.get(symbol)){
             throw new IllegalArgument("A terminal and a variable can't have the same symbol!")
         }
         if(!this.variables.get(symbol)){
-            this.variables.set(symbol,new CFGVariable(symbol as char))
+            this.variables.set(symbol,new CFGVariable(symbol))
         }
     }
     /**
@@ -133,7 +124,7 @@ export class CFG{
             throw new IllegalArgument("A terminal and a variable can't have the same symbol!")
         }
         if(!this.terminals.get(symbol)){
-            this.terminals.set(symbol,new CFGTerminal(symbol as char))
+            this.terminals.set(symbol,new CFGTerminal(symbol))
         }
     }
     /**
@@ -142,10 +133,7 @@ export class CFG{
      * @returns The non-terminal, if it exists.
      */
     public getVariable(symbol : string) : CFGVariable{
-        if (symbol.length!=1){
-            throw new IllegalArgument("symbol has to be of length 1!")
-        }
-        return this.variables.get(symbol as char)!
+        return this.variables.get(symbol)!
     }
     /**
      * Method to get a terminal state from the CFG
@@ -156,7 +144,7 @@ export class CFG{
         if (symbol.length!=1){
             throw new IllegalArgument("symbol has to be of length 1!")
         }
-        return this.terminals.get(symbol as char )!
+        return this.terminals.get(symbol )!
     }
     /**
      * Human readable representation of the CFG
@@ -184,7 +172,7 @@ export class CFG{
         this.variables.forEach(variable => 
                     variable.transitions.forEach(states => 
                             newCFG.addTransition(variable.symbol,
-                                states.map(state=>state.symbol).join(""))))
+                                ...states.map(state=>state.symbol))))
         return newCFG;
     }
 }
