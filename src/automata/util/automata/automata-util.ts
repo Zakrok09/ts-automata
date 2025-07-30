@@ -11,6 +11,5 @@ export abstract class AutomatonUtil<T extends Automaton<State>> {
     public abstract doesLanguageContainString(automaton : T,word : string): boolean 
     // Checks if two automata reconize the same language.
     public abstract equal(automaton : T, other:  T): boolean 
-    
 
 }
