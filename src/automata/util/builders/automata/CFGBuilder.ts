@@ -20,8 +20,7 @@ export class CFGBuilder {
     /**
      * Stores a state to be added later
      *
-     * @param name - The name of the state.
-     * @param isFinal - Indicates if the state is final.
+     * @param name - The name of the variable.
      * @returns - The instance of the object.
      */
     public addVariable(name: string):this {
@@ -33,11 +32,21 @@ export class CFGBuilder {
     }
 
  
-    public addTransition(from:string, ...to:string[]):this {
+    
 
         
 
-        if ( EPSILON in Array.from(to)) throw new IllegalArgument("cannot add EPSILON transitions from general add transition method")
+    /**
+     * The function to add a transition
+     * @param from The non-terminal to add the transition to
+     * @param to The string representing the symbols to transform to
+     * @returns The instance of the object
+     */
+    public addTransition(from:string, ...to:string[]):this {
+        if (from.length!=1){
+            throw new IllegalArgument("from has to be a variable of one symbol")
+        }
+        if ( to.some(x=> x.includes(EPSILON) )) throw new IllegalArgument("cannot add EPSILON transitions from general add transition method")
 
         let bucket = this.transitions.get(from)
         if (!bucket){
@@ -50,7 +59,11 @@ export class CFGBuilder {
 
     
 
-    
+    /**
+     * Method for adding multiple transitions
+     * @param from The non-terminal to add the transition from
+     * @param to The array of strings of symbols to adds transitions to. Can work with more than 1 transition
+     */
     public get withTransitions(): {
         from: (start: string) => {
             to: (...end: string[][]) =>  CFGBuilder 
@@ -67,24 +80,47 @@ export class CFGBuilder {
         };
         
     }
-
+    /**
+     * Set the start variable
+     * @param name The name of the start variable, 1 character
+     * @returns The instance of the object
+     */
     public withStartVariable(name : string) : CFGBuilder {
-        
+        if (name.length!=1){
+            throw new IllegalArgument("Start variable name must be 1 character")
+        }
         this.startVariableName = name as char;
         this.addVariable(name);
         return this;
     }
-    
+    /**
+     * Method for adding variables to the CFG. Sets the first one as the starting variable
+     * @param names The string of symbols for each of the variables
+     * @returns An instance of the object
+     */
     public withVariables(...names:string[]):CFGBuilder {
         Array.from(names).forEach(name => {
                 this.addVariable(name)});
         return this
     }
+    /**
+     * Method to add a transition to the empty string
+     * @param from The non-terminal to add the transition from
+     * @returns The instance of the object
+     */
     public withEpsilonTransition(from : string) : CFGBuilder{
-        this.addTransition(from,EPSILON)
+        let bucket = this.transitions.get(from)
+        if (!bucket){
+            this.transitions.set(from,new Set())
+            bucket = this.transitions.get(from)!
+        }
+        bucket.add([EPSILON]);
         return this;
     }
-
+    /**
+     * Method for building the CFG
+     * @returns The built CFG
+     */
     public getResult() : CFG{
         if(!this.startVariableName){
             throw new IllegalArgument("No start variable!")
