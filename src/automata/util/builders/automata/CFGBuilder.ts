@@ -32,7 +32,7 @@ export class CFGBuilder {
     }
 
  
-    public addTransition(from:string, ...to:string[]):this {
+    
 
         
 
@@ -42,8 +42,7 @@ export class CFGBuilder {
      * @param to The string representing the symbols to transform to
      * @returns The instance of the object
      */
-    public addTransition(from:string, to:string):this {
-
+    public addTransition(from:string, ...to:string[]):this {
         if (from.length!=1){
             throw new IllegalArgument("from has to be a variable of one symbol")
         }
@@ -95,14 +94,12 @@ export class CFGBuilder {
         this.addVariable(name);
         return this;
     }
-    
-    public withVariables(...names:string[]):CFGBuilder {
     /**
      * Method for adding variables to the CFG. Sets the first one as the starting variable
      * @param names The string of symbols for each of the variables
      * @returns An instance of the object
      */
-    public withVariables(names:string):CFGBuilder {
+    public withVariables(...names:string[]):CFGBuilder {
         Array.from(names).forEach(name => {
                 this.addVariable(name)});
         return this
