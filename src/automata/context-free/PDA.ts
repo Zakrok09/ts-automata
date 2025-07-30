@@ -20,6 +20,7 @@ type StateConfiguration = {stateName: string, stackContents:string[]};
  * @since 0.5.0
  */
 export class PDA extends Automaton<PDAState> {
+    
     private readonly stackAlphabet: Alphabet
 
     public constructor(alphabet:Alphabet, stackAlphabet:Alphabet, startState:PDAState) {
@@ -114,6 +115,9 @@ export class PDA extends Automaton<PDAState> {
      */
     runString(str: string): boolean {
         return new PDARunner(this).runString(str, this._startState);
+    }
+    public copy(): Automaton<PDAState> {
+        throw new Error("Method not implemented.");
     }
 
     /**
