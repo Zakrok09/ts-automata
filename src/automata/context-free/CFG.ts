@@ -7,10 +7,13 @@ export class CFG{
     public readonly terminals : Map<string,CFGTerminal>
     public startVariable : CFGVariable
     private epsilon = new CFGTerminal(EPSILON);
-    public constructor(startVariable : char){
+    public constructor(startVariable : string){
+        if(startVariable.length != 1){
+            throw new IllegalArgument("Start variable has to have 1 character symbol!")
+        }
         this.variables = new Map()
         this.terminals = new Map()
-        this.variables.set(startVariable,new CFGVariable(startVariable))
+        this.variables.set(startVariable,new CFGVariable(startVariable as char))
         this.startVariable = this.variables.get(startVariable)!
 
     }

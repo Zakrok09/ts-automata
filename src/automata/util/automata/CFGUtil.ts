@@ -1,6 +1,6 @@
 import { UndecidableProblem } from "../../../exceptions/exceptions";
 import { CFG } from "../../../automata/context-free/CFG";
-import { EPSILON } from "../../../types";
+import { char, EPSILON } from "../../../types";
 
 export class CFGUtil {
     public constructor() {
@@ -40,6 +40,10 @@ export class CFGUtil {
         }
 
         return !marked.has(cfg.startVariable.symbol);
+    }
+    public toChomskyNormalForm(cfg :CFG) : CFG{
+        let resCFG = new CFG(("S"+1) as char)
+        return cfg;
     }
     public  isLanguageAllStrings(cfg : CFG): boolean {
         throw new UndecidableProblem("Universality of CFGs is an undecidable problem!")
