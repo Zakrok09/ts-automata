@@ -29,9 +29,33 @@ describe("CFG: Correct CRUD",()=>{
         expect(X.transitions.size).toBe(2)
         cfg.removeTransition("X","XX")
         expect(X.transitions.size).toBe(1)
+    })
 
-
-    
+    it("adding terminals- COPY",()=>{
+        let cfg2 = new CFGBuilder("ab")
+                    .withVariables("XY")
+                    .withTransitions.from("X").to("XX","aX")
+                    .withTransitions.from("Y").to("Y")
+                    .getResult()
+        let cfg = cfg2.copy()
+        expect(cfg.getVariable("X").symbol).toBe("X")
+        expect(cfg.getVariable("Y").symbol).toBe("Y")
+        expect(cfg.getTerminal("a").symbol).toBe("a")
+        expect(cfg.getTerminal("b").symbol).toBe("b")
+        expect(cfg.getTerminal("X")).toThrow(Error)
+        expect(cfg.getVariable("X")).toThrow(Error)
+        expect(()=>cfg.getTerminal("aksks")).toThrow(IllegalArgument)
+        expect(()=>cfg.addTerminal("aksks")).toThrow(IllegalArgument)
+        expect(()=>cfg.addTransition("a","X")).toThrow(IllegalArgument)
+        expect(()=>cfg.addTransition("X","H")).toThrow(IllegalArgument) 
+        let X = cfg.getVariable("X")
+        let Y = cfg.getVariable("Y")
+        let a = cfg.getTerminal("a")
+        expect(X.transitions.size).toBe(2)
+        cfg.removeTransition("X","XX")
+        expect(X.transitions.size).toBe(1)
+        // deep copy
+        expect(cfg2.getVariable("X").transitions.size).toBe(2)
     })
 
 })
