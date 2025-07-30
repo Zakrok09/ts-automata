@@ -46,8 +46,7 @@ export class CFGBuilder {
         if (from.length!=1){
             throw new IllegalArgument("from has to be a variable of one symbol")
         }
-        let fromAsChar : char  = from as char
-        if ( EPSILON in Array.from(to)) throw new IllegalArgument("cannot add EPSILON transitions from general add transition method")
+        if ( to.some(x=> x.includes(EPSILON) )) throw new IllegalArgument("cannot add EPSILON transitions from general add transition method")
 
         let bucket = this.transitions.get(from)
         if (!bucket){
@@ -110,7 +109,12 @@ export class CFGBuilder {
      * @returns The instance of the object
      */
     public withEpsilonTransition(from : string) : CFGBuilder{
-        this.addTransition(from,EPSILON)
+        let bucket = this.transitions.get(from)
+        if (!bucket){
+            this.transitions.set(from,new Set())
+            bucket = this.transitions.get(from)!
+        }
+        bucket.add([EPSILON]);
         return this;
     }
     /**

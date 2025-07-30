@@ -63,9 +63,8 @@ export class CFG{
     public addTransition(from : string, ...to : string[]):void{
         // an example would be X -> XXa
         
-        if(EPSILON in to){
+        if(to.some(x => x.includes(EPSILON))){
             throw new IllegalArgument("Cannot add a direct transition to EPSILON with this method")
-
         }
         
         let fromVariable = this.variables.get(from)
@@ -96,7 +95,7 @@ export class CFG{
      * @param symbol The symbol of the non-terminal. 1 character has to be distinct amongst all terminals and variables
      */
     public addVariable(symbol : string): void {
-        if(symbol == EPSILON || symbol == ""){
+        if(symbol.includes(EPSILON)|| symbol == ""){
             throw new IllegalArgument("Cannot have "+EPSILON+" as variable symbol")
         }
         
