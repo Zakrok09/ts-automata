@@ -1,9 +1,10 @@
 import { CFG } from '~/automata/context-free/CFG'
 import { char, EPSILON } from '../types'
+import { IllegalArgument } from '../exceptions/exceptions'
 
 export abstract class CFGState{
-    public symbol : char
-    public constructor(symbol : char){
+    public symbol : string
+    public constructor(symbol : string){
         this.symbol = symbol
     }
     public equal(other : CFGState) : boolean {
@@ -15,7 +16,7 @@ export abstract class CFGState{
 export class CFGVariable extends CFGState{
     
     public transitions : Set<CFGState[]>
-    public constructor(symbol : char){
+    public constructor(symbol : string){
         super(symbol)
         this.transitions = new Set()
     }
@@ -54,7 +55,10 @@ export class CFGVariable extends CFGState{
 }
 export class CFGTerminal extends CFGState{
     
-    public constructor(symbol : char){
+    public constructor(symbol : string){
+        if(symbol.length!=1){
+            throw new IllegalArgument("Terminal symbol has to be of length 1")
+        }
         super(symbol)
     }
 
