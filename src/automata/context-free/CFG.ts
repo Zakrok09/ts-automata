@@ -69,7 +69,6 @@ export class CFG{
         }
         
         let fromVariable = this.variables.get(from)
-        console.log(this.variables,to)
         if(fromVariable){
             fromVariable.addTransition(...to.map(nextState => this.getFromSymbol(nextState)))
         }else{
@@ -82,7 +81,6 @@ export class CFG{
      * @returns The state from the CFG, if it exists
      */
     private getFromSymbol(symbol : string) : CFGState{
-        console.log("babannne ",symbol)
         let nextState : CFGState | undefined = this.variables.get(symbol)
         if (!nextState){
             nextState = this.terminals.get(symbol)

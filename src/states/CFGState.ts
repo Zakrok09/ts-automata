@@ -49,7 +49,7 @@ export class CFGVariable extends CFGState{
     }
     public toString(): string {
         let res = this.symbol + " -> ";
-        return res+ this.transitions.values().map(x=>x.map(state => state.symbol).join("")).toArray().join(" | ")
+        return res+ this.transitions.values().map(x=>x.map(state => state.symbol).join(" ")).toArray().join(" | ")
     }
 
 }
