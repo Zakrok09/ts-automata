@@ -13,8 +13,8 @@ const variableCharArb = fc.string().filter(x => !x.includes(EPSILON)&&x!="");
  * Generates a valid CFG using CFGBuilder
  */
 export const cfgArbitrary: fc.Arbitrary<CFG> = fc.record({
-  terminals: fc.array(terminalCharArb, { minLength: 0, maxLength: 30 }),
-  variables: fc.array(variableCharArb, { minLength: 1, maxLength: 30 })
+  terminals: fc.array(terminalCharArb, { minLength: 0, maxLength: 20 }),
+  variables: fc.array(variableCharArb, { minLength: 1, maxLength: 20 })
 }).chain(({ terminals, variables }) => {
   const startVariableArb = fc.constantFrom(...variables);
 
@@ -35,7 +35,7 @@ export const cfgArbitrary: fc.Arbitrary<CFG> = fc.record({
     );
 
     // Optional ε transitions
-    const epsilonTransitionsArb = fc.subarray(variables, { maxLength: 1 });
+    const epsilonTransitionsArb = fc.subarray(variables, { maxLength: variables.length });
 
     return fc.tuple(transitionsArb, epsilonTransitionsArb).map(([transitions, epsilonVars]) => {
       for (const [from, to] of transitions) {

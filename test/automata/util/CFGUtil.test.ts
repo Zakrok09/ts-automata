@@ -12,8 +12,9 @@ describe("CFGUtil: Chomsky", ()=>{
     })
     test.prop([cfgArbitrary])("correct method",(cfg)=>{
         expect(util.isInChomskyNormalForm(util.toChomskyNormalForm(cfg))).toBe(true);
-    });
-    test("test chomskt",()=>{
+    },1000);
+    
+    test("test chomskty checker- false",()=>{
          let cfg = new CFGBuilder("ab")
                           .withVariables("S","X","Y","Z")
                           .withTransitions.from("S").to(["Z"])
@@ -22,8 +23,18 @@ describe("CFGUtil: Chomsky", ()=>{
                           .withEpsilonTransition("X")
                           .withTransitions.from("Y").to(["X"],["Y"])
                           .getResult() 
-        console.log(cfg.toString(),"*********\n") ;
-        console.log(util.toChomskyNormalForm(cfg).toString())
+        expect(util.isInChomskyNormalForm(cfg)).toBe(false)
+    })
+    test("test chomskty checker- true ",()=>{
+         let cfg = new CFGBuilder("ab")
+                          .withVariables("S","X","Y","Z")
+                          .withTransitions.from("S").to(["Z"])
+                          .withTransitions.from("Z").to(["Y","Y"])
+                          .withTransitions.from("X").to(["X","b","X"],["a"])
+                          .withEpsilonTransition("X")
+                          .withTransitions.from("Y").to(["X"],["Y"])
+                          .getResult() 
+        expect(util.isInChomskyNormalForm(util.toChomskyNormalForm(cfg))).toBe(true)
     })
     
     
