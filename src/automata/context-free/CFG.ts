@@ -84,11 +84,14 @@ export class CFG{
      */
     private getFromSymbol(symbol : string) : CFGState{
         let nextState : CFGState | undefined = this.variables.get(symbol)
+        if(symbol == EPSILON){
+            return this.epsilon;
+        }
         if (!nextState){
             nextState = this.terminals.get(symbol)
         }
         if(!nextState){
-            throw new IllegalArgument("Symbol doesn't exist!")
+            throw new IllegalArgument("Symbol "+symbol+" doesn't exist!")
         }
         return nextState
 

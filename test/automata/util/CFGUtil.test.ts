@@ -9,13 +9,25 @@ describe("CFGUtil: Chomsky", ()=>{
     })
     it.only("test chomskt",()=>{
          let cfg = new CFGBuilder("ab")
-                          .withVariables("X","Y")
-                          .withTransitions.from("X").to(["X","X"],["a"])
+                          .withVariables("S","X","Y","Z")
+                          .withTransitions.from("S").to(["Z"])
+                          .withTransitions.from("Z").to(["Y","Y"])
+                          .withTransitions.from("X").to(["X","b","X"],["a"])
                           .withEpsilonTransition("X")
-                          .withTransitions.from("Y").to(["X"])
-                          .getResult()  
-        console.log(util.toChomskyNormalForm(cfg))
+                          .withTransitions.from("Y").to(["X"],["Y"])
+                          .getResult() 
+        console.log(cfg.toString(),"*********\n") ;
+        console.log(util.toChomskyNormalForm(cfg).toString())
     })
+    it.only("test chomskt",()=>{
+         let cfg = new CFGBuilder("ab")
+                          .withVariables("S","X","Y","Z")
+                          .withTransitions.from("S").to(["a","b","a","b","a","b"])
+                          .getResult() 
+        console.log(cfg.toString(),"*********\n") ;
+        console.log(util.toChomskyNormalForm(cfg).toString())
+    })
+    
 })
 describe("CFGUtil: Empty CFG",()=>{
     let util : CFGUtil
