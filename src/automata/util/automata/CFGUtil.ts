@@ -199,7 +199,7 @@ export class CFGUtil {
             transitions.set(nonTerminalName,[[sym]])
         }
         for(let [from , toTransitions] of transitions){
-            if(terminalToVariable.values().some(x=>x==from)){
+            if(from.startsWith("T")){
                 continue
             }
             for(let to of toTransitions){
