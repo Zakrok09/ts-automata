@@ -449,6 +449,28 @@ export class CFGUtil {
         throw new UndecidableProblem("Equality of CFGs is an undecidable problem!")
     } 
     /**
+     * Union of two languages
+     * @param cfg The first cfg
+     * @param otherCfg The second
+     * @returns A CFG that recognizes both languages
+     */
+    public union(cfg : CFG, otherCfg : CFG) : CFG{
+        cfg = this.prependToCFGSymbols(cfg.copy(),"1-")
+        otherCfg = this.prependToCFGSymbols(otherCfg.copy(),"2-")
+        otherCfg.terminals.forEach(x=>cfg.addTerminal(x.symbol))
+        otherCfg.variables.forEach(x=>cfg.addVariable(x.symbol))
+        otherCfg.variables.forEach(x=>
+            x.transitions.forEach(transition => 
+                transition.length==1 && 
+                transition[0].symbol==EPSILON ? cfg.addTransitionToEmptyString(x.symbol) : 
+                cfg.addTransition(x.symbol,...transition.map(to=>to.symbol) )))
+        cfg.addVariable("S0");
+        cfg.addTransition("S0",cfg.startVariable.symbol)
+        cfg.addTransition("S0",otherCfg.startVariable.symbol)
+        cfg.changeStartVariable("S0")
+        return cfg;
+    }
+    /**
      * Check if CFG in Chomsky Normal Form
      * @param cfg The cfg
      * @returns True if the CFg is in Chomsky Normal Form

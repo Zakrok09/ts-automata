@@ -173,7 +173,9 @@ export class CFG{
         this.variables.forEach(x=> {newCFG.addVariable(x.symbol)})
         this.terminals.forEach(x=>newCFG.addTerminal(x.symbol))
         this.variables.forEach(variable => 
-                    variable.transitions.forEach(states => 
+                    variable.transitions.forEach(states =>
+                        states.length ==1 && states[0].symbol==EPSILON ? 
+                        newCFG.addTransitionToEmptyString(variable.symbol): 
                             newCFG.addTransition(variable.symbol,
                                 ...states.map(state=>state.symbol))))
         return newCFG;

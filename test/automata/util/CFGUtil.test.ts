@@ -57,11 +57,11 @@ describe("CFGUtil: A_CFG",()=>{
                         .getResult()
         expect(util.doesLanguageContainString(cfg,word)).toBe(true);
     });
-    
+
     test.prop([aOrBStringArb])("correct method palindrome",(word)=>{
         let cfg = new CFGBuilder("ab").withVariables("X")
                        .withTransitions.from("X")
-                        .to(["a","X","b"],["a","X","a"],["b","X","b"],["b","X","a"])
+                        .to(["a","X","a"],["b","X","b"],["a"],["b"])
                         .withEpsilonTransition("X")
                         .getResult()
         expect(util.doesLanguageContainString(cfg,word+(Array.from(word).reverse().join("")))).toBe(true);
@@ -77,6 +77,32 @@ describe("CFGUtil: A_CFG",()=>{
         expect(util.doesLanguageContainString(cfg,"b")).toBe(false);
         expect(util.doesLanguageContainString(cfg,"ba")).toBe(false);
         expect(util.doesLanguageContainString(cfg,"bbaa")).toBe(false);
+        expect(util.doesLanguageContainString(cfg,"bbcaa")).toBe(false);
+    })
+})
+describe("CFGUtil: Union",()=>{
+    let util : CFGUtil
+    beforeEach(()=>{
+        util = new CFGUtil();
+    })
+
+
+    it("should return false for not in language",()=>{
+        let cfg = new CFGBuilder("ab").withVariables("X")
+                       .withTransitions.from("X")
+                        .to(["a","X","a"],["b","X","b"],["a"],["b"])
+                        .withEpsilonTransition("X")
+                        .getResult()
+        let cfg2 = new CFGBuilder("ab").withVariables("X")
+                       .withTransitions.from("X")
+                        .to(["a","X","b"])
+                        .withEpsilonTransition("X")
+                        .getResult()
+        cfg = util.union(cfg,cfg2)
+        expect(util.doesLanguageContainString(cfg,"a")).toBe(true);
+        expect(util.doesLanguageContainString(cfg,"b")).toBe(true);
+        expect(util.doesLanguageContainString(cfg,"ba")).toBe(false);
+        expect(util.doesLanguageContainString(cfg,"babab")).toBe(true);
         expect(util.doesLanguageContainString(cfg,"bbcaa")).toBe(false);
     })
 })
