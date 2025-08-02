@@ -1,5 +1,5 @@
 import { char, EPSILON } from "../../types";
-import { CFGState, CFGTerminal, CFGVariable } from "../../states/CFGState";
+import { CFGState, CFGTerminal, CFGVariable, CFGEdge } from "../../states/CFGState";
 import { IllegalArgument } from "../../exceptions/exceptions";
 
 export class CFG{
@@ -13,6 +13,9 @@ export class CFG{
         this.addVariable(startVariable)
         this.startVariable = this.variables.get(startVariable)!
 
+    }
+    public changeStartVariable(newStartVariable : string){
+        this.startVariable = this.getVariable(newStartVariable);
     }
     /**
      * Method to remove a transition to the empty string

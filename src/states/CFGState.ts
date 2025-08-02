@@ -2,6 +2,7 @@ import { CFG } from '~/automata/context-free/CFG'
 import { char, EPSILON } from '../types'
 import { IllegalArgument } from '../exceptions/exceptions'
 
+export type CFGEdge = CFGState[]
 export abstract class CFGState{
     public symbol : string
     public constructor(symbol : string){
@@ -15,7 +16,7 @@ export abstract class CFGState{
 
 export class CFGVariable extends CFGState{
     
-    public transitions : Set<CFGState[]>
+    public transitions : Set<CFGEdge>
     public constructor(symbol : string){
         super(symbol)
         this.transitions = new Set()
