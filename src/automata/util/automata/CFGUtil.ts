@@ -518,7 +518,14 @@ export class CFGUtil {
     private checkProperFormRule(cfg : CFG) : boolean {
         for(let [fromSymbol,variable] of cfg.variables){
             for(let transition of variable.transitions){
-                if(transition.length>2){
+                if(transition.length>2&&transition.length==0){
+                    return false;
+                }
+                let transitionMapped = Array.from(transition).map(x=>x.symbol)
+                if(transition.length==2&&transitionMapped.some(x=>cfg.terminals.has(x))){
+                    return false;
+                }
+                if(transition.length ==1 &&cfg.variables.has(transition[0].symbol)){
                     return false;
                 }
             }
