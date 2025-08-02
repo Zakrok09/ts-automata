@@ -1,7 +1,7 @@
 import { UndecidableProblem } from "../../../exceptions/exceptions";
 import { CFG } from "../../../automata/context-free/CFG";
 import { char, EPSILON } from "../../../types";
-import { CFGEdge } from "../../../states/CFGState";
+import { CFGEdge, CFGVariable } from "../../../states/CFGState";
 
 export class CFGUtil {
     public constructor() {
@@ -48,7 +48,7 @@ export class CFGUtil {
         newCFG.addTransition("S",newCFG.startVariable.symbol)
         newCFG.changeStartVariable("S")
         newCFG = this.removeEpsilonTransitions(newCFG)
-        return cfg;
+        return newCFG;
     }
     private prependToCFGSymbols(cfg :CFG,prepend : string) : CFG{
         let copyOfCFG = new CFG(prepend+cfg.startVariable.symbol)
@@ -56,10 +56,8 @@ export class CFGUtil {
         cfg.variables.forEach(variable => copyOfCFG.addVariable(prepend+variable.symbol))
         cfg.variables.forEach(variable => variable.transitions.
                         forEach(transition => 
-                            copyOfCFG.addTransition(variable.symbol,...transition.map(x=> prepend+x.symbol))))
-        return cfg;
-
-
+                            copyOfCFG.addTransition(prepend+variable.symbol,...transition.map(x=> x instanceof CFGVariable ? prepend+x.symbol: x.symbol))))
+        return copyOfCFG;
     }
     public removeEpsilonTransitions(cfg : CFG) : CFG{
         let transitions : Map<string,string[][]> = this.getTransitionsInMap(cfg)

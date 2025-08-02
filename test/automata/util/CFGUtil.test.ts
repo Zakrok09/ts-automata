@@ -2,6 +2,21 @@ import {describe, it, expect,beforeEach} from "vitest";
 import { CFGBuilder } from "../../../src/automata/util/builders/automata/CFGBuilder";
 import {CFGUtil} from "../../../src/automata/util/automata/CFGUtil"
 import { CFG } from "../../../src/automata/context-free/CFG";
+describe("CFGUtil: Chomsky", ()=>{
+    let util : CFGUtil
+    beforeEach(()=>{
+        util = new CFGUtil();
+    })
+    it.only("test chomskt",()=>{
+         let cfg = new CFGBuilder("ab")
+                          .withVariables("X","Y")
+                          .withTransitions.from("X").to(["X","X"],["a"])
+                          .withEpsilonTransition("X")
+                          .withTransitions.from("Y").to(["X"])
+                          .getResult()  
+        console.log(util.toChomskyNormalForm(cfg))
+    })
+})
 describe("CFGUtil: Empty CFG",()=>{
     let util : CFGUtil
     beforeEach(()=>{
