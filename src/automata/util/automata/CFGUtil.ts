@@ -199,7 +199,7 @@ export class CFGUtil {
             transitions.set(nonTerminalName,[[sym]])
         }
         for(let [from , toTransitions] of transitions){
-            if(terminalToVariable.values().find(x=>x==from)){
+            if(terminalToVariable.values().some(x=>x==from)){
                 continue
             }
             for(let to of toTransitions){
@@ -252,7 +252,7 @@ export class CFGUtil {
                             temp.set(from,[])
                     }
                     // If it can transition to an epsilon non-terminal
-                    if(to.find(x=> variablesWithEpsilon.has(x))){
+                    if(to.some(x=> variablesWithEpsilon.has(x))){
                         flag = true;
                         let removedTransitions = this.removeEpsilonEdge(to,variablesWithEpsilon)
                         // Delimit the edge that has all variables in it such that it doesn't cause an infinite loop
@@ -402,7 +402,7 @@ export class CFGUtil {
         
         cfg = this.toChomskyNormalForm(cfg)
         if(word ==EPSILON||word==""){
-            if(Array.from(cfg.startVariable.transitions).find(x=>x.length==1&&x[0].symbol==EPSILON)){
+            if(Array.from(cfg.startVariable.transitions).some(x=>x.length==1&&x[0].symbol==EPSILON)){
                 return true;
             }else{
                 return false;
