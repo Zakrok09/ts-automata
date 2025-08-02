@@ -43,9 +43,7 @@ export class CFGBuilder {
      * @returns The instance of the object
      */
     public addTransition(from:string, ...to:string[]):this {
-        if (from.length!=1){
-            throw new IllegalArgument("from has to be a variable of one symbol")
-        }
+        
         if ( to.some(x=> x.includes(EPSILON) )) throw new IllegalArgument("cannot add EPSILON transitions from general add transition method")
 
         let bucket = this.transitions.get(from)
@@ -86,10 +84,7 @@ export class CFGBuilder {
      * @returns The instance of the object
      */
     public withStartVariable(name : string) : CFGBuilder {
-        if (name.length!=1){
-            throw new IllegalArgument("Start variable name must be 1 character")
-        }
-        this.startVariableName = name as char;
+        this.startVariableName = name;
         this.addVariable(name);
         return this;
     }

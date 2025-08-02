@@ -43,10 +43,11 @@ export class CFGUtil {
         return !marked.has(cfg.startVariable.symbol);
     }
     public toChomskyNormalForm(cfg :CFG) : CFG{
+        
         let newCFG = this.prependToCFGSymbols(cfg,"-")
-        newCFG.addVariable("S")
-        newCFG.addTransition("S",newCFG.startVariable.symbol)
-        newCFG.changeStartVariable("S")
+        newCFG.addVariable("S0")
+        newCFG.addTransition("S0",newCFG.startVariable.symbol)
+        newCFG.changeStartVariable("S0")
         newCFG = this.removeEpsilonTransitions(newCFG)
         newCFG = this.removeAllUnitRules(newCFG)
         newCFG = this.allRulesProperForm(newCFG)
@@ -87,7 +88,7 @@ export class CFGUtil {
                     cfg.addTransitionToEmptyString(cfg.startVariable.symbol)
                     continue;
                 }
-                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,".")))
+                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,"..")))
             }
         }
         return cfg;
@@ -128,7 +129,7 @@ export class CFGUtil {
                     cfg.addTransitionToEmptyString(cfg.startVariable.symbol)
                     continue;
                 }
-                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,".")))
+                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,"..")))
             }
         }
         return cfg;
@@ -162,7 +163,7 @@ export class CFGUtil {
                     if(to.find(x=> variablesWithEpsilon.has(x))){
                         flag = true;
                         let removedTransitions = this.removeEpsilonEdge(to,variablesWithEpsilon)
-                        temp.get(from)!.push(to.map(x=>"."+x))
+                        temp.get(from)!.push(to.map(x=>".."+x))
                         temp.get(from)!.push(...removedTransitions)
                     }else{
                         temp.get(from)!.push(to)
@@ -190,7 +191,7 @@ export class CFGUtil {
                     cfg.addTransitionToEmptyString(cfg.startVariable.symbol)
                     continue;
                 }
-                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,".")))
+                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,"..")))
             }
         }
         return cfg;
@@ -221,6 +222,7 @@ export class CFGUtil {
                 let toBePushed = transitions.get(symbol)!
                 toBePushed.push(mappedTransition)
             }
+            transitions.set(symbol,this.uniqueify(transitions.get(symbol)!))
         }
         return transitions
 
@@ -229,12 +231,12 @@ export class CFGUtil {
 
         for(let [sym,variable] of cfg.variables){
             for(let transition of variable.transitions){
-                cfg.removeTransition(this.removeDelimiter(sym,"."),
-                    ...transition.map(x=>this.removeDelimiter(x.symbol,".")))
+                cfg.removeTransition(this.removeDelimiter(sym,".."),
+                    ...transition.map(x=>this.removeDelimiter(x.symbol,"..")))
             }
         }
     }
-    private removeDelimiter(name : string,delimeter : string){
+    private removeDelimiter(name : string,delimeter : string) :string{
         if(name.startsWith(delimeter)){
             return name.slice(delimeter.length)
         }
@@ -270,12 +272,7 @@ export class CFGUtil {
 
         return res
     }
-    private getUnitRulesOfVariable(cfg : CFG,variable : string): string[]{
-        return Array.from(cfg.getVariable(variable)!.transitions)
-                                .map(x=>x.map(y=>y.symbol))
-                                .filter(x=>x.length==1&&x[0]!=EPSILON)
-                                .flat()
-    }
+    
     
     public  isLanguageAllStrings(cfg : CFG): boolean {
         throw new UndecidableProblem("Universality of CFGs is an undecidable problem!")
@@ -288,5 +285,57 @@ export class CFGUtil {
     public equal(cfg : CFG, otherCfg:  CFG): boolean {
         throw new UndecidableProblem("Equality of CFGs is an undecidable problem!")
     } 
+    public isInChomskyNormalForm(cfg : CFG) : boolean {
+        return [this.checkStartRule(cfg),
+                this.checkEpsilonRule(cfg),
+                this.checkProperFormRule(cfg),
+                this.checkUnitRule(cfg)].every(x=>x)
+
+    }
+    private checkStartRule(cfg : CFG) : boolean {
+        let start = cfg.startVariable.symbol;
+        for(let [fromSymbol,variable] of cfg.variables){
+            for(let transitions of variable.transitions){
+                if(transitions.map(x=>x.symbol).includes(start)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private checkUnitRule(cfg : CFG) : boolean {
+        for(let [fromSymbol,variable] of cfg.variables){
+            for(let transition of variable.transitions){
+                if(transition.length==1 && transition[0] instanceof CFGVariable){
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+    private checkEpsilonRule(cfg : CFG) : boolean {
+        for(let [fromSymbol,variable] of cfg.variables){
+            for(let transition of variable.transitions){
+                if(transition.length==1 && transition[0].symbol == EPSILON 
+                            && fromSymbol!=cfg.startVariable.symbol){
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+    private checkProperFormRule(cfg : CFG) : boolean {
+        for(let [fromSymbol,variable] of cfg.variables){
+            for(let transition of variable.transitions){
+                if(transition.length>2){
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
 
 }

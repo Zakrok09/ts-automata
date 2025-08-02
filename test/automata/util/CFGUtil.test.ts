@@ -2,12 +2,18 @@ import {describe, it, expect,beforeEach} from "vitest";
 import { CFGBuilder } from "../../../src/automata/util/builders/automata/CFGBuilder";
 import {CFGUtil} from "../../../src/automata/util/automata/CFGUtil"
 import { CFG } from "../../../src/automata/context-free/CFG";
+import { test, fc } from '@fast-check/vitest';
+import { cfgArbitrary } from "./CFGArbitrary";
+
 describe("CFGUtil: Chomsky", ()=>{
     let util : CFGUtil
     beforeEach(()=>{
         util = new CFGUtil();
     })
-    it.only("test chomskt",()=>{
+    test.prop([cfgArbitrary])("correct method",(cfg)=>{
+        expect(util.isInChomskyNormalForm(util.toChomskyNormalForm(cfg))).toBe(true);
+    });
+    test("test chomskt",()=>{
          let cfg = new CFGBuilder("ab")
                           .withVariables("S","X","Y","Z")
                           .withTransitions.from("S").to(["Z"])
@@ -19,14 +25,7 @@ describe("CFGUtil: Chomsky", ()=>{
         console.log(cfg.toString(),"*********\n") ;
         console.log(util.toChomskyNormalForm(cfg).toString())
     })
-    it.only("test chomskt",()=>{
-         let cfg = new CFGBuilder("ab")
-                          .withVariables("S","X","Y","Z")
-                          .withTransitions.from("S").to(["a","b","a","b","a","b"])
-                          .getResult() 
-        console.log(cfg.toString(),"*********\n") ;
-        console.log(util.toChomskyNormalForm(cfg).toString())
-    })
+    
     
 })
 describe("CFGUtil: Empty CFG",()=>{
