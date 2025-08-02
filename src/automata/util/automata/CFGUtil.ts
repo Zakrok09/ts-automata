@@ -2,6 +2,7 @@ import { UndecidableProblem } from "../../../exceptions/exceptions";
 import { CFG } from "../../../automata/context-free/CFG";
 import { char, EPSILON } from "../../../types";
 import { CFGEdge, CFGVariable } from "../../../states/CFGState";
+import { table } from "console";
 
 export class CFGUtil {
     private delimeter = ".."
@@ -55,6 +56,7 @@ export class CFGUtil {
         newCFG.addVariable("S0")
         newCFG.addTransition("S0",newCFG.startVariable.symbol)
         newCFG.changeStartVariable("S0")
+        newCFG = this.terminalToVariableConverter(newCFG)
         newCFG = this.removeEpsilonTransitions(newCFG)
         newCFG = this.removeAllUnitRules(newCFG)
         newCFG = this.allRulesProperForm(newCFG)
@@ -88,6 +90,7 @@ export class CFGUtil {
                 }
             }
         }
+        
         // ADd the new terminals generated
         for(let name of newTransitions.keys()){
             if(!cfg.getVariable(name)){
@@ -186,12 +189,57 @@ export class CFGUtil {
                                 ...transition.map(x=> x instanceof CFGVariable ? prepend+x.symbol: x.symbol))}}))
         return copyOfCFG;
     }
+    private terminalToVariableConverter(cfg : CFG) : CFG{
+        let counter = 0
+        let transitions = this.getTransitionsInMap(cfg)
+        let terminalToVariable : Map<string,string> = new Map();
+        for(let [sym,terminal] of cfg.terminals){
+            let nonTerminalName = "T"+counter++
+            terminalToVariable.set(sym,nonTerminalName)
+            transitions.set(nonTerminalName,[[sym]])
+        }
+        for(let [from , toTransitions] of transitions){
+            if(terminalToVariable.values().find(x=>x==from)){
+                continue
+            }
+            for(let to of toTransitions){
+                for(let i = 0; i <to.length ;++i){
+                    if(cfg.terminals.has(to[i])){
+                        to[i]=terminalToVariable.get(to[i])!
+                    }
+                }
+            }
+        }
+        // ADd the new terminals generated
+        for(let name of transitions.keys()){
+            if(!cfg.getVariable(name)){
+                cfg.addVariable(name)
+            }
+        }
+       this.removeAllTransitions(cfg);
+        for(let [key,to] of transitions){
+            transitions.set(key,this.uniqueify(to))
+        }
+        // Add the new transitions
+        for(let [sym,toTransitions] of transitions){
+            for(let transition of toTransitions ){
+                if(transition.length==1&&transition[0]==EPSILON){
+                    cfg.addTransitionToEmptyString(sym)
+                    continue;
+                }
+                // Remove the delimiter from all states
+                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,this.delimeter)))
+            }
+        }
+        return cfg;
+    }
     /**
      * Remove all transitions in the form of X -> EPSILON
      * @param cfg The old CFG
      * @returns Equivallent CFG such that only the start non-terminal has an epsilon transition
      */
     private removeEpsilonTransitions(cfg : CFG) : CFG{
+
         let transitions = this.getTransitionsInMap(cfg)
         let variablesWithEpsilon = this.getVariablesWithSingleTransition(cfg,EPSILON)
         let flag : boolean = true
@@ -224,6 +272,7 @@ export class CFGUtil {
                 }
             }
         }
+
         return this.refreshTheEdges(cfg,transitions)
 
     }
@@ -343,9 +392,57 @@ export class CFGUtil {
         throw new UndecidableProblem("Universality of CFGs is an undecidable problem!")
 
     }
+    /**
+     * Implements Sipser's DP algorithm 
+     * @param cfg The cfg
+     * @param word The word to check if it is in the language
+     * @returns True if the word is in the language
+     */
     public  doesLanguageContainString(cfg : CFG,word : string): boolean {
-        // TODO: Implement DP algorithm
-        return false;
+        
+        cfg = this.toChomskyNormalForm(cfg)
+        if(word ==EPSILON||word==""){
+            if(Array.from(cfg.startVariable.transitions).find(x=>x.length==1&&x[0].symbol==EPSILON)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        let n :number = word.length;
+        var dp : string[][][]= [];
+        for(let i = 0; i < n; i++) {
+            dp.push([])
+            for(let j = 0; j < n;++j)[
+                dp[i].push([])
+            ]
+        }
+        
+        for(let i = 0; i<n;++i){
+            dp[i][i].push(...Array.from(this.getVariablesWithSingleTransition(cfg,word[i])))
+        }
+        let allTransitions = this.getTransitionsInMap(cfg);
+        for(let l = 2 ; l <=n; l++){
+            for(let i = 0 ; i<=n-l;++i){
+                let j = i+l-1;
+                for(let k = i; k<=j-1;++k){
+                    for(let [A,transitions] of allTransitions){
+                        for(let transition of transitions){
+                            if(!(transition.length==2 &&
+                                 transition.every(x=>allTransitions.has(x)))){
+                                continue;
+                            }
+                            let B = transition[0]
+                            let C = transition[1]
+
+                            if(dp[i][k].includes(B)&&dp[k+1][j].includes(C)){
+                                dp[i][j].push(A)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return dp[0][n-1].includes(cfg.startVariable.symbol);
     }
     // Checks if two automata reconize the same language.
     public equal(cfg : CFG, otherCfg:  CFG): boolean {
@@ -357,6 +454,7 @@ export class CFGUtil {
      * @returns True if the CFg is in Chomsky Normal Form
      */
     public isInChomskyNormalForm(cfg : CFG) : boolean {
+
         return [this.checkStartRule(cfg),
                 this.checkEpsilonRule(cfg),
                 this.checkProperFormRule(cfg),
