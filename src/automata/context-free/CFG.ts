@@ -20,6 +20,7 @@ export class CFG{
     /**
      * Method to remove a transition to the empty string
      * @param from The non-terminal to remove the transition from
+     * @throws {IllegalArgument} if variable doesnt exist
      */
     public removeEmptyStringTransition(from : string){
         let fromVariable = this.variables.get(from)
@@ -33,7 +34,8 @@ export class CFG{
      * Method to remove a transition from the CFG
      * @param from The non-terminal to transition to remove from
      * @param to the string representation of the terminals and nonterminals to remove the transformation of
-     */
+     * @throws {IllegalArgument} if variable doesnt exist
+    */
     public removeTransition(from : string, ...to :string[]){
         
         let fromVariable = this.variables.get(from)
@@ -46,6 +48,7 @@ export class CFG{
     /**
      * Method to add transition to empty string from a non-terminal
      * @param from The non-terminal symbol, 1 character
+     * @throws {IllegalArgument} if variable doesnt exist
      */
     public addTransitionToEmptyString(from : string){
         // X -> empty string
@@ -62,6 +65,7 @@ export class CFG{
      * The method to add a transition from a non-terminal to a collection of terminals and nonterminals
      * @param from the symbol of the terminal, 1 character.
      * @param to The string containing the symbols to transform into
+     * @throws {IllegalArgument} if variable doesnt exist or  there is an epsilon in the transition
      */
     public addTransition(from : string, ...to : string[]):void{
         // an example would be X -> XXa
@@ -84,7 +88,7 @@ export class CFG{
      */
     private getFromSymbol(symbol : string) : CFGState{
         let nextState : CFGState | undefined = this.variables.get(symbol)
-        if(symbol == EPSILON){
+        if(symbol === EPSILON){
             return this.epsilon;
         }
         if (!nextState){
@@ -99,34 +103,36 @@ export class CFG{
     /**
      * Method to add a non-terminal state to the CFG
      * @param symbol The symbol of the non-terminal. 1 character has to be distinct amongst all terminals and variables
+     * @throws {IllegalArgument} if a symbol equal to epsilon is passed or a pre-existing symbol
      */
     public addVariable(symbol : string): void {
-        if(symbol.includes(EPSILON)|| symbol == ""){
+        if(symbol.includes(EPSILON)|| symbol === ""){
             throw new IllegalArgument("Cannot have "+EPSILON+" as variable symbol")
         }
         
-        if(this.terminals.get(symbol)){
+        if(this.terminals.has(symbol)){
             throw new IllegalArgument("A terminal and a variable can't have the same symbol!")
         }
-        if(!this.variables.get(symbol)){
+        if(!this.variables.has(symbol)){
             this.variables.set(symbol,new CFGVariable(symbol))
         }
     }
     /**
      * Method to add a terminal state to the CFG
      * @param symbol The symbol of the terminal. 1 character has to be distinct amongst all terminals and variables
-     */
+     * @throws {IllegalArgument} if a symbol equal to epsilon is passed or a pre-existing symbol 
+    */
     public addTerminal(symbol : string): void {
         if (symbol.length!=1){
             throw new IllegalArgument("symbol has to be of length 1!")
         }
-        if(symbol == EPSILON){
+        if(symbol === EPSILON){
             throw new IllegalArgument("Cannot have "+EPSILON+" as terminal symbol")
         }
-        if(this.variables.get(symbol)){
+        if(this.variables.has(symbol)){
             throw new IllegalArgument("A terminal and a variable can't have the same symbol!")
         }
-        if(!this.terminals.get(symbol)){
+        if(!this.terminals.has(symbol)){
             this.terminals.set(symbol,new CFGTerminal(symbol))
         }
     }
@@ -141,6 +147,7 @@ export class CFG{
     /**
      * Method to get a terminal state from the CFG
      * @param symbol The symbol of the terminal. 1 character
+     * @throws {IllegalArgument} if symbol is not 1 character
      * @returns The terminal string, if it exists.
      */
     public getTerminal(symbol : string) : CFGTerminal{
@@ -174,7 +181,7 @@ export class CFG{
         this.terminals.forEach(x=>newCFG.addTerminal(x.symbol))
         this.variables.forEach(variable => 
                     variable.transitions.forEach(states =>
-                        states.length ==1 && states[0].symbol==EPSILON ? 
+                        states.length ===1 && states[0].symbol===EPSILON ? 
                         newCFG.addTransitionToEmptyString(variable.symbol): 
                             newCFG.addTransition(variable.symbol,
                                 ...states.map(state=>state.symbol))))

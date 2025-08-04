@@ -10,8 +10,7 @@ export class CFGBuilder {
     protected variables : Set<string>
 
     public constructor(terminals : string) {
-        this.terminals = new Set();
-        Array.from(terminals).forEach(terminal => this.terminals.add(terminal))
+        this.terminals = new Set(terminals);
         this.variables = new Set()
         this.transitions = new Map()
     }
@@ -40,6 +39,7 @@ export class CFGBuilder {
      * The function to add a transition
      * @param from The non-terminal to add the transition to
      * @param to The string representing the symbols to transform to
+     * @throws {IllegalArgument} If there is an epsilon in the transition
      * @returns The instance of the object
      */
     public addTransition(from:string, ...to:string[]):this {
@@ -114,6 +114,7 @@ export class CFGBuilder {
     }
     /**
      * Method for building the CFG
+     * @throws {IllegalArgument} if there is no start variable
      * @returns The built CFG
      */
     public getResult() : CFG{
@@ -133,7 +134,7 @@ export class CFGBuilder {
         return cfg;
     }
     private isEpsilonTransition(transition : string[]) : boolean {
-        return transition.length == 1 && transition[0] == EPSILON
+        return transition.length === 1 && transition[0] === EPSILON
     }
 }
 

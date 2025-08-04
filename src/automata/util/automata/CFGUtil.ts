@@ -114,10 +114,10 @@ export class CFGUtil {
         // Add the new transitions
         for(let [sym,toTransitions] of allTransitions){
             for(let transition of toTransitions ){
-                if(transition.length==1&&transition[0]==EPSILON&&sym!=cfg.startVariable.symbol){
+                if(transition.length===1&&transition[0]===EPSILON&&sym!=cfg.startVariable.symbol){
                     continue;
                 }
-                if(transition.length==1&&transition[0]==EPSILON&&sym==cfg.startVariable.symbol){
+                if(transition.length===1&&transition[0]===EPSILON&&sym===cfg.startVariable.symbol){
                     cfg.addTransitionToEmptyString(cfg.startVariable.symbol)
                     continue;
                 }
@@ -144,12 +144,12 @@ export class CFGUtil {
                 temp.set(from,[]);
                 for(let to of toTransitions){
                     // Remove self edges X -> X
-                    if(to.length==1&&to[0]==from){
+                    if(to.length===1&&to[0]===from){
                         flag = true;
                         continue;
                     }
                     // If in the form of X-> Y
-                    if(to.length==1&&cfg.variables.has(to[0])){
+                    if(to.length===1&&cfg.variables.has(to[0])){
                         if(removed.has(JSON.stringify([from,to]))){
                             continue
                         }
@@ -182,7 +182,7 @@ export class CFGUtil {
         cfg.variables.forEach(variable => copyOfCFG.addVariable(prepend+variable.symbol))
         cfg.variables.forEach(variable => variable.transitions.
                         forEach(transition => 
-                            { if(transition.length == 1 && transition[0].symbol==EPSILON){
+                            { if(transition.length === 1 && transition[0].symbol===EPSILON){
                                 copyOfCFG.addTransitionToEmptyString(prepend+variable.symbol)
                             }else{
                                 copyOfCFG.addTransition(prepend+variable.symbol,
@@ -223,7 +223,7 @@ export class CFGUtil {
         // Add the new transitions
         for(let [sym,toTransitions] of transitions){
             for(let transition of toTransitions ){
-                if(transition.length==1&&transition[0]==EPSILON){
+                if(transition.length===1&&transition[0]===EPSILON){
                     cfg.addTransitionToEmptyString(sym)
                     continue;
                 }
@@ -267,7 +267,7 @@ export class CFGUtil {
             transitions = temp
             // Some variables may have a new epsilon transition, keep track of it
             for(let [from , toTransitions] of transitions){
-                if(toTransitions.filter(x=> x.length==1&&x[0]==EPSILON).length>=1){
+                if(toTransitions.filter(x=> x.length===1&&x[0]===EPSILON).length>=1){
                     variablesWithEpsilon.add(from)
                 }
             }
@@ -352,7 +352,7 @@ export class CFGUtil {
         let variables = cfg.variables;
         for (let [sym,variable] of variables){
             for(let transition of variable.transitions){
-                if(transition.length==1 && transition[0].symbol==symbol){
+                if(transition.length===1 && transition[0].symbol===symbol){
                     res.add(sym)
                     break;
                 }
@@ -373,7 +373,7 @@ export class CFGUtil {
             if(epsilonVariables.has(edge[i])){
                 let arrayToPush = [...edge]
                 arrayToPush.splice(i,1)
-                if(arrayToPush.length ==0){
+                if(arrayToPush.length ===0){
                     arrayToPush.push(EPSILON)
                 }
                 res.push(arrayToPush)
@@ -401,8 +401,8 @@ export class CFGUtil {
     public  doesLanguageContainString(cfg : CFG,word : string): boolean {
         
         cfg = this.toChomskyNormalForm(cfg)
-        if(word ==EPSILON||word==""){
-            if(Array.from(cfg.startVariable.transitions).some(x=>x.length==1&&x[0].symbol==EPSILON)){
+        if(word ===EPSILON||word===""){
+            if(Array.from(cfg.startVariable.transitions).some(x=>x.length===1&&x[0].symbol===EPSILON)){
                 return true;
             }else{
                 return false;
@@ -427,7 +427,7 @@ export class CFGUtil {
                 for(let k = i; k<=j-1;++k){
                     for(let [A,transitions] of allTransitions){
                         for(let transition of transitions){
-                            if(!(transition.length==2 &&
+                            if(!(transition.length===2 &&
                                  transition.every(x=>allTransitions.has(x)))){
                                 continue;
                             }
@@ -461,8 +461,8 @@ export class CFGUtil {
         otherCfg.variables.forEach(x=>cfg.addVariable(x.symbol))
         otherCfg.variables.forEach(x=>
             x.transitions.forEach(transition => 
-                transition.length==1 && 
-                transition[0].symbol==EPSILON ? cfg.addTransitionToEmptyString(x.symbol) : 
+                transition.length===1 && 
+                transition[0].symbol===EPSILON ? cfg.addTransitionToEmptyString(x.symbol) : 
                 cfg.addTransition(x.symbol,...transition.map(to=>to.symbol) )))
         cfg.addVariable("S0");
         cfg.addTransition("S0",cfg.startVariable.symbol)
@@ -507,7 +507,7 @@ export class CFGUtil {
     private checkUnitRule(cfg : CFG) : boolean {
         for(let [fromSymbol,variable] of cfg.variables){
             for(let transition of variable.transitions){
-                if(transition.length==1 && transition[0] instanceof CFGVariable){
+                if(transition.length===1 && transition[0] instanceof CFGVariable){
                     return false;
                 }
             }
@@ -523,7 +523,7 @@ export class CFGUtil {
     private checkEpsilonRule(cfg : CFG) : boolean {
         for(let [fromSymbol,variable] of cfg.variables){
             for(let transition of variable.transitions){
-                if(transition.length==1 && transition[0].symbol == EPSILON 
+                if(transition.length===1 && transition[0].symbol === EPSILON 
                             && fromSymbol!=cfg.startVariable.symbol){
                     return false;
                 }
@@ -540,14 +540,14 @@ export class CFGUtil {
     private checkProperFormRule(cfg : CFG) : boolean {
         for(let [fromSymbol,variable] of cfg.variables){
             for(let transition of variable.transitions){
-                if(transition.length>2&&transition.length==0){
+                if(transition.length>2&&transition.length===0){
                     return false;
                 }
                 let transitionMapped = Array.from(transition).map(x=>x.symbol)
-                if(transition.length==2&&transitionMapped.some(x=>cfg.terminals.has(x))){
+                if(transition.length===2&&transitionMapped.some(x=>cfg.terminals.has(x))){
                     return false;
                 }
-                if(transition.length ==1 &&cfg.variables.has(transition[0].symbol)){
+                if(transition.length ===1 &&cfg.variables.has(transition[0].symbol)){
                     return false;
                 }
             }

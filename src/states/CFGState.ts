@@ -46,7 +46,7 @@ export class CFGVariable extends CFGState{
         if (other instanceof CFGTerminal){
             return false;
         }
-        return other.symbol == this.symbol
+        return other.symbol === this.symbol
     }
     public toString(): string {
         let res = this.symbol + " -> ";
@@ -67,11 +67,11 @@ export class CFGTerminal extends CFGState{
         if (other instanceof CFGVariable){
             return false;
         }
-        return other.symbol == this.symbol
+        return other.symbol === this.symbol
     }
 
     public toString(): string {
-        if(this.symbol==EPSILON){
+        if(this.symbol===EPSILON){
             return ""
         }
         return this.symbol;
