@@ -32,6 +32,20 @@ Make use of the provided TSDoc for insight on the methods.
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/zakrok09/ts-automata)
 
+## Building and testing
+
+After cloning the repo, you can use:
+
+```shell
+npm i            # to insteall dependencies
+
+npm run build    # to build with tsc
+
+npm run test     # to run tests
+
+npm run coverage # to run tests with coverage
+```
+
 ## Usage
 
 Automata can be created by choosing an alphabet to feed to the Automaton,
