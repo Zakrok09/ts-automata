@@ -1,9 +1,9 @@
-import {Automaton} from "../../automata/Automaton";
+import {EPSILON, toChar} from "../../types";
 import {Alphabet} from "../../automata/Alphabet";
-import {toChar, EPSILON} from "../../types";
-import {PDAState} from "../../states/PDAState";
+import {Automaton} from "../../automata/Automaton";
 import {IllegalArgument} from "../../exceptions/exceptions";
 import {PDARunner} from "../../automata/util/PDARunner";
+import {PDAState} from "../../states/PDAState";
 
 type StateConfiguration = {stateName: string, stackContents:string[]};
 
@@ -43,6 +43,7 @@ export class PDA extends Automaton<PDAState> {
      * In this case, this is "PDA."
      * @returns "PDA"
      */
+     
     public get machineType(): string {
         return "PDA";
     }
@@ -50,26 +51,26 @@ export class PDA extends Automaton<PDAState> {
     /**
      * Verify inputs.
      * Extract method from addEdge and removeEdge
-     * @throws IllegalArgument to an illegal inputs on either read, write, to or state names.
+     * @throws IllegalArgument to an illegal input on either read, write, to or state names.
      * @private
      */
     private verifyInputsAndStates(verify:{stateName: string, inputStr: string, readStr: string, writeStr: string, to: string}) {
-        let {inputStr, readStr, writeStr, stateName, to} = verify
-        if (inputStr.length !== 1) throw new IllegalArgument("Input longer than 1 ")
+        const {inputStr, readStr, stateName, to, writeStr} = verify
+        if (inputStr.length !== 1) {throw new IllegalArgument("Input longer than 1 ")}
 
-        let input = toChar(inputStr)
-        let readStack = toChar(readStr)
-        let writeStack = toChar(writeStr)
-        const state = this.states.get(stateName);
-        const toState = this.states.get(to);
+        const input = toChar(inputStr),
+            readStack = toChar(readStr),
+            state = this.states.get(stateName),
+            toState = this.states.get(to),
+            writeStack = toChar(writeStr);
 
-        if (input !== EPSILON) this.testSymbolAgainstAlphabet(input);
-        if (readStack !== EPSILON) this.testSymbolAgainstAlphabet(readStack, this.stackAlphabet)
-        if (writeStack !== EPSILON) this.testSymbolAgainstAlphabet(writeStack, this.stackAlphabet)
-        if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
-        if (!toState) throw new IllegalArgument(`State ${to} does not exist!`);
+        if (input !== EPSILON) {this.testSymbolAgainstAlphabet(input);}
+        if (readStack !== EPSILON) {this.testSymbolAgainstAlphabet(readStack, this.stackAlphabet)}
+        if (writeStack !== EPSILON) {this.testSymbolAgainstAlphabet(writeStack, this.stackAlphabet)}
+        if (!state) {throw new IllegalArgument(`State ${stateName} does not exist!`);}
+        if (!toState) {throw new IllegalArgument(`State ${to} does not exist!`);}
 
-        return {input, readStack, writeStack, state, toState}
+        return {input, readStack, state, toState, writeStack}
     }
 
     /**
@@ -84,8 +85,8 @@ export class PDA extends Automaton<PDAState> {
      * the given state does not exist or the destination state does not exist.
      */
     public addEdge(stateName:string, inputStr:string, readStr:string, writeStr:string, to: string):void {
-        let {input, readStack, writeStack, state, toState}
-            = this.verifyInputsAndStates({stateName, inputStr, readStr, writeStr, to})
+        const {input, readStack, writeStack, state, toState}
+            = this.verifyInputsAndStates({inputStr, readStr, stateName, to, writeStr})
 
         state.insertTransition(input, readStack, writeStack, toState.name);
     }
@@ -102,8 +103,8 @@ export class PDA extends Automaton<PDAState> {
      * the given state does not exist or the destination state does not exist.
      */
     public removeEdge(stateName:string, inputStr:string, readStr:string, writeStr:string, to:string):boolean {
-        let {input, readStack, writeStack, state, toState}
-            = this.verifyInputsAndStates({stateName, inputStr, readStr, writeStr, to})
+        const {input, readStack, writeStack, state, toState}
+            = this.verifyInputsAndStates({inputStr, readStr, stateName, to, writeStr})
 
         return state.removeTransition(input, readStack, writeStack, toState.name)
     }
@@ -114,8 +115,10 @@ export class PDA extends Automaton<PDAState> {
      * @return true iff the string was accepted.
      */
     runString(str: string): boolean {
-        return new PDARunner(this).runString(str, this._startState);
+        return new PDARunner(this).runString(str, this.startState);
     }
+
+     
     public copy(): Automaton<PDAState> {
         throw new Error("Method not implemented.");
     }

@@ -1,6 +1,6 @@
-import {char, EMPTY, EPSILON, toChar, Move} from "../../types";
-import {TM} from "../../automata";
+import {EMPTY, Move, toChar} from "../../types";
 import {TMEdge, TMState} from "../../states/TMState";
+import {TM} from "../../automata";
 
 type tapeHead = number 
 type StateConfiguration = {stateName: string, tapeContents:string[], currentIndex: tapeHead};
@@ -47,10 +47,10 @@ export class TMRunner {
      * @private
      */
     private processNextConfigs(activeConfigs: StateConfiguration[]) {
-        let nextConfigs: StateConfiguration[] = []
+        const nextConfigs: StateConfiguration[] = []
         for (const {stateName, tapeContents, currentIndex} of activeConfigs) {
-            let state = this.tm.getState(stateName)!
-            let symbol = toChar(tapeContents[currentIndex]);
+            const state = this.tm.getState(stateName)!
+            const symbol = toChar(tapeContents[currentIndex]);
             state.transition(symbol).forEach(t =>
                 this.processTransition(t, tapeContents, currentIndex, nextConfigs)
             );
@@ -70,13 +70,13 @@ export class TMRunner {
         if (currentIndex < 0 || currentIndex >= tapeContents.length) {
             throw new Error(`Current index ${currentIndex} is out of bounds for tape contents of length ${tapeContents.length}`);
         }
-        let curr_state = this.tm.getState(transition.to)!
-        let updatedTape = [...tapeContents]
+        const currState = this.tm.getState(transition.to)!
+        const updatedTape = [...tapeContents]
         let updatedCurrentIndex = currentIndex;
         updatedTape[currentIndex] = transition.writeTape;
         updatedCurrentIndex = this.processTapeHead(updatedTape, updatedCurrentIndex, transition.move);
 
-        nextConfigs.push({stateName: curr_state.name, tapeContents: updatedTape, currentIndex: updatedCurrentIndex})
+        nextConfigs.push({stateName: currState.name, tapeContents: updatedTape, currentIndex: updatedCurrentIndex})
     }
 
     
@@ -94,8 +94,8 @@ export class TMRunner {
             if (currentIndex == tapeContents.length - 1) tapeContents.push(EMPTY);
             currentIndex++;
         } else {
-            // Can also be replaced with : (currentIndex -1)& ~(result >> 31)
-            // Ensure the tapehead is left bounded
+            // Can also be replaced with: (currentIndex -1)& ~(result >> 31)
+            // Ensure the tape head is left bounded
             currentIndex = Math.max(currentIndex-1,0);
         }
         return currentIndex;

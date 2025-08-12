@@ -1,5 +1,5 @@
-import { char, EPSILON } from "../../types";
-import { CFGState, CFGTerminal, CFGVariable, CFGEdge } from "../../states/CFGState";
+import { CFGState, CFGTerminal, CFGVariable } from "../../states/CFGState";
+import { EPSILON } from "../../types";
 import { IllegalArgument } from "../../exceptions/exceptions";
 
 export class CFG{
@@ -11,6 +11,7 @@ export class CFG{
         this.variables = new Map()
         this.terminals = new Map()
         this.addVariable(startVariable)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.startVariable = this.variables.get(startVariable)!
 
     }
@@ -20,10 +21,10 @@ export class CFG{
     /**
      * Method to remove a transition to the empty string
      * @param from The non-terminal to remove the transition from
-     * @throws {IllegalArgument} if variable doesnt exist
+     * @throws {IllegalArgument} if variable doesn't exist
      */
     public removeEmptyStringTransition(from : string){
-        let fromVariable = this.variables.get(from)
+        const fromVariable = this.variables.get(from)
         if(fromVariable){
             fromVariable.removeTransition([this.terminals.get(EPSILON)!])
         }else{
@@ -33,12 +34,11 @@ export class CFG{
     /**
      * Method to remove a transition from the CFG
      * @param from The non-terminal to transition to remove from
-     * @param to the string representation of the terminals and nonterminals to remove the transformation of
-     * @throws {IllegalArgument} if variable doesnt exist
+     * @param to the string representation of the terminals and non-terminals to remove the transformation of
+     * @throws {IllegalArgument} if variable doesn't exist
     */
     public removeTransition(from : string, ...to :string[]){
-        
-        let fromVariable = this.variables.get(from)
+        const fromVariable = this.variables.get(from)
         if(fromVariable){
             fromVariable.removeTransition((to).map(nextState => this.getFromSymbol(nextState)))
         }else{
@@ -48,13 +48,11 @@ export class CFG{
     /**
      * Method to add transition to empty string from a non-terminal
      * @param from The non-terminal symbol, 1 character
-     * @throws {IllegalArgument} if variable doesnt exist
+     * @throws {IllegalArgument} if variable doesn't exist
      */
     public addTransitionToEmptyString(from : string){
         // X -> empty string
-        
-        
-        let fromVariable = this.variables.get(from)
+        const fromVariable = this.variables.get(from)
         if(fromVariable){
             fromVariable.addTransition(this.epsilon)
         }else{
@@ -62,19 +60,19 @@ export class CFG{
         }
     }
     /**
-     * The method to add a transition from a non-terminal to a collection of terminals and nonterminals
+     * The method to add a transition from a non-terminal to a collection of terminals and non-terminals
      * @param from the symbol of the terminal, 1 character.
      * @param to The string containing the symbols to transform into
-     * @throws {IllegalArgument} if variable doesnt exist or  there is an epsilon in the transition
+     * @throws {IllegalArgument} if variable doesn't exist or there is an epsilon in the transition
      */
     public addTransition(from : string, ...to : string[]):void{
-        // an example would be X -> XXa
+        // An example would be X -> XXa
         
         if(to.some(x => x.includes(EPSILON))){
             throw new IllegalArgument("Cannot add a direct transition to EPSILON with this method")
         }
         
-        let fromVariable = this.variables.get(from)
+        const fromVariable = this.variables.get(from)
         if(fromVariable){
             fromVariable.addTransition(...to.map(nextState => this.getFromSymbol(nextState)))
         }else{
@@ -95,7 +93,7 @@ export class CFG{
             nextState = this.terminals.get(symbol)
         }
         if(!nextState){
-            throw new IllegalArgument("Symbol "+symbol+" doesn't exist!")
+            throw new IllegalArgument(`Symbol ${symbol} doesn't exist!`)
         }
         return nextState
 
@@ -107,7 +105,7 @@ export class CFG{
      */
     public addVariable(symbol : string): void {
         if(symbol.includes(EPSILON)|| symbol === ""){
-            throw new IllegalArgument("Cannot have "+EPSILON+" as variable symbol")
+            throw new IllegalArgument(`Cannot have ${EPSILON} as variable symbol`)
         }
         
         if(this.terminals.has(symbol)){
@@ -127,7 +125,7 @@ export class CFG{
             throw new IllegalArgument("symbol has to be of length 1!")
         }
         if(symbol === EPSILON){
-            throw new IllegalArgument("Cannot have "+EPSILON+" as terminal symbol")
+            throw new IllegalArgument(`Cannot have ${EPSILON} as terminal symbol`)
         }
         if(this.variables.has(symbol)){
             throw new IllegalArgument("A terminal and a variable can't have the same symbol!")
@@ -151,23 +149,23 @@ export class CFG{
      * @returns The terminal string, if it exists.
      */
     public getTerminal(symbol : string) : CFGTerminal{
-        if (symbol.length!=1){
+        if (symbol.length !== 1){
             throw new IllegalArgument("symbol has to be of length 1!")
         }
-        return this.terminals.get(symbol )!
+        return this.terminals.get(symbol)!
     }
     /**
-     * Human readable representation of the CFG
+     * Human-readable representation of the CFG
      * @returns Human readable string of CFG, in notation from Sipser
      */
     public toString() : string{
-        let rows = [
+        const rows = [
             "CFG {",
-            "Starting Variable -> "+ this.startVariable.symbol+"\n",
-                        "Variables : "+ this.variables.values().map(x=> x.symbol).toArray().toSorted().join(" , "),
-                        "Terminals: " + this.terminals.values().map(x=> x.symbol).toArray().toSorted().join(" , "),
+            `Starting Variable -> ${ this.startVariable.symbol}\n`,
+                        `Variables : ${ this.variables.values().map(x=> x.symbol).toArray().toSorted().join(" , ")}`,
+                        `Terminals: ${  this.terminals.values().map(x=> x.symbol).toArray().toSorted().join(" , ")}`,
                         "Transitions: ",
-                        ...this.variables.values().map(x=>" "+x.toString()).toArray(),
+                        ...this.variables.values().map(x=>` ${x.toString()}`).toArray(),
                     "}"]
         return rows.join("\n      ")
     }
@@ -176,12 +174,12 @@ export class CFG{
      * @returns The deep copy of this CFG
      */
     public copy() : CFG{
-        let newCFG = new CFG(this.startVariable.symbol);
+        const newCFG = new CFG(this.startVariable.symbol);
         this.variables.forEach(x=> {newCFG.addVariable(x.symbol)})
         this.terminals.forEach(x=>newCFG.addTerminal(x.symbol))
         this.variables.forEach(variable => 
                     variable.transitions.forEach(states =>
-                        states.length ===1 && states[0].symbol===EPSILON ? 
+                        states.length === 1 && states[0].symbol===EPSILON ?
                         newCFG.addTransitionToEmptyString(variable.symbol): 
                             newCFG.addTransition(variable.symbol,
                                 ...states.map(state=>state.symbol))))

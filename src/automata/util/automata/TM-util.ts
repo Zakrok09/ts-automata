@@ -1,12 +1,7 @@
-import { TM } from "../../../automata/non-context-free/TM";
-import { TMState } from "../../../states/TMState";
 import { AutomatonUtil } from "./automata-util";
+import { TM } from "../../../automata/non-context-free/TM";
 import { UndecidableProblem } from "../../../exceptions/exceptions";
 export class TMUtil extends AutomatonUtil<TM> {
-    
-    constructor() {
-        super();
-    }
 
     /**
      * Checks if the language of the Turing Machine is empty.
@@ -14,6 +9,7 @@ export class TMUtil extends AutomatonUtil<TM> {
      * @param automaton The TM to check
      * @throws an exception as the problem is undecidable
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public isLanguageEmpty(automaton : TM): boolean {
         throw new UndecidableProblem("The problem of determining whether a Turing machine's language is empty is undecidable.");
     }
@@ -22,6 +18,7 @@ export class TMUtil extends AutomatonUtil<TM> {
      * @param automaton The TM to check
      * @throws an exception as the problem is undecidable
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public isLanguageAllStrings(automaton : TM): boolean {
         throw new UndecidableProblem("The problem of determining whether a Turing machine's language is all strings is undecidable.");
     }
@@ -31,6 +28,7 @@ export class TMUtil extends AutomatonUtil<TM> {
      * @param word the string to be checked
      * @throws an exception as the problem is undecidable
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public doesLanguageContainString(automaton : TM ,word: string): boolean {
         throw new UndecidableProblem("The problem of determining whether a Turing machine's language contains a specific string is undecidable.");
     }
@@ -40,6 +38,7 @@ export class TMUtil extends AutomatonUtil<TM> {
      * @param other the other Turing machine to compare with
      * @throws an exception as the problem is undecidable
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public equal(automaton : TM ,other: TM): boolean {
         throw new UndecidableProblem("The problem of determining whether two Turing machines recognize the same language is undecidable.");
     }

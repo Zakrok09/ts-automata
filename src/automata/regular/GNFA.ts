@@ -13,13 +13,14 @@ import {GNFAState} from "../../states/RegularStates";
  */
 export class GNFA extends Automaton<GNFAState> {
     public copy(): GNFA {
-        let newGNFA = new GNFA(this._alphabet.joinToString(),this._startState.name,this._finalState.name)
+        const newGNFA = new GNFA(this.alphabet.joinToString(),this.startState.name,this.finalState.name)
         this.states.forEach(state => {if (!newGNFA.getState(state.name)){newGNFA.addState(state.name)}})
         this.states.forEach(state => state.outgoing
                             .forEach((nextState,sym)=> newGNFA.addEdge(state.name,sym,nextState.name)))
         return newGNFA;
     }
-    private readonly _finalState: GNFAState;
+
+    private readonly finalState: GNFAState;
 
     /**
      * Constructs a generalised non-deterministic finite automaton given an alphabet and a starting state.
@@ -29,21 +30,22 @@ export class GNFA extends Automaton<GNFAState> {
      * @param finalState the name of the final state.
      */
     public constructor(alphabetString: string, startState: string, finalState:string) {
-        let start: GNFAState = new GNFAState(startState);
+        const start: GNFAState = new GNFAState(startState);
         super(Alphabet.fromString(alphabetString), start);
 
-        this._finalState = new GNFAState(finalState);
-        this._finalState.accepting = true;
-        this.states.set(finalState, this._finalState);
-        this._acceptStates.add(start);
+        this.finalState = new GNFAState(finalState);
+        this.finalState.accepting = true;
+        this.states.set(finalState, this.finalState);
+        this.acceptStates.add(start);
     }
 
     /**
-     * Checks validity of the GNFA.
+     * Checks the validity of the GNFA.
      * @returns true if the GNFA is valid, false otherwise.
      */
+     
     public isValid(): boolean {
-        throw true;
+        throw new Error("Method not implemented.");
     }
 
     /**
@@ -71,14 +73,14 @@ export class GNFA extends Automaton<GNFAState> {
         const ripState = this.states.get(stateName);
         if (!ripState) throw new Error(`State ${stateName} does not exist!`);
 
-        if (ripState === this._startState || ripState === this._finalState) {
+        if (ripState === this.startState || ripState === this.finalState) {
             throw new Error("Cannot rip start or final state!");
         }
 
         let midRegex = "";
 
-        for (let [reg, state] of ripState.outgoing) {
-            if (state === this._finalState) {
+        for (const [reg, state] of ripState.outgoing) {
+            if (state === this.finalState) {
                 midRegex = reg;
                 break;
             }
@@ -134,20 +136,17 @@ export class GNFA extends Automaton<GNFAState> {
      * @returns true if the string is accepted, false otherwise.
      */
     public runString(str: string): boolean {
-        // const statesToRip = Array.from(this.states.values()).filter(state => state !== this._finalState && state !== this._startState);
-        //
-        // statesToRip.forEach(state => this.ripState(state.name));
-
         this.states.forEach(state => {
-            if (state !== this._finalState && state !== this._startState) this.ripState(state.name);
+            if (state !== this.finalState && state !== this.startState) this.ripState(state.name);
         });
 
-        return new RegExp(this._finalState.getRegexForState(this._startState)).test(str);
+        return new RegExp(this.finalState.getRegexForState(this.startState)).test(str);
     }
 
     /**
      * Gets the type of the machine.
      */
+     
     public get machineType(): string {
         return "GNFA";
     }

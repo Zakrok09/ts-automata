@@ -1,6 +1,6 @@
-import {char, EPSILON, toChar} from "../../types";
-import {PDA} from "../../automata";
+import {EPSILON, char, toChar} from "../../types";
 import {PDAEdge, PDAState} from "../../states/PDAState";
+import {PDA} from "../../automata";
 
 type StateConfiguration = {stateName: string, stackContents:string[]};
 
@@ -29,7 +29,7 @@ export class PDARunner {
             const symbol = toChar(str[0])
             str = str.slice(1)
 
-            let nextActiveConfigs = this.processNextConfigs(activeConfigs, symbol);
+            const nextActiveConfigs = this.processNextConfigs(activeConfigs, symbol);
             activeConfigs = this.epsilonClosure(nextActiveConfigs);
         }
 
@@ -44,9 +44,9 @@ export class PDARunner {
      * @private
      */
     private processNextConfigs(activeConfigs: StateConfiguration[], symbol: char) {
-        let nextConfigs: StateConfiguration[] = []
+        const nextConfigs: StateConfiguration[] = []
         for (const {stateName, stackContents} of activeConfigs) {
-            let state = this.pda.getState(stateName)!
+            const state = this.pda.getState(stateName)!
 
             state.transition(symbol).forEach(t =>
                 this.processTransition(t, stackContents, nextConfigs)
@@ -68,13 +68,13 @@ export class PDARunner {
             return;
         }
 
-        let curr_state = this.pda.getState(transition.to)!
-        let updatedStack = [...stackContents]
+        const currState = this.pda.getState(transition.to)!
+        const updatedStack = [...stackContents]
 
         if (transition.readStack !== EPSILON) updatedStack.pop();
         if (transition.writeStack !== EPSILON) updatedStack.push(transition.writeStack);
 
-        nextConfigs.push({stateName: curr_state.name, stackContents: updatedStack})
+        nextConfigs.push({stateName: currState.name, stackContents: updatedStack})
     }
 
     /**
@@ -91,7 +91,7 @@ export class PDARunner {
 
         while (stack.length > 0) {
             const { stateName, stackContents } = stack.pop()!;
-            let state = this.pda.getState(stateName)!
+            const state = this.pda.getState(stateName)!
 
             state.transition(EPSILON).forEach(e =>
                 this.processEdge(stackContents, e, closureStateConfigs, stack));
@@ -112,13 +112,11 @@ export class PDARunner {
         const stackContentsCopy = [...stackContents]
         if (edge.readStack === EPSILON) {
             if (edge.writeStack !== EPSILON) stackContentsCopy.push(edge.writeStack)
-        } else {
-            if (edge.readStack === stackContentsCopy.pop()) {
+        } else if (edge.readStack === stackContentsCopy.pop()) {
                 if (edge.writeStack !== EPSILON) stackContentsCopy.push(edge.writeStack)
             } else return;
-        }
 
-        let instance = {stateName: edge.to, stackContents: stackContentsCopy};
+        const instance = {stateName: edge.to, stackContents: stackContentsCopy};
         if (!closureStateConfigs.has(instance)) {
             closureStateConfigs.add(instance);
             stack.push(instance)

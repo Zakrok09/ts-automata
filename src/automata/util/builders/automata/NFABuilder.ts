@@ -51,17 +51,15 @@ export class NFABuilder extends AutomataBuilder<NFA>{
             from: (start: string) => ({
                 to: (to: string) => ({
                     over: (symbols: string) => {
-                        for (let over of symbols)
+                        for (const over of symbols)
                             this.addEdge(start, over, to);
                         return this;
                     },
-                    epsilon: () => {
-                        return this.addEpsilonEdge(start, to)
-                    }
+                    epsilon: () => this.addEpsilonEdge(start, to)
                 }),
                 toSelf: () => ({
                     over: (symbols: string) => {
-                        for (let over of symbols)
+                        for (const over of symbols)
                             this.addEdge(start, over, start);
                         return this;
                     }
@@ -82,16 +80,16 @@ export class NFABuilder extends AutomataBuilder<NFA>{
 
         const nfa = new NFA(this._alphabetString, this._startingState.name, this._startingState.isFinal)
 
-        for (let {name, isFinal} of this._stateMap.values()) {
+        for (const {name, isFinal} of this._stateMap.values()) {
             if (name != this._startingState.name)
                 nfa.addState(name, isFinal)
         }
 
-        for (let {from, over, to} of this._edges) {
+        for (const {from, over, to} of this._edges) {
             nfa.addEdge(from, over, to);
         }
 
-        for (let {from, to} of this._epsilonEdges) {
+        for (const {from, to} of this._epsilonEdges) {
             nfa.addEpsilonEdge(from, to)
         }
 

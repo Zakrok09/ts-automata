@@ -1,11 +1,7 @@
 import { Automaton } from "../../../automata/Automaton";
-import { State } from "../../../states/State";
 import { AutomatonUtil } from "./automata-util";
+import { State } from "../../../states/State";
 export abstract class RegularAutomatonUtil<T extends Automaton<State>> extends AutomatonUtil<T> {
-
-    constructor() {
-        super()
-    }
     public abstract union(automaton : T,other: T): T 
     
     public abstract intersection(automaton : T,other: T): T 
@@ -19,11 +15,11 @@ export abstract class RegularAutomatonUtil<T extends Automaton<State>> extends A
      */
     protected nameSeperator(name : string) : string[] {
         // The name {q0}{q1}{{q2}} represents a superposition of being in
-        // q0,q1 and {q2}. we check for nested braces. 
+        // = q0,q1 and {q2}. we check for nested braces.
         let openBrackets = 0;
-        let result = [];
+        const result = [];
         let current = "";
-        for (let char of name){
+        for (const char of name){
             if (char === '{') {
                 openBrackets++;
                 if (openBrackets > 1) {

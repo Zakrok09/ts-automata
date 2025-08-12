@@ -1,5 +1,5 @@
 import { IllegalArgument } from "../../../../exceptions/exceptions";
-import { char, EPSILON } from "../../../../types";
+import { EPSILON, char } from "../../../../types";
 import { CFG } from "../../../context-free/CFG";
 
 
@@ -70,7 +70,7 @@ export class CFGBuilder {
         return {
             from: (start: string ) => ({
                 to : (...end:string[][])=>  {
-                    for (let to of end){
+                    for (const to of end){
                         this.addTransition(start,...to)
                     }
                     return this}
@@ -121,7 +121,7 @@ export class CFGBuilder {
         if(!this.startVariableName){
             throw new IllegalArgument("No start variable!")
         }
-        let cfg = new CFG(this.startVariableName)
+        const cfg = new CFG(this.startVariableName)
         Array.from(this.variables).forEach(variable => cfg.addVariable(variable))
         Array.from(this.terminals).forEach(terminal => cfg.addTerminal(terminal))
         this.transitions.forEach((to,from) => 

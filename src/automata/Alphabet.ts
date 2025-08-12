@@ -1,20 +1,11 @@
-import {char, EPSILON, toChar} from "../types";
+import {EPSILON, char, toChar} from "../types";
 import {IllegalArgument} from "../exceptions/exceptions";
 
 export class Alphabet {
-    private readonly _chars:Set<char>;
+    public readonly chars:Set<char>;
 
     constructor() {
-        this._chars = new Set<char>();
-    }
-
-    /**
-     * Retrieve the set of characters used in the class.
-     *
-     * @return A Set containing the characters used in the class.
-     */
-    get chars(): Set<char> {
-        return this._chars;
+        this.chars = new Set<char>();
     }
 
     /**
@@ -23,7 +14,7 @@ export class Alphabet {
      * @returns {number} The size of the object.
      */
     get size():number {
-        return this._chars.size;
+        return this.chars.size;
     }
 
     /**
@@ -33,7 +24,7 @@ export class Alphabet {
      * @return {boolean} - Returns true if the character exists in the set, otherwise returns false.
      */
     public has(c:char):boolean {
-        return this._chars.has(c);
+        return this.chars.has(c);
     }
 
     /**
@@ -44,7 +35,7 @@ export class Alphabet {
      */
     public addChar(c:char) {
         if (c === EPSILON) throw new IllegalArgument("Epsilon can never be part of an alphabet")
-        this._chars.add(c);
+        this.chars.add(c);
     }
 
     /**
@@ -68,7 +59,7 @@ export class Alphabet {
     public static fromString(str:string):Alphabet {
         const alphabet = new Alphabet();
 
-        for (let char of str) {
+        for (const char of str) {
             alphabet.addChar(toChar(char));
         }
 

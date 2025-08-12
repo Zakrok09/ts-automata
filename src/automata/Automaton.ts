@@ -1,7 +1,7 @@
 import {Alphabet} from "../automata/Alphabet";
+import {IllegalArgument} from "../exceptions/exceptions";
 import {State} from "../states/State";
 import {char} from "../types";
-import {IllegalArgument} from "../exceptions/exceptions";
 
 /**
  * Represents an automaton that DECIDES a language.
@@ -9,16 +9,16 @@ import {IllegalArgument} from "../exceptions/exceptions";
  */
 export abstract class Automaton<TState extends State> {
     protected readonly states:Map<string, TState>;
-    protected readonly _alphabet:Alphabet;
-    protected readonly _acceptStates:Set<TState>
-    public  readonly _startState:TState;
+    public readonly alphabet:Alphabet;
+    public readonly acceptStates:Set<TState>
+    public readonly startState: TState;
 
-    protected constructor(alphabet: Alphabet, startState:TState) {
+    protected constructor(alphabet: Alphabet, startState: TState) {
         this.states = new Map<string, TState>;
-        this._alphabet = alphabet;
-        this._acceptStates = new Set<TState>()
+        this.alphabet = alphabet;
+        this.acceptStates = new Set<TState>()
 
-        this._startState = startState;
+        this.startState = startState;
         this.states.set(startState.name, startState);
     }
     
@@ -76,7 +76,7 @@ export abstract class Automaton<TState extends State> {
      * @param alphabet
      * @throws IllegalArgument if the symbol is not part of the alphabet
      */
-    public testSymbolAgainstAlphabet(input:char, alphabet: Alphabet = this._alphabet){
+    public testSymbolAgainstAlphabet(input:char, alphabet: Alphabet = this.alphabet){
         if(!alphabet.has(input)) throw new IllegalArgument(`${input} is not part of the alphabet of this finite automaton`)
     }
 
@@ -92,21 +92,14 @@ export abstract class Automaton<TState extends State> {
 
         if (final) {
             newState.accepting = true;
-            this._acceptStates.add(newState)
+            this.acceptStates.add(newState)
         }
     }
 
-    /**
-     * Returns the set of accepting states of the DFA.
-     * @return The Set of accepting states.
-     */
-    public get acceptStates(): Set<TState> {
-        return this._acceptStates;
-    }
     public setAccepting(stateName : string , final : boolean) : void {
-        let state = this.getState(stateName)!
+        const state = this.getState(stateName)!
         state.accepting = final 
-        if(!this._acceptStates.delete(state)){
+        if(!this.acceptStates.delete(state)){
             this.acceptStates.add(state)
         }
     }

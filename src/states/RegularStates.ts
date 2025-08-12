@@ -1,26 +1,17 @@
-import {char} from "../types";
 import {IllegalArgument} from "../exceptions/exceptions";
 import {State} from "./State";
+import {char} from "../types";
 
 export interface RegularState extends State {
     insertTransition(input:char, to:RegularState):void
 }
 
 export class NFAState extends State implements RegularState {
-    private readonly _transitions: Map<char, Set<NFAState>>
+    public readonly transitions: Map<char, Set<NFAState>>
 
     constructor(name: string) {
         super(name);
-        this._transitions = new Map<char, Set<NFAState>>();
-    }
-
-    /**
-     * Retrieves the transitions of the NFAState.
-     *
-     * @return {Map<char, Set<NFAState>>} The transitions of the NFAState.
-     */
-    get transitions(): Map<char, Set<NFAState>> {
-        return this._transitions;
+        this.transitions = new Map<char, Set<NFAState>>();
     }
 
     /**
@@ -32,7 +23,7 @@ export class NFAState extends State implements RegularState {
      * Used to see what input can this state recognise
      */
     public getInputAlphabet():Set<char> {
-        return new Set<char>(this._transitions.keys());
+        return new Set<char>(this.transitions.keys());
     }
 
     /**
@@ -42,10 +33,10 @@ export class NFAState extends State implements RegularState {
      * @param to the destination state for the transition.
      */
     public insertTransition(input:char, to:NFAState):void {
-        let bucket = this._transitions.get(input)
+        let bucket = this.transitions.get(input)
         if (!bucket) {
             bucket = new Set<NFAState>();
-            this._transitions.set(input, bucket);
+            this.transitions.set(input, bucket);
         }
 
         if (!bucket.has(to)) bucket.add(to);
@@ -59,7 +50,7 @@ export class NFAState extends State implements RegularState {
      * @return true if the transition was successfully removed, false otherwise.
      */
     public removeTransition(input:char, state:NFAState):boolean {
-        let bucket = this._transitions.get(input)
+        const bucket = this.transitions.get(input)
         if (!bucket) return false;
 
         return bucket.delete(state);
@@ -72,9 +63,9 @@ export class NFAState extends State implements RegularState {
      * @return the set of NFA States
      */
     public transition(input:char) {
-        let res = this._transitions.get(input);
+        const res = this.transitions.get(input);
 
-        if (res === undefined) return new Set<NFAState>();
+        if (!res) return new Set<NFAState>();
 
         return res;
     }
@@ -87,20 +78,11 @@ export class NFAState extends State implements RegularState {
  * @extends State
  */
 export class DFAState extends State implements RegularState {
-    private readonly _transitions: Map<char, DFAState>
+    public readonly transitions: Map<char, DFAState>
 
     constructor(name: string) {
         super(name);
-        this._transitions = new Map<char, DFAState>();
-    }
-
-    /**
-     * Returns the transitions of the DFAState object.
-     *
-     * @return {Map<char, DFAState>} - A Map object representing the transitions of the DFAState.
-     */
-    get transitions(): Map<char, DFAState> {
-        return this._transitions;
+        this.transitions = new Map<char, DFAState>();
     }
 
     /**
@@ -111,7 +93,7 @@ export class DFAState extends State implements RegularState {
      * the state it reaches. Used to see what input can this state recognise
      */
     public getInputAlphabet():Set<char> {
-        return new Set<char>(this._transitions.keys());
+        return new Set<char>(this.transitions.keys());
     }
 
     /**
@@ -121,7 +103,7 @@ export class DFAState extends State implements RegularState {
      * @param to the destination state for the transition.
      */
     public insertTransition(input:char, to:DFAState):void {
-        this._transitions.set(input, to);
+        this.transitions.set(input, to);
     }
 
     /**
@@ -131,7 +113,7 @@ export class DFAState extends State implements RegularState {
      * @return true if the transition was successfully removed, false otherwise.
      */
     public removeTransition(input:char):boolean {
-        return this._transitions.delete(input);
+        return this.transitions.delete(input);
     }
 
     /**
@@ -141,9 +123,9 @@ export class DFAState extends State implements RegularState {
      * @return the DFAState
      */
     public transition(input:char) {
-        let res = this._transitions.get(input);
+        const res = this.transitions.get(input);
 
-        if (res === undefined) throw IllegalArgument;
+        if (!res) throw IllegalArgument;
 
         return res;
     }
@@ -155,8 +137,8 @@ type StateRegexTuple = { regex:string, state:GNFAState };
  * Represents a state in a Generalized Non-Deterministic Finite Automaton (GNFA).
  */
 export class GNFAState extends State {
-    private readonly _transitions: Map<string, GNFAState>
-    private readonly _incoming: Set<StateRegexTuple>
+    private readonly transitions: Map<string, GNFAState>
+    public readonly incoming: Set<StateRegexTuple>
 
     /**
      * Creates a new GNFAState object.
@@ -164,8 +146,8 @@ export class GNFAState extends State {
      */
     constructor(name: string) {
         super(name);
-        this._transitions = new Map<string, GNFAState>();
-        this._incoming = new Set<StateRegexTuple>();
+        this.transitions = new Map<string, GNFAState>();
+        this.incoming = new Set<StateRegexTuple>();
     }
 
     /**
@@ -174,7 +156,7 @@ export class GNFAState extends State {
      * @return {Map<string, GNFAState>} The transitions of the GNFAState.
      */
     getInputAlphabet(): Set<string> {
-        return new Set<string>(this._transitions.keys());
+        return new Set<string>(this.transitions.keys());
     }
 
     /**
@@ -186,8 +168,8 @@ export class GNFAState extends State {
      * Used to see what input can this state recognise
      */
     public insertTransition(regex: string, to: GNFAState): void {
-        this._transitions.set(regex, to);
-        if (!to._incoming.has({regex, state:this})) to._incoming.add({regex, state:this});
+        this.transitions.set(regex, to);
+        if (!to.incoming.has({regex, state:this})) to.incoming.add({regex, state:this});
     }
 
     /**
@@ -196,22 +178,18 @@ export class GNFAState extends State {
      * @param state the state to be removed (since, there can be more than one outgoing state on that input)
      */
     public removeTransition(regex:string, state:GNFAState):boolean {
-        state._incoming.delete({regex, state});
-        return this._transitions.delete(regex);
+        state.incoming.delete({regex, state});
+        return this.transitions.delete(regex);
     }
 
     public getRegexForState(state:GNFAState):string {
-        for (let {regex, state: st} of this._incoming) {
+        for (const {regex, state: st} of this.incoming) {
             if (st === state) return regex;
         }
         throw new IllegalArgument("State not found");
     }
 
-    get incoming(): Set<StateRegexTuple> {
-        return this._incoming;
-    }
-
     get outgoing(): Map<string, GNFAState> {
-        return this._transitions;
+        return this.transitions;
     }
 }

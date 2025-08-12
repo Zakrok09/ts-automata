@@ -28,13 +28,13 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @param {boolean} startingAccept - Indicates whether the starting state is an accepting state.
      */
     public constructor(alphabetString:string, startState: string, startingAccept: boolean) {
-        let start:DFAState = new DFAState(startState);
+        const start:DFAState = new DFAState(startState);
         super(Alphabet.fromString(alphabetString), start);
 
         if (startingAccept) {
-            this._startState.accepting = true;
+            this.startState.accepting = true;
             start.accepting = true
-            this._acceptStates.add(start);
+            this.acceptStates.add(start);
         }
     }
 
@@ -44,7 +44,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns True if the transition diagram is valid, otherwise false.
      */
     public isValid():boolean {
-        for (let state of this.states.values()) {
+        for (const state of this.states.values()) {
             if (state.getInputAlphabet().size !== this.alphabet.size) {
                 return false;
             }
@@ -63,7 +63,6 @@ export class DFA extends FiniteAutomaton<DFAState> {
         super.insertState(new DFAState(name), final);
     }
 
-    
     /**
      * Removes an edge from a DFA state.
      *
@@ -76,34 +75,32 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @throws {IllegalArgument} if the state does not exist.
      */
     public removeEdge(stateName:string, input:string):boolean {
-        let char = toChar(input)
-        this.testSymbolAgainstAlphabet(char);
+        const inputChar = toChar(input)
+        this.testSymbolAgainstAlphabet(inputChar);
 
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
-        return state.removeTransition(char);
+        return state.removeTransition(inputChar);
     }
+
     /**
      * Give an equivallent NFA
      * @param util DFA util
      * @returns an equivallent NFA as this DFA
      */
     public toNFA(util = new DFAUtil()){
-        let thisDFA = this;
-        let newNfa = new NFA(thisDFA.alphabet.joinToString(),thisDFA._startState.name,thisDFA.startState.accepting);
-        
-        let statesThisDFA = util.dfs(thisDFA);
+        const newNfa = new NFA(this.alphabet.joinToString(),this.startState.name,this.startState.accepting),
+            statesThisDFA = util.dfs(this);
         
         statesThisDFA.forEach(state => {
             if(!newNfa.getState(state.name)){
                 newNfa.addState(state.name, state.accepting);
             }
-            
-            
         });
+
         statesThisDFA.forEach(state =>{
-            thisDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {
+            this.getState(state.name)!.transitions.forEach((nextState, symbol) => {
                 newNfa.addEdge(state.name, symbol, nextState.name);
             });
         })
@@ -123,10 +120,10 @@ export class DFA extends FiniteAutomaton<DFAState> {
     public runString(str:string): boolean {
         if (!this.isValid()) throw new IllegalAutomatonState('The DFA is not valid. Cannot run string.');
 
-        let currentState:DFAState = this._startState;
+        let currentState:DFAState = this.startState;
 
-        for (let char of str) {
-            let c: char = toChar(char);
+        for (const inputChar of str) {
+            const c: char = toChar(inputChar);
             currentState = currentState.transition(c);
             if (!currentState) return false;
         }
@@ -157,7 +154,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns Deep copy of the current DFA
      */
     public copy(){
-        let newDFA = new DFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
+        const newDFA = new DFA(this.alphabet.joinToString(),this.startState.name,this.startState.accepting)
         this.states.forEach(state => {if(!newDFA.getState(state.name)) {newDFA.addState(state.name,state.accepting)}})
         this.states.forEach(state => state.transitions!.forEach((to,sym) =>   newDFA.addEdge(state.name,sym,to.name)))
         return newDFA;
@@ -166,6 +163,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
     /**
      * Returns the machine type of the DFA. The result is always DFA.
      */
+     
     get machineType(): string {
         return "DFA";
     }

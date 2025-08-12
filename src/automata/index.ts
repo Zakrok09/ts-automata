@@ -1,10 +1,10 @@
+import {AutomataBuilder, DFABuilder, NFABuilder, NFAConverter} from "./util";
+import {EMPTY,EPSILON} from "../types";
 import {Alphabet} from "./Alphabet";
 import {Automaton} from "./Automaton";
-import {FiniteAutomaton} from "./regular/FiniteAutomaton";
 import {DFA} from "./regular/DFA";
+import {FiniteAutomaton} from "./regular/FiniteAutomaton";
 import {NFA} from "./regular/NFA";
-import {DFABuilder, NFABuilder, AutomataBuilder, NFAConverter} from "./util";
-import {EPSILON,EMPTY} from "../types";
 import {PDA} from "./context-free/PDA";
 import {TM} from "./non-context-free/TM";
 

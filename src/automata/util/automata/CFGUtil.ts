@@ -1,23 +1,19 @@
-import { UndecidableProblem } from "../../../exceptions/exceptions";
 import { CFG } from "../../../automata/context-free/CFG";
-import { char, EPSILON } from "../../../types";
-import { CFGEdge, CFGVariable } from "../../../states/CFGState";
-import { table } from "console";
+import { CFGVariable } from "../../../states/CFGState";
+import { EPSILON } from "../../../types";
+import { UndecidableProblem } from "../../../exceptions/exceptions";
 
 export class CFGUtil {
     private delimeter = ".."
-    public constructor() {
-        
-    }
 
     /**
      * Checks if the language of the CFG is empty. Using procedure from Sipser's proof of theorem 4.8
      * @param cfg The CFG to check
      * @returns True if the language is empty, false otherwise
      */
-    public  isLanguageEmpty(cfg : CFG): boolean{
-        let marked  : Set<string>= new Set()
-        for(let [symbol,terminal] of cfg.terminals){
+    public isLanguageEmpty(cfg : CFG): boolean{
+        const marked: Set<string> = new Set()
+        for(const [symbol] of cfg.terminals){
             marked.add(symbol)
         }
         marked.add(EPSILON)
@@ -25,12 +21,11 @@ export class CFGUtil {
         let newMarkedCnt = marked.size+1
         while (newMarkedCnt > 0){
             let currentCounter = 0;
-            for(let [symbol,variable] of cfg.variables){
-                if(marked.has(symbol)){
-                    continue;
-                }
-                
-                let isFullyMarked = Array.from(variable.transitions)
+            for(const [symbol,variable] of cfg.variables){
+                if(marked.has(symbol)) continue;
+
+
+                const isFullyMarked = Array.from(variable.transitions)
                                         .some(transition => 
                                             transition.map(x=> x.symbol).every(x=>
                                                                         marked.has(x)))
@@ -69,22 +64,22 @@ export class CFGUtil {
      * @returns The same CFG in proper form
      */
     private allRulesProperForm(cfg : CFG) : CFG{
-        // maintain a counter of variables to not run into name collisions
+        // Maintain a counter of variables to not run into name collisions
         let counter = 0;
-        let allTransitions = this.getTransitionsInMap(cfg);
-        let newTransitions : Map<string,string[][]>= new Map()
+        const allTransitions = this.getTransitionsInMap(cfg);
+        const newTransitions : Map<string,string[][]>= new Map()
         // Change the transitions
-        for(let [from , toTransitions] of allTransitions){
+        for(const [from , toTransitions] of allTransitions){
             newTransitions.set(from,[])
-            for(let to of toTransitions){
+            for(const to of toTransitions){
                 if(to.length>2){
-                    let size = to.length;
+                    const size = to.length;
                     // Do the non-terminal chaining
-                    allTransitions.set("(U"+counter++ +")",[[to[size-2],to[size-1]]])
+                    allTransitions.set(`(U${counter++ })`,[[to[size-2],to[size-1]]])
                     for(let i = size-3; i>=1;--i){
-                        allTransitions.set("(U"+counter++ +")",[[to[i],"(U"+(counter-2) +")"]])
+                        allTransitions.set(`(U${counter++ })`,[[to[i],`(U${counter-2 })`]])
                     }
-                    allTransitions.get(from)!.push([to[0],"(U"+(counter-1)+")"])
+                    allTransitions.get(from)!.push([to[0],`(U${counter-1})`])
                 }else{
                     newTransitions.get(from)!.push(to)
                 }
@@ -92,7 +87,7 @@ export class CFGUtil {
         }
         
         // ADd the new terminals generated
-        for(let name of newTransitions.keys()){
+        for(const name of newTransitions.keys()){
             if(!cfg.getVariable(name)){
                 cfg.addVariable(name)
             }
@@ -108,12 +103,12 @@ export class CFGUtil {
      */
     private refreshTheEdges(cfg : CFG, allTransitions : Map<string,string[][]>) : CFG{
         this.removeAllTransitions(cfg);
-        for(let [key,to] of allTransitions){
+        for(const [key,to] of allTransitions){
             allTransitions.set(key,this.uniqueify(to))
         }
         // Add the new transitions
-        for(let [sym,toTransitions] of allTransitions){
-            for(let transition of toTransitions ){
+        for(const [sym,toTransitions] of allTransitions){
+            for(const transition of toTransitions ){
                 if(transition.length===1&&transition[0]===EPSILON&&sym!=cfg.startVariable.symbol){
                     continue;
                 }
@@ -136,13 +131,13 @@ export class CFGUtil {
         let allTransitions = this.getTransitionsInMap(cfg)
         // Flag to see if any new changes were done in the CFG
         let flag = true;
-        let removed : Set<string> = new Set()
+        const removed : Set<string> = new Set()
         while(flag){
-            let temp : Map<string,string[][]> = new Map()
+            const temp : Map<string,string[][]> = new Map()
             flag = false;
-            for(let [from,toTransitions] of allTransitions){
+            for(const [from,toTransitions] of allTransitions){
                 temp.set(from,[]);
-                for(let to of toTransitions){
+                for(const to of toTransitions){
                     // Remove self edges X -> X
                     if(to.length===1&&to[0]===from){
                         flag = true;
@@ -164,7 +159,7 @@ export class CFGUtil {
             }
             allTransitions = temp
             // Simplify the CFG for performance
-            for(let [key,to] of allTransitions){
+            for(const [key,to] of allTransitions){
                 allTransitions.set(key,this.uniqueify(to))
             }
         }
@@ -177,7 +172,7 @@ export class CFGUtil {
      * @returns The new CFG
      */
     private prependToCFGSymbols(cfg :CFG,prepend : string) : CFG{
-        let copyOfCFG = new CFG(prepend+cfg.startVariable.symbol)
+        const copyOfCFG = new CFG(prepend+cfg.startVariable.symbol)
         cfg.terminals.forEach(terminal => copyOfCFG.addTerminal(terminal.symbol))
         cfg.variables.forEach(variable => copyOfCFG.addVariable(prepend+variable.symbol))
         cfg.variables.forEach(variable => variable.transitions.
@@ -191,18 +186,18 @@ export class CFGUtil {
     }
     private terminalToVariableConverter(cfg : CFG) : CFG{
         let counter = 0
-        let transitions = this.getTransitionsInMap(cfg)
-        let terminalToVariable : Map<string,string> = new Map();
-        for(let [sym,terminal] of cfg.terminals){
-            let nonTerminalName = "T"+counter++
+        const transitions = this.getTransitionsInMap(cfg)
+        const terminalToVariable : Map<string,string> = new Map();
+        for(const [sym] of cfg.terminals){
+            const nonTerminalName = `T${counter++}`
             terminalToVariable.set(sym,nonTerminalName)
             transitions.set(nonTerminalName,[[sym]])
         }
-        for(let [from , toTransitions] of transitions){
+        for(const [from , toTransitions] of transitions){
             if(from.startsWith("T")){
                 continue
             }
-            for(let to of toTransitions){
+            for(const to of toTransitions){
                 for(let i = 0; i <to.length ;++i){
                     if(cfg.terminals.has(to[i])){
                         to[i]=terminalToVariable.get(to[i])!
@@ -211,18 +206,18 @@ export class CFGUtil {
             }
         }
         // ADd the new terminals generated
-        for(let name of transitions.keys()){
+        for(const name of transitions.keys()){
             if(!cfg.getVariable(name)){
                 cfg.addVariable(name)
             }
         }
        this.removeAllTransitions(cfg);
-        for(let [key,to] of transitions){
+        for(const [key,to] of transitions){
             transitions.set(key,this.uniqueify(to))
         }
         // Add the new transitions
-        for(let [sym,toTransitions] of transitions){
-            for(let transition of toTransitions ){
+        for(const [sym,toTransitions] of transitions){
+            for(const transition of toTransitions ){
                 if(transition.length===1&&transition[0]===EPSILON){
                     cfg.addTransitionToEmptyString(sym)
                     continue;
@@ -241,20 +236,20 @@ export class CFGUtil {
     private removeEpsilonTransitions(cfg : CFG) : CFG{
 
         let transitions = this.getTransitionsInMap(cfg)
-        let variablesWithEpsilon = this.getVariablesWithSingleTransition(cfg,EPSILON)
+        const variablesWithEpsilon = this.getVariablesWithSingleTransition(cfg,EPSILON)
         let flag : boolean = true
         while(flag){
             flag = false;
-            let temp : Map<string,string[][]> = new Map()
-            for(let [from,toTransitions] of transitions){
-                for(let to of toTransitions){
+            const temp : Map<string,string[][]> = new Map()
+            for(const [from,toTransitions] of transitions){
+                for(const to of toTransitions){
                     if(!temp.get(from)){
                             temp.set(from,[])
                     }
                     // If it can transition to an epsilon non-terminal
                     if(to.some(x=> variablesWithEpsilon.has(x))){
                         flag = true;
-                        let removedTransitions = this.removeEpsilonEdge(to,variablesWithEpsilon)
+                        const removedTransitions = this.removeEpsilonEdge(to,variablesWithEpsilon)
                         // Delimit the edge that has all variables in it such that it doesn't cause an infinite loop
                         temp.get(from)!.push(to.map(x=>this.delimeter+x))
                         temp.get(from)!.push(...removedTransitions)
@@ -266,7 +261,7 @@ export class CFGUtil {
             }
             transitions = temp
             // Some variables may have a new epsilon transition, keep track of it
-            for(let [from , toTransitions] of transitions){
+            for(const [from , toTransitions] of transitions){
                 if(toTransitions.filter(x=> x.length===1&&x[0]===EPSILON).length>=1){
                     variablesWithEpsilon.add(from)
                 }
@@ -302,13 +297,12 @@ export class CFGUtil {
      * @returns The transitions in a map
      */
     private getTransitionsInMap(cfg :CFG) : Map<string,string[][]>{
-
-        let transitions : Map<string,string[][]> = new Map()
-        for(let [symbol,variable] of cfg.variables){
+        const transitions : Map<string,string[][]> = new Map()
+        for(const [symbol,variable] of cfg.variables){
             transitions.set(symbol,[])
-            for(let transition of variable.transitions){
-                let mappedTransition = transition.map(x=> x.symbol)
-                let toBePushed = transitions.get(symbol)!
+            for(const transition of variable.transitions){
+                const mappedTransition = transition.map(x=> x.symbol)
+                const toBePushed = transitions.get(symbol)!
                 toBePushed.push(mappedTransition)
             }
             transitions.set(symbol,this.uniqueify(transitions.get(symbol)!))
@@ -322,8 +316,8 @@ export class CFGUtil {
      */
     private removeAllTransitions(cfg : CFG) : void {
 
-        for(let [sym,variable] of cfg.variables){
-            for(let transition of variable.transitions){
+        for(const [sym,variable] of cfg.variables){
+            for(const transition of variable.transitions){
                 cfg.removeTransition(this.removeDelimiter(sym,this.delimeter),
                     ...transition.map(x=>this.removeDelimiter(x.symbol,this.delimeter)))
             }
@@ -348,10 +342,10 @@ export class CFGUtil {
      * @returns all variables X with the transition X -> a
      */
     private getVariablesWithSingleTransition(cfg : CFG, symbol : string) : Set<string>{
-        let res : Set<string> = new Set()
-        let variables = cfg.variables;
-        for (let [sym,variable] of variables){
-            for(let transition of variable.transitions){
+        const res : Set<string> = new Set()
+        const {variables} = cfg;
+        for (const [sym,variable] of variables){
+            for(const transition of variable.transitions){
                 if(transition.length===1 && transition[0].symbol===symbol){
                     res.add(sym)
                     break;
@@ -368,10 +362,10 @@ export class CFGUtil {
      * @returns new transitions as decsribed by Sipser
      */
     private removeEpsilonEdge(edge : string[], epsilonVariables : Set<string>) : string[][]{
-        let res : string[][] = []
+        const res : string[][] = []
         for(let i = 0 ; i < edge.length;++i){
             if(epsilonVariables.has(edge[i])){
-                let arrayToPush = [...edge]
+                const arrayToPush = [...edge]
                 arrayToPush.splice(i,1)
                 if(arrayToPush.length ===0){
                     arrayToPush.push(EPSILON)
@@ -388,6 +382,7 @@ export class CFGUtil {
      * Method that (sadly) cannot check if the language is all strings
      * @param cfg The cfg
      */
+     
     public isLanguageAllStrings(cfg : CFG): boolean {
         throw new UndecidableProblem("Universality of CFGs is an undecidable problem!")
 
@@ -404,12 +399,12 @@ export class CFGUtil {
         if(word ===EPSILON||word===""){
             if(Array.from(cfg.startVariable.transitions).some(x=>x.length===1&&x[0].symbol===EPSILON)){
                 return true;
-            }else{
-                return false;
             }
+                return false;
+            
         }
-        let n :number = word.length;
-        var dp : string[][][]= [];
+        const n :number = word.length;
+        const dp : string[][][]= [];
         for(let i = 0; i < n; i++) {
             dp.push([])
             for(let j = 0; j < n;++j)[
@@ -420,19 +415,19 @@ export class CFGUtil {
         for(let i = 0; i<n;++i){
             dp[i][i].push(...Array.from(this.getVariablesWithSingleTransition(cfg,word[i])))
         }
-        let allTransitions = this.getTransitionsInMap(cfg);
+        const allTransitions = this.getTransitionsInMap(cfg);
         for(let l = 2 ; l <=n; l++){
             for(let i = 0 ; i<=n-l;++i){
-                let j = i+l-1;
+                const j = i+l-1;
                 for(let k = i; k<=j-1;++k){
-                    for(let [A,transitions] of allTransitions){
-                        for(let transition of transitions){
+                    for(const [A,transitions] of allTransitions){
+                        for(const transition of transitions){
                             if(!(transition.length===2 &&
                                  transition.every(x=>allTransitions.has(x)))){
                                 continue;
                             }
-                            let B = transition[0]
-                            let C = transition[1]
+                            const B = transition[0]
+                            const C = transition[1]
 
                             if(dp[i][k].includes(B)&&dp[k+1][j].includes(C)){
                                 dp[i][j].push(A)
@@ -489,9 +484,9 @@ export class CFGUtil {
      * @returns fALSE if the start variable is in any transition
      */
     private checkStartRule(cfg : CFG) : boolean {
-        let start = cfg.startVariable.symbol;
-        for(let [fromSymbol,variable] of cfg.variables){
-            for(let transitions of variable.transitions){
+        const start = cfg.startVariable.symbol;
+        for(const [,variable] of cfg.variables){
+            for(const transitions of variable.transitions){
                 if(transitions.map(x=>x.symbol).includes(start)){
                     return false;
                 }
@@ -505,8 +500,8 @@ export class CFGUtil {
      * @returns True if there arent any unit rules
      */
     private checkUnitRule(cfg : CFG) : boolean {
-        for(let [fromSymbol,variable] of cfg.variables){
-            for(let transition of variable.transitions){
+        for(const [,variable] of cfg.variables){
+            for(const transition of variable.transitions){
                 if(transition.length===1 && transition[0] instanceof CFGVariable){
                     return false;
                 }
@@ -521,8 +516,8 @@ export class CFGUtil {
      * @returns True if there aren't any other epsilon transitions than in the start state
      */
     private checkEpsilonRule(cfg : CFG) : boolean {
-        for(let [fromSymbol,variable] of cfg.variables){
-            for(let transition of variable.transitions){
+        for(const [fromSymbol,variable] of cfg.variables){
+            for(const transition of variable.transitions){
                 if(transition.length===1 && transition[0].symbol === EPSILON 
                             && fromSymbol!=cfg.startVariable.symbol){
                     return false;
@@ -538,12 +533,12 @@ export class CFGUtil {
      * @returns True if there aren't any transitions with more than 2 symbols
      */
     private checkProperFormRule(cfg : CFG) : boolean {
-        for(let [fromSymbol,variable] of cfg.variables){
-            for(let transition of variable.transitions){
+        for(const [,variable] of cfg.variables){
+            for(const transition of variable.transitions){
                 if(transition.length>2&&transition.length===0){
                     return false;
                 }
-                let transitionMapped = Array.from(transition).map(x=>x.symbol)
+                const transitionMapped = Array.from(transition).map(x=>x.symbol)
                 if(transition.length===2&&transitionMapped.some(x=>cfg.terminals.has(x))){
                     return false;
                 }

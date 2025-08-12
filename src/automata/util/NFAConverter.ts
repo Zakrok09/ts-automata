@@ -1,8 +1,8 @@
 import {DFA} from "../regular/DFA";
-import {NFAState} from "../../states/RegularStates";
-import {NFA} from "../regular/NFA";
-import {char} from "../../types";
 import {DFABuilder} from "./builders/automata/DFABuilder";
+import {NFA} from "../regular/NFA";
+import {NFAState} from "../../states/RegularStates";
+import {char} from "../../types";
 
 /**
  * @class Method object for converting NFAs to DFAs
@@ -52,7 +52,7 @@ export class NFAConverter {
      * @link https://refactoring.guru/extract-method
      */
     private processStateBunch(currentBunch:StateBunch, statesToProcess:StateBunch[]):void {
-        let isFinal = currentBunch.hasAnyFinalState();
+        const isFinal = currentBunch.hasAnyFinalState();
         if (!this.dfaBuilder.getState(currentBunch.name))
             this.dfaBuilder.addState(currentBunch.name, isFinal)
 
@@ -73,11 +73,11 @@ export class NFAConverter {
      * @param statesToProcess reference to the stack of states to be processed.
      */
     private processNextStateBunch(currentBunch:StateBunch, symbol:char, statesToProcess:StateBunch[]):void {
-        let nextStates:NFAState[] = currentBunch.giveNextStates(symbol);
-        let newStateBunch = new StateBunch(nextStates, this.nfa);
+        const nextStates:NFAState[] = currentBunch.giveNextStates(symbol);
+        const newStateBunch = new StateBunch(nextStates, this.nfa);
 
         // Look to see if we've already encountered this set of NFA states as a DFA state.
-        let nextDFAState = this.dfaBuilder.getState(newStateBunch.name);
+        const nextDFAState = this.dfaBuilder.getState(newStateBunch.name);
 
         // If we haven't, make it a new state in the DFA and remember to process it later.
         if (!nextDFAState) {
@@ -114,7 +114,7 @@ class StateBunch {
      * If the state name is empty, returns "dead-state".
      */
     private stateName(states: NFAState[]): string {
-        let res = states.map(s => "{"+s.name+"}")
+        const res = states.map(s => `{${s.name}}`)
             .sort((a, b) => a.localeCompare(b)).join('');
         return res.trim() === "" ? "dead-state" : res;
     }
@@ -135,7 +135,7 @@ class StateBunch {
      * given this input (incl. epsilon closure)
      */
     giveNextStates(symbol:char):NFAState[] {
-        let nextStates:NFAState[] = []
+        const nextStates:NFAState[] = []
         for (const state of this.states) {
             nextStates.push(...state.transition(symbol))
         }

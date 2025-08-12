@@ -1,10 +1,10 @@
-import {FiniteAutomaton} from "./FiniteAutomaton";
 import {EPSILON, toChar} from "../../types";
-import {DFA} from "./DFA";
-import {NFAState} from "../../states/RegularStates";
-import {IllegalArgument} from "../../exceptions/exceptions";
 import {Alphabet} from "../Alphabet";
+import {DFA} from "./DFA";
+import {FiniteAutomaton} from "./FiniteAutomaton";
+import {IllegalArgument} from "../../exceptions/exceptions";
 import {NFAConverter} from "../util/NFAConverter";
+import {NFAState} from "../../states/RegularStates";
 
 /**
  * Nondeterministic finite automaton.
@@ -28,12 +28,12 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param startingAccept whether the starting state should accept.
      */
     public constructor(alphabetString: string, startState: string, startingAccept: boolean) {
-        let start:NFAState = new NFAState(startState);
+        const start:NFAState = new NFAState(startState);
         super(Alphabet.fromString(alphabetString), start);
 
         if (startingAccept) {
-            this._startState.accepting = true;
-            this._acceptStates.add(start);
+            this.startState.accepting = true;
+            this.acceptStates.add(start);
         }
     }
 
@@ -72,7 +72,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * same input symbol and state from which they come out of.
      */
     public removeEdge(stateName:string, input:string, to:string) {
-        let char = toChar(input)
+        const char = toChar(input)
         this.testSymbolAgainstAlphabet(char);
 
         const state = this.states.get(stateName);
@@ -92,7 +92,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @returns Returns true if the string is accepted by the finite state machine, otherwise false.
      */
     public runString(str: string): boolean {
-        let activeStates = NFA.epsilonClosure([this._startState]);
+        let activeStates = NFA.epsilonClosure([this.startState]);
 
         while (str.length > 0 && activeStates.length > 0) {
             const symbol = toChar(str[0]);
@@ -105,7 +105,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
             activeStates = NFA.epsilonClosure(nextStates);
         }
 
-        return activeStates.some(state => this._acceptStates.has(state));
+        return activeStates.some(state => this.acceptStates.has(state));
     }
 
     /**
@@ -155,6 +155,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
     /**
      * Returns the machine type of the NFA. The result is always NFA.
      */
+     
     get machineType(): string {
         return "NFA";
     }
@@ -162,6 +163,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
     /**
      * Returns whether the NFA is valid.
      */
+     
     isValid(): boolean {
         return true;
     }
@@ -169,7 +171,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
     /**
      * Convert a NFA to a DFA.
      * Conversion is done
-     * using the algorithm described by Micheal Sipser in his book "Introduction to the Theory of Computation"
+     * using the algorithm described by Michael Sipser in his book "Introduction to the Theory of Computation"
      *
      * @return a DFA of the NFA using Sipser's algorithm.
      */
@@ -182,10 +184,10 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @returns a deep copy of this NFA
      */
     public copy() : NFA{
-        let newNFA = new NFA(this._alphabet.joinToString(),this._startState.name,this._startState.accepting)
+        const newNFA = new NFA(this.alphabet.joinToString(),this.startState.name,this.startState.accepting)
         this.states.forEach(state => {if (!newNFA.getState(state.name)){newNFA.addState(state.name,state.accepting)}})
         this.states.forEach(state => state.transitions
-                            .forEach((possible_to,sym)=> possible_to
+                            .forEach((possibleTo,sym)=> possibleTo
                                 .forEach(to => {if (sym==EPSILON){
                                                     newNFA.addEpsilonEdge(state.name,to.name)
                                                 }else{

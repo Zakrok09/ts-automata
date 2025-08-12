@@ -1,31 +1,27 @@
-import { DFAState } from "~/states/RegularStates";
-import { AutomatonUtil } from "./automata-util";
 import {DFA} from "../../regular/DFA";
+import { DFAState } from "~/states/RegularStates";
 import {NFA} from "../../regular/NFA";
 import { NFAUtil } from "./NFA-util";
 import { RegularAutomatonUtil } from "./finite-automata-util";
 
 export class DFAUtil extends RegularAutomatonUtil<DFA> {
 
-    constructor() {
-        super()
-    }
     /**
      * Performs a depth-first search to find all states reachable from the start state.
      * @param automaton the automaton to DFS on
      * @returns Returns a set of all states reachable from the start state.
      */
     public dfs(automaton : DFA) : Set<DFAState> {
-        let stack: string[] = [];
-        stack.push(automaton._startState.name);
-        let visited : Set<DFAState> = new Set<DFAState>();
+        const stack: string[] = [];
+        stack.push(automaton.startState.name);
+        const visited : Set<DFAState> = new Set<DFAState>();
         // Perform a depth-first search to check if there is any accepting state reachable from the start state.
         // If we find an accepting state, the language is not empty.
         while (stack.length > 0) {
-            let state = automaton.getState(stack.pop()!)!;
+            const state = automaton.getState(stack.pop()!)!;
             if (visited.has(state)) continue;
             visited.add(state);
-            for (let neighbour of state.transitions.values()) {
+            for (const neighbour of state.transitions.values()) {
                 stack.push(neighbour.name);
             }
 
@@ -39,7 +35,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Returns true if the language of the DFA is empty, otherwise false.
      */
     public isLanguageEmpty(automaton : DFA): boolean {
-        let visited = this.dfs(automaton);
+        const visited = this.dfs(automaton);
         return Array.from(visited).every(state => !state.accepting);
     }
     /**
@@ -49,7 +45,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Returns true if the language of the DFA contains all strings, otherwise false.
      */
     public isLanguageAllStrings(automaton : DFA): boolean {
-        let visited = this.dfs(automaton);
+        const visited = this.dfs(automaton);
         return Array.from(visited).every(state => state.accepting);
     }
     /**
@@ -68,8 +64,8 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Returns true if the languages are equal, otherwise false.
      */
     public equal(automaton : DFA, other: DFA): boolean {
-        let AminB = (this.intersection(this.negation(automaton),other))
-        let BminA= (this.intersection(automaton,this.negation(other)))
+        const AminB = (this.intersection(this.negation(automaton),other))
+        const BminA= (this.intersection(automaton,this.negation(other)))
 
         return this.isLanguageEmpty(this.union(AminB,BminA));
     }
@@ -79,7 +75,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns the negated DFA
      */
     public negation(automaton: DFA): DFA {
-        let newDFA = automaton.copy()
+        const newDFA = automaton.copy()
         this.dfs(newDFA).forEach(state => newDFA.setAccepting(state.name,!state.accepting))
         return newDFA;
     }
@@ -91,9 +87,9 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Automaton that recognizes L1 union L2
      */
     public union(automaton : DFA, other: DFA, nfaUtil = new NFAUtil()): DFA {
-        let thisDFAasNFA = this.toNFA(automaton);
-        let otherDFAasNFA = this.toNFA(other);
-        let newNFA = nfaUtil.union(thisDFAasNFA,otherDFAasNFA);
+        const thisDFAasNFA = this.toNFA(automaton);
+        const otherDFAasNFA = this.toNFA(other);
+        const newNFA = nfaUtil.union(thisDFAasNFA,otherDFAasNFA);
         return newNFA.toDFA();
     }
     /**
@@ -105,25 +101,24 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     public intersection(automaton : DFA, other: DFA): DFA {
 
         // Use procedure from Sipser. 
-        let newDFA = this.union(automaton,other);
-        let states = this.dfs(newDFA);
-        let resultDFA = new DFA(newDFA.alphabet.joinToString(), newDFA._startState.name, newDFA._startState.accepting);
+        const newDFA = this.union(automaton,other);
+        const states = this.dfs(newDFA);
+        const resultDFA = new DFA(newDFA.alphabet.joinToString(), newDFA.startState.name, newDFA.startState.accepting);
         // Mark each state in the union DFA to be accepting if it represents a super position of states
         // Such that it both represents being in an accepting state in the first dfa AND the second. 
         states.forEach(state => {
-                // Extract the names from the unioned DFA. Example {1-statex}{2-statey}{1-{statez}}
-                let namesInThisDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("1-")).map(name => name.slice(2));
-                // Get names of the states in the second DFA. Example from the upper comment: statey
-                let namesInOtherDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("2-")).map(name => name.slice(2));
-                let isAnyAcceptingInThisDFA = namesInThisDFA.some(name => automaton.getState(name)!.accepting);
-                let isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)!.accepting);
-                let result = (isAnyAcceptingInOtherDFA && isAnyAcceptingInThisDFA)
-                if(state.name!=resultDFA._startState.name){
-                // Get names of the states in the first DFA. Example from the upper comment: statex, {statez}
-                    resultDFA.addState(state.name);
-                }
-                resultDFA.setAccepting(state.name,result)
-            
+            // Extract the names from the unioned DFA. Example {1-statex}{2-statey}{1-{statez}}
+            const namesInThisDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("1-")).map(name => name.slice(2));
+            // Get names of the states in the second DFA. Example from the upper comment: statey
+            const namesInOtherDFA = super.nameSeperator(state.name).filter(name=> name.startsWith("2-")).map(name => name.slice(2));
+            const isAnyAcceptingInThisDFA = namesInThisDFA.some(name => automaton.getState(name)!.accepting);
+            const isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)!.accepting);
+            const result = (isAnyAcceptingInOtherDFA && isAnyAcceptingInThisDFA)
+            if(state.name!=resultDFA.startState.name){
+            // Get names of the states in the first DFA. Example from the upper comment: statex, {statez}
+                resultDFA.addState(state.name);
+            }
+            resultDFA.setAccepting(state.name,result)
         })
         // REcreate the edges
         states.forEach(state => 

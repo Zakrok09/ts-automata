@@ -1,11 +1,10 @@
-import { CFG } from '~/automata/context-free/CFG'
-import { char, EPSILON } from '../types'
+import { EPSILON } from '../types'
 import { IllegalArgument } from '../exceptions/exceptions'
 
 export type CFGEdge = CFGState[]
 export abstract class CFGState{
     public symbol : string
-    public constructor(symbol : string){
+    protected constructor(symbol : string){
         this.symbol = symbol
     }
     public equal(other : CFGState) : boolean {
@@ -25,20 +24,20 @@ export class CFGVariable extends CFGState{
         this.transitions.add(states)
     }
     public removeTransition(states : CFGState[]) : boolean{
-        let oldSize = this.transitions.size
+        const oldSize = this.transitions.size
         this.transitions.forEach(x => {if(this.transitionEquality(x,states))
                                             {this.transitions.delete(x)}})
-        return this.transitions.size != oldSize
+        return this.transitions.size !== oldSize
         
     }
     protected transitionEquality(transition : CFGState[], otherTransition : CFGState[]) : boolean{
-        if (transition.length!=otherTransition.length){
+        if (transition.length!==otherTransition.length){
             return false;
         }
         let flag = true;
         for(let i = 0 ; i < transition.length;++i){
-            let stateThis = transition[i]
-            flag = flag && (stateThis.equal(otherTransition[i]))
+            const stateThis = transition[i]
+            flag &&= (stateThis.equal(otherTransition[i]))
         }
         return flag
     }
@@ -49,7 +48,7 @@ export class CFGVariable extends CFGState{
         return other.symbol === this.symbol
     }
     public toString(): string {
-        let res = this.symbol + " -> ";
+        const res = `${this.symbol  } -> `;
         return res+ this.transitions.values().map(x=>x.map(state => state.symbol).join(" ")).toArray().join(" | ")
     }
 
@@ -57,7 +56,7 @@ export class CFGVariable extends CFGState{
 export class CFGTerminal extends CFGState{
     
     public constructor(symbol : string){
-        if(symbol.length!=1){
+        if(symbol.length!==1){
             throw new IllegalArgument("Terminal symbol has to be of length 1")
         }
         super(symbol)

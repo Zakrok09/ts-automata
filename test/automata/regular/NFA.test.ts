@@ -1,4 +1,4 @@
-import {describe, beforeEach, it, expect} from "vitest";
+import {beforeEach, describe, expect, it} from "vitest";
 
 import {NFA} from "../../../src";
 import Fixtures from "../../fixtures";
@@ -29,7 +29,7 @@ describe("NFA acceptance testing", () => {
     })
 
     it("should correctly deal with epsilon edges", () => {
-        let enfa = Fixtures.genericEpsilonNFA();
+        const enfa = Fixtures.genericEpsilonNFA();
 
         expect(enfa.runString("")).toBe(true);
         expect(enfa.runString("ab")).toBe(true);
@@ -41,7 +41,7 @@ describe("NFA acceptance testing", () => {
     })
 
     it("should correctly work with NFAs with epsilon edges and large alphabet", () => {
-        let enfa = Fixtures.genericEpsilonNFALargerAlphabet();
+        const enfa = Fixtures.genericEpsilonNFALargerAlphabet();
 
         expect(enfa.runString("")).toBe(false);
         expect(enfa.runString("ba")).toBe(true);
@@ -54,7 +54,7 @@ describe("NFA acceptance testing", () => {
 
 describe("NFA toString", () => {
     it("should correctly print a NFA with no present epsilons", () => {
-        let nfa = Fixtures.genericNFA();
+        const nfa = Fixtures.genericNFA();
         expect(nfa.toString()).toBe("NFA: {\n" +
             "\tAlphabet: [a, b]\n" +
             "\tStates: [start, 1, 2, end]\n" +
@@ -71,7 +71,7 @@ describe("NFA toString", () => {
     })
 
     it("should correctly print a NFA with epsilons", () => {
-        let enfa = Fixtures.genericEpsilonNFA();
+        const enfa = Fixtures.genericEpsilonNFA();
         expect(enfa.toString()).toBe("NFA: {\n" +
             "\tAlphabet: [a, b]\n" +
             "\tStates: [start, 1, 11, 2, 22, 3, 33, end]\n" +

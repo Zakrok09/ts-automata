@@ -1,9 +1,9 @@
-import {Automaton} from "../../automata/Automaton";
+import {EMPTY, Move, toChar} from "../../types";
 import {Alphabet} from "../../automata/Alphabet";
-import {toChar, EPSILON, Move, EMPTY} from "../../types";
-import {TMState} from "../../states/TMState";
+import {Automaton} from "../../automata/Automaton";
 import {IllegalArgument} from "../../exceptions/exceptions";
-import { TMRunner } from "../util/TMRunner";
+import {TMRunner} from "../util/TMRunner";
+import {TMState} from "../../states/TMState";
 
 /**
  * Turing machine.
@@ -12,21 +12,21 @@ import { TMRunner } from "../util/TMRunner";
 export class TM extends Automaton<TMState> {
     
 
-    private readonly _tapeAlphabet: Alphabet
+    public readonly tapeAlphabet: Alphabet
 
     public constructor(alphabet: Alphabet, tapeAlphabet : Alphabet , startState: TMState) {
         super(alphabet, startState);
-        this._tapeAlphabet = tapeAlphabet;
-        this._tapeAlphabet.addChar(EMPTY);
+        this.tapeAlphabet = tapeAlphabet;
+        this.tapeAlphabet.addChar(EMPTY);
     }
+
     runString(str: string): boolean {
-        return new TMRunner(this).runString(str, this._startState);
+        return new TMRunner(this).runString(str, this.startState);
     }
+
+     
     public get machineType(): string {
         return "TM";
-    }
-    public get tapeAlphabet(): Alphabet {
-        return this._tapeAlphabet;
     }
     
 
@@ -38,7 +38,7 @@ export class TM extends Automaton<TMState> {
      */
     addState(name: string, final?: boolean): void {
         super.insertState(new TMState(name), final);
-        // check there is one accepting state
+        // Check there is one accepting state
         if (Array.from(this.states.values()).filter(s => s.accepting).length > 1) {
             throw new IllegalArgument("There can only be one accepting state in a Turing machine!");
         }
@@ -46,15 +46,15 @@ export class TM extends Automaton<TMState> {
     /**
      * Verify inputs.
      * Extract method from addEdge and removeEdge
-     * @throws IllegalArgument to an illegal inputs on either read, write, to or state names.
+     * @throws IllegalArgument to an illegal input on either read, write, to or state names.
      * @private
      */
     private verifyInputsAndStates(verify:{stateName: string, inputStr: string, writeStr: string, move: Move, to: string}) {
-        let {inputStr, writeStr, stateName, move, to} = verify
+        const {inputStr, writeStr, stateName, move, to} = verify
         if (inputStr.length !== 1) throw new IllegalArgument("Input longer than 1 ")
 
-        let input = toChar(inputStr)
-        let writeStack = toChar(writeStr)
+        const input = toChar(inputStr)
+        const writeStack = toChar(writeStr)
         const state = this.states.get(stateName);
         const toState = this.states.get(to);
 
@@ -74,13 +74,14 @@ export class TM extends Automaton<TMState> {
      * @param stateName the name of the state from which the edge goes.
      * @param inputStr the input of the edge (must be a single char) read from the tape
      * @param writeStr what should be written to the stack
+     * @param move
      * @param to the destination state or where the edge goes
      * @throws IllegalArgument throws an error
      * if the input character is not part of the tape alphabet or is longer than a char,
      * the given state does not exist or the destination state does not exist.
      */
     public addEdge(stateName:string, inputStr:string, writeStr:string, move : Move, to: string):void {
-        let {input, writeStack, state, toState}
+        const {input, writeStack, state, toState}
             = this.verifyInputsAndStates({stateName, inputStr, writeStr,move, to})
 
         state.insertTransition(input, writeStack, move, toState.name);
@@ -96,13 +97,13 @@ export class TM extends Automaton<TMState> {
      * the given state does not exist or the destination state does not exist.
      */
     public removeEdge(stateName:string, inputStr:string, writeStr:string, move : Move, to:string):boolean {
-        let {input, writeStack, state, toState}
+        const {input, writeStack, state, toState}
             = this.verifyInputsAndStates({stateName, inputStr,  writeStr, move,to})
 
         return state.removeTransition(input, writeStack, move, toState.name)
     }
     public copy(): Automaton<TMState> {
-        let resultTM = new TM(this._alphabet,this.tapeAlphabet,this._startState)
+        const resultTM = new TM(this.alphabet,this.tapeAlphabet,this.startState)
         this.states.forEach(state => resultTM.addState(state.name,state.accepting))
         this.states.forEach(state=> state.transitions
                         .forEach((nextStates,sym) => 

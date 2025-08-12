@@ -41,9 +41,9 @@ export class TMBuilder extends AutomataBuilder<TM>{
                     over: (symbols: string) => {
                         
                         if (symbols.length === 0) return this;
-                        // break string abRbbR into array ["abR", "bbR"] empty array if symbols is empty
-                        let parts = symbols.match(/.{1,3}/g) || [];
-                        for (let part of parts) {
+                        // Break string abRbbR into array ["abR", "bbR"] empty array if symbols is empty
+                        const parts = symbols.match(/.{1,3}/g) || [];
+                        for (const part of parts) {
                             this.addEdge(start, part, to);
                         }
                         return this;
@@ -51,10 +51,10 @@ export class TMBuilder extends AutomataBuilder<TM>{
                 }),
                 toSelf: () => ({
                     over: (symbols: string) => {
-                        // break string abRbbR into array ["abR", "bbR"] empty array if symbols is empty
+                        // Break string abRbbR into array ["abR", "bbR"] empty array if symbols is empty
                         if (symbols.length === 0) return this;
-                        let parts = symbols.match(/.{1,3}/g) || [];
-                        for (let part of parts) {
+                        const parts = symbols.match(/.{1,3}/g) || [];
+                        for (const part of parts) {
                             this.addEdge(start, part, start);
                         }
                         return this;
@@ -73,16 +73,16 @@ export class TMBuilder extends AutomataBuilder<TM>{
      */
     getResult(): TM {
         if(!this._startingState) throw new IllegalArgument("cannot build a TM without any states!")
-        let startState = new TMState(this._startingState.name)
+        const startState = new TMState(this._startingState.name)
         const tm = new TM(Alphabet.fromString(this._alphabetString), Alphabet.fromString(this._tapeAlphabet), startState)
-        for (let {name, isFinal} of this._stateMap.values()) {
+        for (const {name, isFinal} of this._stateMap.values()) {
             if (name != this._startingState.name)
                 tm.addState(name, isFinal)
         }
-        for (let {from, over, to} of this._edges) {
-            let readSymbol = over[0];
-            let writeSymbol = over[1];
-            let move = over[2] as Move;
+        for (const {from, over, to} of this._edges) {
+            const readSymbol = over[0];
+            const writeSymbol = over[1];
+            const move = over[2] as Move;
             tm.addEdge(from, readSymbol,writeSymbol,move, to);
         }
         return tm;

@@ -80,14 +80,14 @@ export abstract class AutomataBuilder<T extends Automaton<State>> {
             from: (start: string) => ({
                 to: (to: string) => ({
                     over: (symbols: string) => {
-                        for (let over of symbols)
+                        for (const over of symbols)
                             this.addEdge(start, over, to);
                         return this;
                     }
                 }),
                 toSelf: () => ({
                     over: (symbols: string) => {
-                        for (let over of symbols)
+                        for (const over of symbols)
                             this.addEdge(start, over, start);
                         return this;
                     }
