@@ -27,4 +27,5 @@ To have your contribution Pull request approved:
 - your newly added content MUST be covered by tests
 - if you are knowingly implementing an existing algorithm in, you MUST give credits to its creator
 - if you are adding a utility function or an algorithm that works on automata, you SHOULD provide a mathematical proof of its correctness in the Pull Request description
+- your code SHOULD be prettified according to the [Praxidike code style convention](https://github.com/TeamPraxidike/.github/blob/main/.prettierrc.yaml)
 - your added code SHOULD be documented with TSDoc (do not forget to add yourself as `@author` :) )
