@@ -1,8 +1,8 @@
-import {char, toChar} from "../../types";
-import {DFAState} from "../../states/RegularStates";
-import {IllegalArgument, IllegalAutomatonState} from "../../exceptions/exceptions";
-import {Alphabet} from "../Alphabet";
-import {FiniteAutomaton} from "./FiniteAutomaton";
+import { char, toChar } from "../../types";
+import { DFAState } from "../../states/RegularStates";
+import { IllegalArgument, IllegalAutomatonState } from "../../exceptions/exceptions";
+import { Alphabet } from "../Alphabet";
+import { FiniteAutomaton } from "./FiniteAutomaton";
 import { NFA } from "./NFA";
 import { DFAUtil } from "../util/automata/DFA-util";
 
@@ -18,7 +18,6 @@ import { DFAUtil } from "../util/automata/DFA-util";
  * @since 0.0.1
  */
 export class DFA extends FiniteAutomaton<DFAState> {
-
     /**
      * Creates a DFA (Deterministic Finite Automaton) object.
      * Isolates the logic of the alphabet creation as the alphabet object must not be accessible outside the automaton.
@@ -27,13 +26,13 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @param {string} startState - The starting state of the DFA.
      * @param {boolean} startingAccept - Indicates whether the starting state is an accepting state.
      */
-    public constructor(alphabetString:string, startState: string, startingAccept: boolean) {
-        const start:DFAState = new DFAState(startState);
+    public constructor(alphabetString: string, startState: string, startingAccept: boolean) {
+        const start: DFAState = new DFAState(startState);
         super(Alphabet.fromString(alphabetString), start);
 
         if (startingAccept) {
             this.startState.accepting = true;
-            start.accepting = true
+            start.accepting = true;
             this.acceptStates.add(start);
         }
     }
@@ -43,7 +42,7 @@ export class DFA extends FiniteAutomaton<DFAState> {
      *
      * @returns True if the transition diagram is valid, otherwise false.
      */
-    public isValid():boolean {
+    public isValid(): boolean {
         for (const state of this.states.values()) {
             if (state.getInputAlphabet().size !== this.alphabet.size) {
                 return false;
@@ -74,8 +73,8 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @throws {IllegalArgument} if the input character is not part of the alphabet of this DFA.
      * @throws {IllegalArgument} if the state does not exist.
      */
-    public removeEdge(stateName:string, input:string):boolean {
-        const inputChar = toChar(input)
+    public removeEdge(stateName: string, input: string): boolean {
+        const inputChar = toChar(input);
         this.testSymbolAgainstAlphabet(inputChar);
 
         const state = this.states.get(stateName);
@@ -89,25 +88,24 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @param util DFA util
      * @returns an equivallent NFA as this DFA
      */
-    public toNFA(util = new DFAUtil()){
-        const newNfa = new NFA(this.alphabet.joinToString(),this.startState.name,this.startState.accepting),
+    public toNFA(util = new DFAUtil()) {
+        const newNfa = new NFA(this.alphabet.joinToString(), this.startState.name, this.startState.accepting),
             statesThisDFA = util.dfs(this);
-        
+
         statesThisDFA.forEach(state => {
-            if(!newNfa.getState(state.name)){
+            if (!newNfa.getState(state.name)) {
                 newNfa.addState(state.name, state.accepting);
             }
         });
 
-        statesThisDFA.forEach(state =>{
+        statesThisDFA.forEach(state => {
             this.getState(state.name)!.transitions.forEach((nextState, symbol) => {
                 newNfa.addEdge(state.name, symbol, nextState.name);
             });
-        })
-        
+        });
+
         return newNfa;
     }
-    
 
     /**
      * Runs the given string against the finite state machine.
@@ -117,10 +115,10 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @throws IllegalAutomatonState if the DFA is in an invalid state, running any string on it will
      * result in a runtime error being thrown.
      */
-    public runString(str:string): boolean {
-        if (!this.isValid()) throw new IllegalAutomatonState('The DFA is not valid. Cannot run string.');
+    public runString(str: string): boolean {
+        if (!this.isValid()) throw new IllegalAutomatonState("The DFA is not valid. Cannot run string.");
 
-        let currentState:DFAState = this.startState;
+        let currentState: DFAState = this.startState;
 
         for (const inputChar of str) {
             const c: char = toChar(inputChar);
@@ -136,36 +134,40 @@ export class DFA extends FiniteAutomaton<DFAState> {
      * @returns The string representation of the DFA.
      */
     public toString() {
-        let transitions:string = "";
+        let transitions: string = "";
         this.states.forEach(state => {
             let currState = `\n\t\tState: ${state.name}`;
 
             for (const [input, nextState] of state.transitions) {
-                currState += `\n\t\t\t${input} => ${nextState.name}`
+                currState += `\n\t\t\t${input} => ${nextState.name}`;
             }
 
-            transitions+=currState;
-        })
+            transitions += currState;
+        });
 
         return super.toString(transitions);
     }
+
     /**
      * Create a copy of the DFA
      * @returns Deep copy of the current DFA
      */
-    public copy(){
-        const newDFA = new DFA(this.alphabet.joinToString(),this.startState.name,this.startState.accepting)
-        this.states.forEach(state => {if(!newDFA.getState(state.name)) {newDFA.addState(state.name,state.accepting)}})
-        this.states.forEach(state => state.transitions!.forEach((to,sym) =>   newDFA.addEdge(state.name,sym,to.name)))
+    public copy() {
+        const newDFA = new DFA(this.alphabet.joinToString(), this.startState.name, this.startState.accepting);
+        this.states.forEach(state => {
+            if (!newDFA.getState(state.name)) {
+                newDFA.addState(state.name, state.accepting);
+            }
+        });
+        this.states.forEach(state => state.transitions!.forEach((to, sym) => newDFA.addEdge(state.name, sym, to.name)));
         return newDFA;
     }
 
     /**
      * Returns the machine type of the DFA. The result is always DFA.
      */
-     
+
     get machineType(): string {
         return "DFA";
     }
-    
 }

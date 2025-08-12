@@ -1,18 +1,18 @@
-import {EMPTY, Move, toChar} from "../../types";
-import {TMEdge, TMState} from "../../states/TMState";
-import {TM} from "../../automata";
+import { EMPTY, Move, toChar } from "../../types";
+import { TMEdge, TMState } from "../../states/TMState";
+import { TM } from "../../automata";
 
-type tapeHead = number 
-type StateConfiguration = {stateName: string, tapeContents:string[], currentIndex: tapeHead};
+type tapeHead = number;
+type StateConfiguration = { stateName: string; tapeContents: string[]; currentIndex: tapeHead };
 
 /**
  * TM runner method class.
  * @link https://refactoring.guru/replace-method-with-method-object
  */
 export class TMRunner {
-    private readonly tm:TM
+    private readonly tm: TM;
 
-    constructor(tm:TM) {
+    constructor(tm: TM) {
         this.tm = tm;
     }
 
@@ -24,20 +24,18 @@ export class TMRunner {
      */
     public runString(str: string, startState: TMState): boolean {
         str.split("").forEach(c => this.tm.testSymbolAgainstAlphabet(toChar(c)));
-        let activeConfigs:StateConfiguration[] =
-            [{stateName: startState.name, tapeContents: [...str,EMPTY], currentIndex: 0}]
+        let activeConfigs: StateConfiguration[] = [
+            { stateName: startState.name, tapeContents: [...str, EMPTY], currentIndex: 0 }
+        ];
 
         while (activeConfigs.length > 0) {
-
             activeConfigs = this.processNextConfigs(activeConfigs);
-            if(activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)){
+            if (activeConfigs.some(conf => this.tm.getState(conf.stateName)!.accepting)) {
                 return true;
             }
-            
         }
 
-
-        return false
+        return false;
     }
 
     /**
@@ -47,13 +45,11 @@ export class TMRunner {
      * @private
      */
     private processNextConfigs(activeConfigs: StateConfiguration[]) {
-        const nextConfigs: StateConfiguration[] = []
-        for (const {stateName, tapeContents, currentIndex} of activeConfigs) {
-            const state = this.tm.getState(stateName)!
+        const nextConfigs: StateConfiguration[] = [];
+        for (const { stateName, tapeContents, currentIndex } of activeConfigs) {
+            const state = this.tm.getState(stateName)!;
             const symbol = toChar(tapeContents[currentIndex]);
-            state.transition(symbol).forEach(t =>
-                this.processTransition(t, tapeContents, currentIndex, nextConfigs)
-            );
+            state.transition(symbol).forEach(t => this.processTransition(t, tapeContents, currentIndex, nextConfigs));
         }
         return nextConfigs;
     }
@@ -66,20 +62,25 @@ export class TMRunner {
      * @param nextConfigs pointer to the next configs which will be pointed.
      * @private
      */
-    private processTransition(transition: TMEdge, tapeContents: string[], currentIndex: tapeHead, nextConfigs: StateConfiguration[]) {
+    private processTransition(
+        transition: TMEdge,
+        tapeContents: string[],
+        currentIndex: tapeHead,
+        nextConfigs: StateConfiguration[]
+    ) {
         if (currentIndex < 0 || currentIndex >= tapeContents.length) {
-            throw new Error(`Current index ${currentIndex} is out of bounds for tape contents of length ${tapeContents.length}`);
+            throw new Error(
+                `Current index ${currentIndex} is out of bounds for tape contents of length ${tapeContents.length}`
+            );
         }
-        const currState = this.tm.getState(transition.to)!
-        const updatedTape = [...tapeContents]
+        const currState = this.tm.getState(transition.to)!;
+        const updatedTape = [...tapeContents];
         let updatedCurrentIndex = currentIndex;
         updatedTape[currentIndex] = transition.writeTape;
         updatedCurrentIndex = this.processTapeHead(updatedTape, updatedCurrentIndex, transition.move);
 
-        nextConfigs.push({stateName: currState.name, tapeContents: updatedTape, currentIndex: updatedCurrentIndex})
+        nextConfigs.push({ stateName: currState.name, tapeContents: updatedTape, currentIndex: updatedCurrentIndex });
     }
-
-    
 
     /**
      * Process the tape head movement based on the move direction.
@@ -89,14 +90,14 @@ export class TMRunner {
      * @returns updated current index after processing the move.
      * @private
      */
-    private processTapeHead(tapeContents:string[], currentIndex:tapeHead, move: Move){
-        if (move === 'R') {
+    private processTapeHead(tapeContents: string[], currentIndex: tapeHead, move: Move) {
+        if (move === "R") {
             if (currentIndex == tapeContents.length - 1) tapeContents.push(EMPTY);
             currentIndex++;
         } else {
             // Can also be replaced with: (currentIndex -1)& ~(result >> 31)
             // Ensure the tape head is left bounded
-            currentIndex = Math.max(currentIndex-1,0);
+            currentIndex = Math.max(currentIndex - 1, 0);
         }
         return currentIndex;
     }

@@ -1,12 +1,11 @@
-import {EPSILON, toChar} from "../../types";
-import {Alphabet} from "../../automata/Alphabet";
-import {Automaton} from "../../automata/Automaton";
-import {IllegalArgument} from "../../exceptions/exceptions";
-import {PDARunner} from "../../automata/util/PDARunner";
-import {PDAState} from "../../states/PDAState";
+import { EPSILON, toChar } from "../../types";
+import { Alphabet } from "../../automata/Alphabet";
+import { Automaton } from "../../automata/Automaton";
+import { IllegalArgument } from "../../exceptions/exceptions";
+import { PDARunner } from "../../automata/util/PDARunner";
+import { PDAState } from "../../states/PDAState";
 
-type StateConfiguration = {stateName: string, stackContents:string[]};
-
+type StateConfiguration = { stateName: string; stackContents: string[] };
 
 /**
  * Nondeterministic Push-down automaton.
@@ -20,12 +19,11 @@ type StateConfiguration = {stateName: string, stackContents:string[]};
  * @since 0.5.0
  */
 export class PDA extends Automaton<PDAState> {
-    
-    private readonly stackAlphabet: Alphabet
+    private readonly stackAlphabet: Alphabet;
 
-    public constructor(alphabet:Alphabet, stackAlphabet:Alphabet, startState:PDAState) {
+    public constructor(alphabet: Alphabet, stackAlphabet: Alphabet, startState: PDAState) {
         super(alphabet, startState);
-        this.stackAlphabet = stackAlphabet
+        this.stackAlphabet = stackAlphabet;
     }
 
     /**
@@ -43,7 +41,7 @@ export class PDA extends Automaton<PDAState> {
      * In this case, this is "PDA."
      * @returns "PDA"
      */
-     
+
     public get machineType(): string {
         return "PDA";
     }
@@ -54,9 +52,17 @@ export class PDA extends Automaton<PDAState> {
      * @throws IllegalArgument to an illegal input on either read, write, to or state names.
      * @private
      */
-    private verifyInputsAndStates(verify:{stateName: string, inputStr: string, readStr: string, writeStr: string, to: string}) {
-        const {inputStr, readStr, stateName, to, writeStr} = verify
-        if (inputStr.length !== 1) {throw new IllegalArgument("Input longer than 1 ")}
+    private verifyInputsAndStates(verify: {
+        stateName: string;
+        inputStr: string;
+        readStr: string;
+        writeStr: string;
+        to: string;
+    }) {
+        const { inputStr, readStr, stateName, to, writeStr } = verify;
+        if (inputStr.length !== 1) {
+            throw new IllegalArgument("Input longer than 1 ");
+        }
 
         const input = toChar(inputStr),
             readStack = toChar(readStr),
@@ -64,13 +70,23 @@ export class PDA extends Automaton<PDAState> {
             toState = this.states.get(to),
             writeStack = toChar(writeStr);
 
-        if (input !== EPSILON) {this.testSymbolAgainstAlphabet(input);}
-        if (readStack !== EPSILON) {this.testSymbolAgainstAlphabet(readStack, this.stackAlphabet)}
-        if (writeStack !== EPSILON) {this.testSymbolAgainstAlphabet(writeStack, this.stackAlphabet)}
-        if (!state) {throw new IllegalArgument(`State ${stateName} does not exist!`);}
-        if (!toState) {throw new IllegalArgument(`State ${to} does not exist!`);}
+        if (input !== EPSILON) {
+            this.testSymbolAgainstAlphabet(input);
+        }
+        if (readStack !== EPSILON) {
+            this.testSymbolAgainstAlphabet(readStack, this.stackAlphabet);
+        }
+        if (writeStack !== EPSILON) {
+            this.testSymbolAgainstAlphabet(writeStack, this.stackAlphabet);
+        }
+        if (!state) {
+            throw new IllegalArgument(`State ${stateName} does not exist!`);
+        }
+        if (!toState) {
+            throw new IllegalArgument(`State ${to} does not exist!`);
+        }
 
-        return {input, readStack, state, toState, writeStack}
+        return { input, readStack, state, toState, writeStack };
     }
 
     /**
@@ -84,9 +100,14 @@ export class PDA extends Automaton<PDAState> {
      * if the input character is not part of the alphabet or is longer than a char,
      * the given state does not exist or the destination state does not exist.
      */
-    public addEdge(stateName:string, inputStr:string, readStr:string, writeStr:string, to: string):void {
-        const {input, readStack, writeStack, state, toState}
-            = this.verifyInputsAndStates({inputStr, readStr, stateName, to, writeStr})
+    public addEdge(stateName: string, inputStr: string, readStr: string, writeStr: string, to: string): void {
+        const { input, readStack, writeStack, state, toState } = this.verifyInputsAndStates({
+            inputStr,
+            readStr,
+            stateName,
+            to,
+            writeStr
+        });
 
         state.insertTransition(input, readStack, writeStack, toState.name);
     }
@@ -102,11 +123,16 @@ export class PDA extends Automaton<PDAState> {
      * if the input character is not part of the alphabet or is longer than a char,
      * the given state does not exist or the destination state does not exist.
      */
-    public removeEdge(stateName:string, inputStr:string, readStr:string, writeStr:string, to:string):boolean {
-        const {input, readStack, writeStack, state, toState}
-            = this.verifyInputsAndStates({inputStr, readStr, stateName, to, writeStr})
+    public removeEdge(stateName: string, inputStr: string, readStr: string, writeStr: string, to: string): boolean {
+        const { input, readStack, writeStack, state, toState } = this.verifyInputsAndStates({
+            inputStr,
+            readStr,
+            stateName,
+            to,
+            writeStr
+        });
 
-        return state.removeTransition(input, readStack, writeStack, toState.name)
+        return state.removeTransition(input, readStack, writeStack, toState.name);
     }
 
     /**
@@ -118,7 +144,6 @@ export class PDA extends Automaton<PDAState> {
         return new PDARunner(this).runString(str, this.startState);
     }
 
-     
     public copy(): Automaton<PDAState> {
         throw new Error("Method not implemented.");
     }
@@ -131,7 +156,7 @@ export class PDA extends Automaton<PDAState> {
      * @param stateConfigBunch the bunch of state configuration from which we will look for the epsilon edges.
      * @returns all the states that are reachable via epsilon edges and the stack after reaching them.
      */
-    public epsilonClosure(stateConfigBunch:StateConfiguration[]): StateConfiguration[] {
+    public epsilonClosure(stateConfigBunch: StateConfiguration[]): StateConfiguration[] {
         return new PDARunner(this).epsilonClosure(stateConfigBunch);
     }
 }

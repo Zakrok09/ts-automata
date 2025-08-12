@@ -1,17 +1,17 @@
-import {EPSILON, char, toChar} from "../../types";
-import {PDAEdge, PDAState} from "../../states/PDAState";
-import {PDA} from "../../automata";
+import { EPSILON, char, toChar } from "../../types";
+import { PDAEdge, PDAState } from "../../states/PDAState";
+import { PDA } from "../../automata";
 
-type StateConfiguration = {stateName: string, stackContents:string[]};
+type StateConfiguration = { stateName: string; stackContents: string[] };
 
 /**
  * PDA runner method class.
  * @link https://refactoring.guru/replace-method-with-method-object
  */
 export class PDARunner {
-    private readonly pda:PDA
+    private readonly pda: PDA;
 
-    constructor(pda:PDA) {
+    constructor(pda: PDA) {
         this.pda = pda;
     }
 
@@ -22,18 +22,19 @@ export class PDARunner {
      * @return true iff the string was accepted.
      */
     public runString(str: string, startState: PDAState): boolean {
-        let activeConfigs:StateConfiguration[] =
-            this.epsilonClosure([{stateName: startState.name, stackContents: []}])
+        let activeConfigs: StateConfiguration[] = this.epsilonClosure([
+            { stateName: startState.name, stackContents: [] }
+        ]);
 
         while (str.length > 0 && activeConfigs.length > 0) {
-            const symbol = toChar(str[0])
-            str = str.slice(1)
+            const symbol = toChar(str[0]);
+            str = str.slice(1);
 
             const nextActiveConfigs = this.processNextConfigs(activeConfigs, symbol);
             activeConfigs = this.epsilonClosure(nextActiveConfigs);
         }
 
-        return activeConfigs.some(conf => this.pda.getState(conf.stateName)!.accepting)
+        return activeConfigs.some(conf => this.pda.getState(conf.stateName)!.accepting);
     }
 
     /**
@@ -44,13 +45,11 @@ export class PDARunner {
      * @private
      */
     private processNextConfigs(activeConfigs: StateConfiguration[], symbol: char) {
-        const nextConfigs: StateConfiguration[] = []
-        for (const {stateName, stackContents} of activeConfigs) {
-            const state = this.pda.getState(stateName)!
+        const nextConfigs: StateConfiguration[] = [];
+        for (const { stateName, stackContents } of activeConfigs) {
+            const state = this.pda.getState(stateName)!;
 
-            state.transition(symbol).forEach(t =>
-                this.processTransition(t, stackContents, nextConfigs)
-            );
+            state.transition(symbol).forEach(t => this.processTransition(t, stackContents, nextConfigs));
         }
         return nextConfigs;
     }
@@ -63,18 +62,20 @@ export class PDARunner {
      * @private
      */
     private processTransition(transition: PDAEdge, stackContents: string[], nextConfigs: StateConfiguration[]) {
-        if (transition.readStack !== EPSILON
-            && (stackContents.length === 0 || stackContents[stackContents.length - 1] !== transition.readStack)) {
+        if (
+            transition.readStack !== EPSILON &&
+            (stackContents.length === 0 || stackContents[stackContents.length - 1] !== transition.readStack)
+        ) {
             return;
         }
 
-        const currState = this.pda.getState(transition.to)!
-        const updatedStack = [...stackContents]
+        const currState = this.pda.getState(transition.to)!;
+        const updatedStack = [...stackContents];
 
         if (transition.readStack !== EPSILON) updatedStack.pop();
         if (transition.writeStack !== EPSILON) updatedStack.push(transition.writeStack);
 
-        nextConfigs.push({stateName: currState.name, stackContents: updatedStack})
+        nextConfigs.push({ stateName: currState.name, stackContents: updatedStack });
     }
 
     /**
@@ -85,16 +86,15 @@ export class PDARunner {
      * @param stateConfigBunch the bunch of state configuration from which we will look for the epsilon edges.
      * @returns all the states that are reachable via epsilon edges and the stack after reaching them.
      */
-    public epsilonClosure(stateConfigBunch:StateConfiguration[]): StateConfiguration[] {
-        const stack:StateConfiguration[] = [...stateConfigBunch];
+    public epsilonClosure(stateConfigBunch: StateConfiguration[]): StateConfiguration[] {
+        const stack: StateConfiguration[] = [...stateConfigBunch];
         const closureStateConfigs = new Set<StateConfiguration>(stack);
 
         while (stack.length > 0) {
             const { stateName, stackContents } = stack.pop()!;
-            const state = this.pda.getState(stateName)!
+            const state = this.pda.getState(stateName)!;
 
-            state.transition(EPSILON).forEach(e =>
-                this.processEdge(stackContents, e, closureStateConfigs, stack));
+            state.transition(EPSILON).forEach(e => this.processEdge(stackContents, e, closureStateConfigs, stack));
         }
 
         return Array.from(closureStateConfigs);
@@ -108,18 +108,23 @@ export class PDARunner {
      * @param stack the stack to which we will push in case we reach a configuration we haven't
      * @private
      */
-    private processEdge(stackContents: string[], edge: PDAEdge, closureStateConfigs: Set<StateConfiguration>, stack: StateConfiguration[]) {
-        const stackContentsCopy = [...stackContents]
+    private processEdge(
+        stackContents: string[],
+        edge: PDAEdge,
+        closureStateConfigs: Set<StateConfiguration>,
+        stack: StateConfiguration[]
+    ) {
+        const stackContentsCopy = [...stackContents];
         if (edge.readStack === EPSILON) {
-            if (edge.writeStack !== EPSILON) stackContentsCopy.push(edge.writeStack)
+            if (edge.writeStack !== EPSILON) stackContentsCopy.push(edge.writeStack);
         } else if (edge.readStack === stackContentsCopy.pop()) {
-                if (edge.writeStack !== EPSILON) stackContentsCopy.push(edge.writeStack)
-            } else return;
+            if (edge.writeStack !== EPSILON) stackContentsCopy.push(edge.writeStack);
+        } else return;
 
-        const instance = {stateName: edge.to, stackContents: stackContentsCopy};
+        const instance = { stateName: edge.to, stackContents: stackContentsCopy };
         if (!closureStateConfigs.has(instance)) {
             closureStateConfigs.add(instance);
-            stack.push(instance)
+            stack.push(instance);
         }
     }
 }

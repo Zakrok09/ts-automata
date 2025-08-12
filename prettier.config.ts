@@ -2,6 +2,7 @@ import { type Config } from "prettier";
 
 const config: Config = {
     arrowParens: "avoid",
+    filepath: "src/**/*.ts",
     insertPragma: false,
     printWidth: 120,
     proseWrap: "always",
@@ -10,7 +11,7 @@ const config: Config = {
     singleQuote: false,
     tabWidth: 4,
     trailingComma: "none",
-    useTabs: false,
+    useTabs: false
 };
 
 export default config;

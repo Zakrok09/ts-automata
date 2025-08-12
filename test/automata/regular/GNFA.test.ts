@@ -1,9 +1,9 @@
-import {describe, beforeEach, it, expect} from "vitest";
-import {GNFA} from "../../../src/automata/regular/GNFA";
+import { describe, beforeEach, it, expect } from "vitest";
+import { GNFA } from "../../../src/automata/regular/GNFA";
 import Fixtures from "../../fixtures";
 
 describe("GNFA: Running string on GNFA", () => {
-    let gnfa:GNFA;
+    let gnfa: GNFA;
 
     beforeEach(() => {
         gnfa = Fixtures.genericGNFA();

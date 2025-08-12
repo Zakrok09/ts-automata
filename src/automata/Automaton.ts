@@ -1,27 +1,27 @@
-import {Alphabet} from "../automata/Alphabet";
-import {IllegalArgument} from "../exceptions/exceptions";
-import {State} from "../states/State";
-import {char} from "../types";
+import { Alphabet } from "../automata/Alphabet";
+import { IllegalArgument } from "../exceptions/exceptions";
+import { State } from "../states/State";
+import { char } from "../types";
 
 /**
  * Represents an automaton that DECIDES a language.
  * Undecidable languages cannot be covered.
  */
 export abstract class Automaton<TState extends State> {
-    protected readonly states:Map<string, TState>;
-    public readonly alphabet:Alphabet;
-    public readonly acceptStates:Set<TState>
+    protected readonly states: Map<string, TState>;
+    public readonly alphabet: Alphabet;
+    public readonly acceptStates: Set<TState>;
     public readonly startState: TState;
 
     protected constructor(alphabet: Alphabet, startState: TState) {
-        this.states = new Map<string, TState>;
+        this.states = new Map<string, TState>();
         this.alphabet = alphabet;
-        this.acceptStates = new Set<TState>()
+        this.acceptStates = new Set<TState>();
 
         this.startState = startState;
         this.states.set(startState.name, startState);
     }
-    
+
     /**
      * Add state method. Each automata class shall implement its own logic of adding states.
      *
@@ -29,7 +29,7 @@ export abstract class Automaton<TState extends State> {
      * @param name
      * @param final
      */
-    public abstract addState(name:string, final?:boolean):void;
+    public abstract addState(name: string, final?: boolean): void;
 
     /**
      * Executes a given string.
@@ -37,15 +37,15 @@ export abstract class Automaton<TState extends State> {
      * @param {string} str - The string to be executed.
      * @return {boolean} - Returns true if the string is accepted, otherwise returns false.
      */
-    abstract runString(str:string):boolean
+    abstract runString(str: string): boolean;
 
     /**
      * Get the type of the machine as a string.
      * @returns The type of the automaton as a string.
      */
-    public abstract get machineType():string;
+    public abstract get machineType(): string;
 
-    public abstract copy() : Automaton<TState>
+    public abstract copy(): Automaton<TState>;
 
     /**
      * Adds states to the current object.
@@ -53,7 +53,7 @@ export abstract class Automaton<TState extends State> {
      * @param final whether all the states being added are final
      * @param {...string} names - The names of the states to be added.
      */
-    public addStates(final:boolean, ...names:string[]) {
+    public addStates(final: boolean, ...names: string[]) {
         names.forEach(n => this.addState(n, final));
     }
 
@@ -63,7 +63,7 @@ export abstract class Automaton<TState extends State> {
      * @param name The name of the state to retrieve.
      * @return The state associated with the specified name, or undefined if not found.
      */
-    public getState(name:string):TState|undefined {
+    public getState(name: string): TState | undefined {
         return this.states.get(name);
     }
 
@@ -76,8 +76,9 @@ export abstract class Automaton<TState extends State> {
      * @param alphabet
      * @throws IllegalArgument if the symbol is not part of the alphabet
      */
-    public testSymbolAgainstAlphabet(input:char, alphabet: Alphabet = this.alphabet){
-        if(!alphabet.has(input)) throw new IllegalArgument(`${input} is not part of the alphabet of this finite automaton`)
+    public testSymbolAgainstAlphabet(input: char, alphabet: Alphabet = this.alphabet) {
+        if (!alphabet.has(input))
+            throw new IllegalArgument(`${input} is not part of the alphabet of this finite automaton`);
     }
 
     /**
@@ -87,20 +88,20 @@ export abstract class Automaton<TState extends State> {
      * @param newState - The name of the state to be added.
      * @param final - Optional. Specify if the state is a final (accepting) state. Defaults to false.
      */
-    protected insertState(newState:TState, final?:boolean) {
+    protected insertState(newState: TState, final?: boolean) {
         this.states.set(newState.name, newState);
 
         if (final) {
             newState.accepting = true;
-            this.acceptStates.add(newState)
+            this.acceptStates.add(newState);
         }
     }
 
-    public setAccepting(stateName : string , final : boolean) : void {
-        const state = this.getState(stateName)!
-        state.accepting = final 
-        if(!this.acceptStates.delete(state)){
-            this.acceptStates.add(state)
+    public setAccepting(stateName: string, final: boolean): void {
+        const state = this.getState(stateName)!;
+        state.accepting = final;
+        if (!this.acceptStates.delete(state)) {
+            this.acceptStates.add(state);
         }
     }
 }

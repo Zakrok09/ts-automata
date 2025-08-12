@@ -4,272 +4,277 @@ import { EPSILON } from "../../../types";
 import { UndecidableProblem } from "../../../exceptions/exceptions";
 
 export class CFGUtil {
-    private delimeter = ".."
+    private delimeter = "..";
 
     /**
      * Checks if the language of the CFG is empty. Using procedure from Sipser's proof of theorem 4.8
      * @param cfg The CFG to check
      * @returns True if the language is empty, false otherwise
      */
-    public isLanguageEmpty(cfg : CFG): boolean{
-        const marked: Set<string> = new Set()
-        for(const [symbol] of cfg.terminals){
-            marked.add(symbol)
+    public isLanguageEmpty(cfg: CFG): boolean {
+        const marked: Set<string> = new Set();
+        for (const [symbol] of cfg.terminals) {
+            marked.add(symbol);
         }
-        marked.add(EPSILON)
+        marked.add(EPSILON);
 
-        let newMarkedCnt = marked.size+1
-        while (newMarkedCnt > 0){
+        let newMarkedCnt = marked.size + 1;
+        while (newMarkedCnt > 0) {
             let currentCounter = 0;
-            for(const [symbol,variable] of cfg.variables){
-                if(marked.has(symbol)) continue;
+            for (const [symbol, variable] of cfg.variables) {
+                if (marked.has(symbol)) continue;
 
-
-                const isFullyMarked = Array.from(variable.transitions)
-                                        .some(transition => 
-                                            transition.map(x=> x.symbol).every(x=>
-                                                                        marked.has(x)))
-                if (isFullyMarked){
+                const isFullyMarked = Array.from(variable.transitions).some(transition =>
+                    transition.map(x => x.symbol).every(x => marked.has(x))
+                );
+                if (isFullyMarked) {
                     currentCounter++;
-                    marked.add(symbol)
+                    marked.add(symbol);
                 }
             }
-            newMarkedCnt = currentCounter
+            newMarkedCnt = currentCounter;
         }
 
         return !marked.has(cfg.startVariable.symbol);
     }
+
     /**
      * Converts to Chomsky Normal form using procedure from Sipser
      * @param cfg The cfg
      * @returns Equivallent CFG in Chomsky Normal Form (CNF)
      */
-    public toChomskyNormalForm(cfg :CFG) : CFG{
-        
-        let newCFG = this.prependToCFGSymbols(cfg,"-")
+    public toChomskyNormalForm(cfg: CFG): CFG {
+        let newCFG = this.prependToCFGSymbols(cfg, "-");
         // Add new Start State
-        newCFG.addVariable("S0")
-        newCFG.addTransition("S0",newCFG.startVariable.symbol)
-        newCFG.changeStartVariable("S0")
-        newCFG = this.terminalToVariableConverter(newCFG)
-        newCFG = this.removeEpsilonTransitions(newCFG)
-        newCFG = this.removeAllUnitRules(newCFG)
-        newCFG = this.allRulesProperForm(newCFG)
+        newCFG.addVariable("S0");
+        newCFG.addTransition("S0", newCFG.startVariable.symbol);
+        newCFG.changeStartVariable("S0");
+        newCFG = this.terminalToVariableConverter(newCFG);
+        newCFG = this.removeEpsilonTransitions(newCFG);
+        newCFG = this.removeAllUnitRules(newCFG);
+        newCFG = this.allRulesProperForm(newCFG);
         return newCFG;
     }
+
     /**
      * Ensures no transitions of more than 2 terminals+variables is remaining
      * From Sipser's method. X-> XYZ => X-> XU1, U1 -> YZ
      * @param cfg The CFG
      * @returns The same CFG in proper form
      */
-    private allRulesProperForm(cfg : CFG) : CFG{
+    private allRulesProperForm(cfg: CFG): CFG {
         // Maintain a counter of variables to not run into name collisions
         let counter = 0;
         const allTransitions = this.getTransitionsInMap(cfg);
-        const newTransitions : Map<string,string[][]>= new Map()
+        const newTransitions: Map<string, string[][]> = new Map();
         // Change the transitions
-        for(const [from , toTransitions] of allTransitions){
-            newTransitions.set(from,[])
-            for(const to of toTransitions){
-                if(to.length>2){
+        for (const [from, toTransitions] of allTransitions) {
+            newTransitions.set(from, []);
+            for (const to of toTransitions) {
+                if (to.length > 2) {
                     const size = to.length;
                     // Do the non-terminal chaining
-                    allTransitions.set(`(U${counter++ })`,[[to[size-2],to[size-1]]])
-                    for(let i = size-3; i>=1;--i){
-                        allTransitions.set(`(U${counter++ })`,[[to[i],`(U${counter-2 })`]])
+                    allTransitions.set(`(U${counter++})`, [[to[size - 2], to[size - 1]]]);
+                    for (let i = size - 3; i >= 1; --i) {
+                        allTransitions.set(`(U${counter++})`, [[to[i], `(U${counter - 2})`]]);
                     }
-                    allTransitions.get(from)!.push([to[0],`(U${counter-1})`])
-                }else{
-                    newTransitions.get(from)!.push(to)
+                    allTransitions.get(from)!.push([to[0], `(U${counter - 1})`]);
+                } else {
+                    newTransitions.get(from)!.push(to);
                 }
             }
         }
-        
+
         // ADd the new terminals generated
-        for(const name of newTransitions.keys()){
-            if(!cfg.getVariable(name)){
-                cfg.addVariable(name)
+        for (const name of newTransitions.keys()) {
+            if (!cfg.getVariable(name)) {
+                cfg.addVariable(name);
             }
         }
-        return this.refreshTheEdges(cfg,newTransitions)
-        
+        return this.refreshTheEdges(cfg, newTransitions);
     }
+
     /**
      * Method to remove the old edges and put the new ones
      * @param cfg The old CFG
      * @param allTransitions The new transitions
      * @returns Refreshed CFG
      */
-    private refreshTheEdges(cfg : CFG, allTransitions : Map<string,string[][]>) : CFG{
+    private refreshTheEdges(cfg: CFG, allTransitions: Map<string, string[][]>): CFG {
         this.removeAllTransitions(cfg);
-        for(const [key,to] of allTransitions){
-            allTransitions.set(key,this.uniqueify(to))
+        for (const [key, to] of allTransitions) {
+            allTransitions.set(key, this.uniqueify(to));
         }
         // Add the new transitions
-        for(const [sym,toTransitions] of allTransitions){
-            for(const transition of toTransitions ){
-                if(transition.length===1&&transition[0]===EPSILON&&sym!=cfg.startVariable.symbol){
+        for (const [sym, toTransitions] of allTransitions) {
+            for (const transition of toTransitions) {
+                if (transition.length === 1 && transition[0] === EPSILON && sym != cfg.startVariable.symbol) {
                     continue;
                 }
-                if(transition.length===1&&transition[0]===EPSILON&&sym===cfg.startVariable.symbol){
-                    cfg.addTransitionToEmptyString(cfg.startVariable.symbol)
+                if (transition.length === 1 && transition[0] === EPSILON && sym === cfg.startVariable.symbol) {
+                    cfg.addTransitionToEmptyString(cfg.startVariable.symbol);
                     continue;
                 }
                 // Remove the delimiter from all states
-                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,this.delimeter)))
+                cfg.addTransition(sym, ...transition.map(x => this.removeDelimiter(x, this.delimeter)));
             }
         }
         return cfg;
     }
+
     /**
      * Remove all unit rules of the form A->B
      * @param cfg The cfg
      * @returns THe equivallent CFG with all unit rules removed
      */
-    private removeAllUnitRules(cfg :CFG) : CFG{
-        let allTransitions = this.getTransitionsInMap(cfg)
+    private removeAllUnitRules(cfg: CFG): CFG {
+        let allTransitions = this.getTransitionsInMap(cfg);
         // Flag to see if any new changes were done in the CFG
         let flag = true;
-        const removed : Set<string> = new Set()
-        while(flag){
-            const temp : Map<string,string[][]> = new Map()
+        const removed: Set<string> = new Set();
+        while (flag) {
+            const temp: Map<string, string[][]> = new Map();
             flag = false;
-            for(const [from,toTransitions] of allTransitions){
-                temp.set(from,[]);
-                for(const to of toTransitions){
+            for (const [from, toTransitions] of allTransitions) {
+                temp.set(from, []);
+                for (const to of toTransitions) {
                     // Remove self edges X -> X
-                    if(to.length===1&&to[0]===from){
+                    if (to.length === 1 && to[0] === from) {
                         flag = true;
                         continue;
                     }
                     // If in the form of X-> Y
-                    if(to.length===1&&cfg.variables.has(to[0])){
-                        if(removed.has(JSON.stringify([from,to]))){
-                            continue
+                    if (to.length === 1 && cfg.variables.has(to[0])) {
+                        if (removed.has(JSON.stringify([from, to]))) {
+                            continue;
                         }
-                        removed.add(JSON.stringify([from,to]))
+                        removed.add(JSON.stringify([from, to]));
                         // ... add all of the edges of Y to X
-                        temp.get(from)!.push(...allTransitions.get(to[0])!)
+                        temp.get(from)!.push(...allTransitions.get(to[0])!);
                         flag = true;
-                    }else{
-                        temp.get(from)!.push(to)
+                    } else {
+                        temp.get(from)!.push(to);
                     }
                 }
             }
-            allTransitions = temp
+            allTransitions = temp;
             // Simplify the CFG for performance
-            for(const [key,to] of allTransitions){
-                allTransitions.set(key,this.uniqueify(to))
+            for (const [key, to] of allTransitions) {
+                allTransitions.set(key, this.uniqueify(to));
             }
         }
-        return this.refreshTheEdges(cfg,allTransitions);
+        return this.refreshTheEdges(cfg, allTransitions);
     }
+
     /**
      * Prepend a string to all non-terminals
      * @param cfg The cfg
      * @param prepend the string to prepend: x -> prepend+x
      * @returns The new CFG
      */
-    private prependToCFGSymbols(cfg :CFG,prepend : string) : CFG{
-        const copyOfCFG = new CFG(prepend+cfg.startVariable.symbol)
-        cfg.terminals.forEach(terminal => copyOfCFG.addTerminal(terminal.symbol))
-        cfg.variables.forEach(variable => copyOfCFG.addVariable(prepend+variable.symbol))
-        cfg.variables.forEach(variable => variable.transitions.
-                        forEach(transition => 
-                            { if(transition.length === 1 && transition[0].symbol===EPSILON){
-                                copyOfCFG.addTransitionToEmptyString(prepend+variable.symbol)
-                            }else{
-                                copyOfCFG.addTransition(prepend+variable.symbol,
-                                ...transition.map(x=> x instanceof CFGVariable ? prepend+x.symbol: x.symbol))}}))
+    private prependToCFGSymbols(cfg: CFG, prepend: string): CFG {
+        const copyOfCFG = new CFG(prepend + cfg.startVariable.symbol);
+        cfg.terminals.forEach(terminal => copyOfCFG.addTerminal(terminal.symbol));
+        cfg.variables.forEach(variable => copyOfCFG.addVariable(prepend + variable.symbol));
+        cfg.variables.forEach(variable =>
+            variable.transitions.forEach(transition => {
+                if (transition.length === 1 && transition[0].symbol === EPSILON) {
+                    copyOfCFG.addTransitionToEmptyString(prepend + variable.symbol);
+                } else {
+                    copyOfCFG.addTransition(
+                        prepend + variable.symbol,
+                        ...transition.map(x => (x instanceof CFGVariable ? prepend + x.symbol : x.symbol))
+                    );
+                }
+            })
+        );
         return copyOfCFG;
     }
-    private terminalToVariableConverter(cfg : CFG) : CFG{
-        let counter = 0
-        const transitions = this.getTransitionsInMap(cfg)
-        const terminalToVariable : Map<string,string> = new Map();
-        for(const [sym] of cfg.terminals){
-            const nonTerminalName = `T${counter++}`
-            terminalToVariable.set(sym,nonTerminalName)
-            transitions.set(nonTerminalName,[[sym]])
+
+    private terminalToVariableConverter(cfg: CFG): CFG {
+        let counter = 0;
+        const transitions = this.getTransitionsInMap(cfg);
+        const terminalToVariable: Map<string, string> = new Map();
+        for (const [sym] of cfg.terminals) {
+            const nonTerminalName = `T${counter++}`;
+            terminalToVariable.set(sym, nonTerminalName);
+            transitions.set(nonTerminalName, [[sym]]);
         }
-        for(const [from , toTransitions] of transitions){
-            if(from.startsWith("T")){
-                continue
+        for (const [from, toTransitions] of transitions) {
+            if (from.startsWith("T")) {
+                continue;
             }
-            for(const to of toTransitions){
-                for(let i = 0; i <to.length ;++i){
-                    if(cfg.terminals.has(to[i])){
-                        to[i]=terminalToVariable.get(to[i])!
+            for (const to of toTransitions) {
+                for (let i = 0; i < to.length; ++i) {
+                    if (cfg.terminals.has(to[i])) {
+                        to[i] = terminalToVariable.get(to[i])!;
                     }
                 }
             }
         }
         // ADd the new terminals generated
-        for(const name of transitions.keys()){
-            if(!cfg.getVariable(name)){
-                cfg.addVariable(name)
+        for (const name of transitions.keys()) {
+            if (!cfg.getVariable(name)) {
+                cfg.addVariable(name);
             }
         }
-       this.removeAllTransitions(cfg);
-        for(const [key,to] of transitions){
-            transitions.set(key,this.uniqueify(to))
+        this.removeAllTransitions(cfg);
+        for (const [key, to] of transitions) {
+            transitions.set(key, this.uniqueify(to));
         }
         // Add the new transitions
-        for(const [sym,toTransitions] of transitions){
-            for(const transition of toTransitions ){
-                if(transition.length===1&&transition[0]===EPSILON){
-                    cfg.addTransitionToEmptyString(sym)
+        for (const [sym, toTransitions] of transitions) {
+            for (const transition of toTransitions) {
+                if (transition.length === 1 && transition[0] === EPSILON) {
+                    cfg.addTransitionToEmptyString(sym);
                     continue;
                 }
                 // Remove the delimiter from all states
-                cfg.addTransition(sym,...transition.map(x=>this.removeDelimiter(x,this.delimeter)))
+                cfg.addTransition(sym, ...transition.map(x => this.removeDelimiter(x, this.delimeter)));
             }
         }
         return cfg;
     }
+
     /**
      * Remove all transitions in the form of X -> EPSILON
      * @param cfg The old CFG
      * @returns Equivallent CFG such that only the start non-terminal has an epsilon transition
      */
-    private removeEpsilonTransitions(cfg : CFG) : CFG{
-
-        let transitions = this.getTransitionsInMap(cfg)
-        const variablesWithEpsilon = this.getVariablesWithSingleTransition(cfg,EPSILON)
-        let flag : boolean = true
-        while(flag){
+    private removeEpsilonTransitions(cfg: CFG): CFG {
+        let transitions = this.getTransitionsInMap(cfg);
+        const variablesWithEpsilon = this.getVariablesWithSingleTransition(cfg, EPSILON);
+        let flag: boolean = true;
+        while (flag) {
             flag = false;
-            const temp : Map<string,string[][]> = new Map()
-            for(const [from,toTransitions] of transitions){
-                for(const to of toTransitions){
-                    if(!temp.get(from)){
-                            temp.set(from,[])
+            const temp: Map<string, string[][]> = new Map();
+            for (const [from, toTransitions] of transitions) {
+                for (const to of toTransitions) {
+                    if (!temp.get(from)) {
+                        temp.set(from, []);
                     }
                     // If it can transition to an epsilon non-terminal
-                    if(to.some(x=> variablesWithEpsilon.has(x))){
+                    if (to.some(x => variablesWithEpsilon.has(x))) {
                         flag = true;
-                        const removedTransitions = this.removeEpsilonEdge(to,variablesWithEpsilon)
+                        const removedTransitions = this.removeEpsilonEdge(to, variablesWithEpsilon);
                         // Delimit the edge that has all variables in it such that it doesn't cause an infinite loop
-                        temp.get(from)!.push(to.map(x=>this.delimeter+x))
-                        temp.get(from)!.push(...removedTransitions)
-                    }else{
-                        temp.get(from)!.push(to)
-
+                        temp.get(from)!.push(to.map(x => this.delimeter + x));
+                        temp.get(from)!.push(...removedTransitions);
+                    } else {
+                        temp.get(from)!.push(to);
                     }
                 }
             }
-            transitions = temp
+            transitions = temp;
             // Some variables may have a new epsilon transition, keep track of it
-            for(const [from , toTransitions] of transitions){
-                if(toTransitions.filter(x=> x.length===1&&x[0]===EPSILON).length>=1){
-                    variablesWithEpsilon.add(from)
+            for (const [from, toTransitions] of transitions) {
+                if (toTransitions.filter(x => x.length === 1 && x[0] === EPSILON).length >= 1) {
+                    variablesWithEpsilon.add(from);
                 }
             }
         }
 
-        return this.refreshTheEdges(cfg,transitions)
-
+        return this.refreshTheEdges(cfg, transitions);
     }
 
     /**
@@ -284,271 +289,277 @@ export class CFGUtil {
         for (const array of arrays) {
             const key = JSON.stringify(array);
             if (!seen.has(key)) {
-            seen.add(key);
-            result.push(array);
+                seen.add(key);
+                result.push(array);
             }
         }
 
         return result;
     }
+
     /**
      * Get the CFG transitions in map format
      * @param cfg The cfg
      * @returns The transitions in a map
      */
-    private getTransitionsInMap(cfg :CFG) : Map<string,string[][]>{
-        const transitions : Map<string,string[][]> = new Map()
-        for(const [symbol,variable] of cfg.variables){
-            transitions.set(symbol,[])
-            for(const transition of variable.transitions){
-                const mappedTransition = transition.map(x=> x.symbol)
-                const toBePushed = transitions.get(symbol)!
-                toBePushed.push(mappedTransition)
+    private getTransitionsInMap(cfg: CFG): Map<string, string[][]> {
+        const transitions: Map<string, string[][]> = new Map();
+        for (const [symbol, variable] of cfg.variables) {
+            transitions.set(symbol, []);
+            for (const transition of variable.transitions) {
+                const mappedTransition = transition.map(x => x.symbol);
+                const toBePushed = transitions.get(symbol)!;
+                toBePushed.push(mappedTransition);
             }
-            transitions.set(symbol,this.uniqueify(transitions.get(symbol)!))
+            transitions.set(symbol, this.uniqueify(transitions.get(symbol)!));
         }
-        return transitions
-
+        return transitions;
     }
+
     /**
      * Helper to remove all transitions from the CFG
      * @param cfg the CFG
      */
-    private removeAllTransitions(cfg : CFG) : void {
-
-        for(const [sym,variable] of cfg.variables){
-            for(const transition of variable.transitions){
-                cfg.removeTransition(this.removeDelimiter(sym,this.delimeter),
-                    ...transition.map(x=>this.removeDelimiter(x.symbol,this.delimeter)))
+    private removeAllTransitions(cfg: CFG): void {
+        for (const [sym, variable] of cfg.variables) {
+            for (const transition of variable.transitions) {
+                cfg.removeTransition(
+                    this.removeDelimiter(sym, this.delimeter),
+                    ...transition.map(x => this.removeDelimiter(x.symbol, this.delimeter))
+                );
             }
         }
     }
+
     /**
      * Remove prefix from string
      * @param name The original string
      * @param delimeter The delimiter that it _may_ start with
      * @returns The string with the delimiter possible removed, returns original string if not
      */
-    private removeDelimiter(name : string,delimeter : string) :string{
-        if(name.startsWith(delimeter)){
-            return name.slice(delimeter.length)
+    private removeDelimiter(name: string, delimeter: string): string {
+        if (name.startsWith(delimeter)) {
+            return name.slice(delimeter.length);
         }
         return name;
     }
+
     /**
      * Get variables with a single transition to the symbol
      * @param cfg The CFG
      * @param symbol the symbol a
      * @returns all variables X with the transition X -> a
      */
-    private getVariablesWithSingleTransition(cfg : CFG, symbol : string) : Set<string>{
-        const res : Set<string> = new Set()
-        const {variables} = cfg;
-        for (const [sym,variable] of variables){
-            for(const transition of variable.transitions){
-                if(transition.length===1 && transition[0].symbol===symbol){
-                    res.add(sym)
+    private getVariablesWithSingleTransition(cfg: CFG, symbol: string): Set<string> {
+        const res: Set<string> = new Set();
+        const { variables } = cfg;
+        for (const [sym, variable] of variables) {
+            for (const transition of variable.transitions) {
+                if (transition.length === 1 && transition[0].symbol === symbol) {
+                    res.add(sym);
                     break;
                 }
             }
         }
         return res;
     }
-    
+
     /**
      * Remove a single epsilon edge by method described by Sipser
      * @param edge The transition eg: X -> XbX
      * @param epsilonVariables The set of variables in the CFG with an epsilon transition
      * @returns new transitions as decsribed by Sipser
      */
-    private removeEpsilonEdge(edge : string[], epsilonVariables : Set<string>) : string[][]{
-        const res : string[][] = []
-        for(let i = 0 ; i < edge.length;++i){
-            if(epsilonVariables.has(edge[i])){
-                const arrayToPush = [...edge]
-                arrayToPush.splice(i,1)
-                if(arrayToPush.length ===0){
-                    arrayToPush.push(EPSILON)
+    private removeEpsilonEdge(edge: string[], epsilonVariables: Set<string>): string[][] {
+        const res: string[][] = [];
+        for (let i = 0; i < edge.length; ++i) {
+            if (epsilonVariables.has(edge[i])) {
+                const arrayToPush = [...edge];
+                arrayToPush.splice(i, 1);
+                if (arrayToPush.length === 0) {
+                    arrayToPush.push(EPSILON);
                 }
-                res.push(arrayToPush)
+                res.push(arrayToPush);
             }
         }
-        
 
-        return res
+        return res;
     }
-    
+
     /**
      * Method that (sadly) cannot check if the language is all strings
      * @param cfg The cfg
      */
-     
-    public isLanguageAllStrings(cfg : CFG): boolean {
-        throw new UndecidableProblem("Universality of CFGs is an undecidable problem!")
 
+    public isLanguageAllStrings(cfg: CFG): boolean {
+        throw new UndecidableProblem("Universality of CFGs is an undecidable problem!");
     }
+
     /**
-     * Implements Sipser's DP algorithm 
+     * Implements Sipser's DP algorithm
      * @param cfg The cfg
      * @param word The word to check if it is in the language
      * @returns True if the word is in the language
      */
-    public  doesLanguageContainString(cfg : CFG,word : string): boolean {
-        
-        cfg = this.toChomskyNormalForm(cfg)
-        if(word ===EPSILON||word===""){
-            if(Array.from(cfg.startVariable.transitions).some(x=>x.length===1&&x[0].symbol===EPSILON)){
+    public doesLanguageContainString(cfg: CFG, word: string): boolean {
+        cfg = this.toChomskyNormalForm(cfg);
+        if (word === EPSILON || word === "") {
+            if (Array.from(cfg.startVariable.transitions).some(x => x.length === 1 && x[0].symbol === EPSILON)) {
                 return true;
             }
-                return false;
-            
+            return false;
         }
-        const n :number = word.length;
-        const dp : string[][][]= [];
-        for(let i = 0; i < n; i++) {
-            dp.push([])
-            for(let j = 0; j < n;++j)[
-                dp[i].push([])
-            ]
+        const n: number = word.length;
+        const dp: string[][][] = [];
+        for (let i = 0; i < n; i++) {
+            dp.push([]);
+            for (let j = 0; j < n; ++j) [dp[i].push([])];
         }
-        
-        for(let i = 0; i<n;++i){
-            dp[i][i].push(...Array.from(this.getVariablesWithSingleTransition(cfg,word[i])))
+
+        for (let i = 0; i < n; ++i) {
+            dp[i][i].push(...Array.from(this.getVariablesWithSingleTransition(cfg, word[i])));
         }
         const allTransitions = this.getTransitionsInMap(cfg);
-        for(let l = 2 ; l <=n; l++){
-            for(let i = 0 ; i<=n-l;++i){
-                const j = i+l-1;
-                for(let k = i; k<=j-1;++k){
-                    for(const [A,transitions] of allTransitions){
-                        for(const transition of transitions){
-                            if(!(transition.length===2 &&
-                                 transition.every(x=>allTransitions.has(x)))){
+        for (let l = 2; l <= n; l++) {
+            for (let i = 0; i <= n - l; ++i) {
+                const j = i + l - 1;
+                for (let k = i; k <= j - 1; ++k) {
+                    for (const [A, transitions] of allTransitions) {
+                        for (const transition of transitions) {
+                            if (!(transition.length === 2 && transition.every(x => allTransitions.has(x)))) {
                                 continue;
                             }
-                            const B = transition[0]
-                            const C = transition[1]
+                            const B = transition[0];
+                            const C = transition[1];
 
-                            if(dp[i][k].includes(B)&&dp[k+1][j].includes(C)){
-                                dp[i][j].push(A)
+                            if (dp[i][k].includes(B) && dp[k + 1][j].includes(C)) {
+                                dp[i][j].push(A);
                             }
                         }
                     }
                 }
             }
         }
-        return dp[0][n-1].includes(cfg.startVariable.symbol);
+        return dp[0][n - 1].includes(cfg.startVariable.symbol);
     }
+
     // Checks if two automata reconize the same language.
-    public equal(cfg : CFG, otherCfg:  CFG): boolean {
-        throw new UndecidableProblem("Equality of CFGs is an undecidable problem!")
-    } 
+    public equal(cfg: CFG, otherCfg: CFG): boolean {
+        throw new UndecidableProblem("Equality of CFGs is an undecidable problem!");
+    }
+
     /**
      * Union of two languages
      * @param cfg The first cfg
      * @param otherCfg The second
      * @returns A CFG that recognizes both languages
      */
-    public union(cfg : CFG, otherCfg : CFG) : CFG{
-        cfg = this.prependToCFGSymbols(cfg.copy(),"1-")
-        otherCfg = this.prependToCFGSymbols(otherCfg.copy(),"2-")
-        otherCfg.terminals.forEach(x=>cfg.addTerminal(x.symbol))
-        otherCfg.variables.forEach(x=>cfg.addVariable(x.symbol))
-        otherCfg.variables.forEach(x=>
-            x.transitions.forEach(transition => 
-                transition.length===1 && 
-                transition[0].symbol===EPSILON ? cfg.addTransitionToEmptyString(x.symbol) : 
-                cfg.addTransition(x.symbol,...transition.map(to=>to.symbol) )))
+    public union(cfg: CFG, otherCfg: CFG): CFG {
+        cfg = this.prependToCFGSymbols(cfg.copy(), "1-");
+        otherCfg = this.prependToCFGSymbols(otherCfg.copy(), "2-");
+        otherCfg.terminals.forEach(x => cfg.addTerminal(x.symbol));
+        otherCfg.variables.forEach(x => cfg.addVariable(x.symbol));
+        otherCfg.variables.forEach(x =>
+            x.transitions.forEach(transition =>
+                transition.length === 1 && transition[0].symbol === EPSILON
+                    ? cfg.addTransitionToEmptyString(x.symbol)
+                    : cfg.addTransition(x.symbol, ...transition.map(to => to.symbol))
+            )
+        );
         cfg.addVariable("S0");
-        cfg.addTransition("S0",cfg.startVariable.symbol)
-        cfg.addTransition("S0",otherCfg.startVariable.symbol)
-        cfg.changeStartVariable("S0")
+        cfg.addTransition("S0", cfg.startVariable.symbol);
+        cfg.addTransition("S0", otherCfg.startVariable.symbol);
+        cfg.changeStartVariable("S0");
         return cfg;
     }
+
     /**
      * Check if CFG in Chomsky Normal Form
      * @param cfg The cfg
      * @returns True if the CFg is in Chomsky Normal Form
      */
-    public isInChomskyNormalForm(cfg : CFG) : boolean {
-
-        return [this.checkStartRule(cfg),
-                this.checkEpsilonRule(cfg),
-                this.checkProperFormRule(cfg),
-                this.checkUnitRule(cfg)].every(x=>x)
-
+    public isInChomskyNormalForm(cfg: CFG): boolean {
+        return [
+            this.checkStartRule(cfg),
+            this.checkEpsilonRule(cfg),
+            this.checkProperFormRule(cfg),
+            this.checkUnitRule(cfg)
+        ].every(x => x);
     }
+
     /**
      * Check if the start variable is in any transition
      * @param cfg The CFG
      * @returns fALSE if the start variable is in any transition
      */
-    private checkStartRule(cfg : CFG) : boolean {
+    private checkStartRule(cfg: CFG): boolean {
         const start = cfg.startVariable.symbol;
-        for(const [,variable] of cfg.variables){
-            for(const transitions of variable.transitions){
-                if(transitions.map(x=>x.symbol).includes(start)){
+        for (const [, variable] of cfg.variables) {
+            for (const transitions of variable.transitions) {
+                if (transitions.map(x => x.symbol).includes(start)) {
                     return false;
                 }
             }
         }
         return true;
     }
+
     /**
      * Check the unit rule
      * @param cfg The CFG
      * @returns True if there arent any unit rules
      */
-    private checkUnitRule(cfg : CFG) : boolean {
-        for(const [,variable] of cfg.variables){
-            for(const transition of variable.transitions){
-                if(transition.length===1 && transition[0] instanceof CFGVariable){
+    private checkUnitRule(cfg: CFG): boolean {
+        for (const [, variable] of cfg.variables) {
+            for (const transition of variable.transitions) {
+                if (transition.length === 1 && transition[0] instanceof CFGVariable) {
                     return false;
                 }
             }
         }
         return true;
-
     }
+
     /**
      * Checks the epsilon rule
      * @param cfg The cfg
      * @returns True if there aren't any other epsilon transitions than in the start state
      */
-    private checkEpsilonRule(cfg : CFG) : boolean {
-        for(const [fromSymbol,variable] of cfg.variables){
-            for(const transition of variable.transitions){
-                if(transition.length===1 && transition[0].symbol === EPSILON 
-                            && fromSymbol!=cfg.startVariable.symbol){
+    private checkEpsilonRule(cfg: CFG): boolean {
+        for (const [fromSymbol, variable] of cfg.variables) {
+            for (const transition of variable.transitions) {
+                if (
+                    transition.length === 1 &&
+                    transition[0].symbol === EPSILON &&
+                    fromSymbol != cfg.startVariable.symbol
+                ) {
                     return false;
                 }
             }
         }
         return true;
-
     }
+
     /**
      * Checks if the transitions are in proper form
      * @param cfg The cfg
      * @returns True if there aren't any transitions with more than 2 symbols
      */
-    private checkProperFormRule(cfg : CFG) : boolean {
-        for(const [,variable] of cfg.variables){
-            for(const transition of variable.transitions){
-                if(transition.length>2&&transition.length===0){
+    private checkProperFormRule(cfg: CFG): boolean {
+        for (const [, variable] of cfg.variables) {
+            for (const transition of variable.transitions) {
+                if (transition.length > 2 && transition.length === 0) {
                     return false;
                 }
-                const transitionMapped = Array.from(transition).map(x=>x.symbol)
-                if(transition.length===2&&transitionMapped.some(x=>cfg.terminals.has(x))){
+                const transitionMapped = Array.from(transition).map(x => x.symbol);
+                if (transition.length === 2 && transitionMapped.some(x => cfg.terminals.has(x))) {
                     return false;
                 }
-                if(transition.length ===1 &&cfg.variables.has(transition[0].symbol)){
+                if (transition.length === 1 && cfg.variables.has(transition[0].symbol)) {
                     return false;
                 }
             }
         }
         return true;
-
     }
-
 }

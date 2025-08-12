@@ -1,14 +1,14 @@
-import {beforeEach, describe, expect, it} from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import {NFA} from "../../../src";
+import { NFA } from "../../../src";
 import Fixtures from "../../fixtures";
 
 describe("NFA acceptance testing", () => {
-    let nfa:NFA;
+    let nfa: NFA;
 
     beforeEach(() => {
         nfa = Fixtures.genericNFA();
-    })
+    });
 
     it("Should correctly accept a working NFA", () => {
         expect(nfa.runString("a")).toBe(false);
@@ -16,17 +16,17 @@ describe("NFA acceptance testing", () => {
         expect(nfa.runString("ba")).toBe(false);
         expect(nfa.runString("aabbb")).toBe(false);
         expect(nfa.runString("abbbba")).toBe(true);
-    })
+    });
 
     it("should correctly deal with situations where the graph is split", () => {
-        expect(nfa.removeEdge("2", 'a', "end")).toBe(true);
+        expect(nfa.removeEdge("2", "a", "end")).toBe(true);
 
         expect(nfa.runString("a")).toBe(false);
         expect(nfa.runString("aa")).toBe(false);
         expect(nfa.runString("ba")).toBe(false);
         expect(nfa.runString("aabbb")).toBe(false);
         expect(nfa.runString("abbbba")).toBe(false);
-    })
+    });
 
     it("should correctly deal with epsilon edges", () => {
         const enfa = Fixtures.genericEpsilonNFA();
@@ -38,7 +38,7 @@ describe("NFA acceptance testing", () => {
         expect(enfa.runString("b")).toBe(true);
         expect(enfa.runString("ba")).toBe(true);
         expect(enfa.runString("baa")).toBe(true);
-    })
+    });
 
     it("should correctly work with NFAs with epsilon edges and large alphabet", () => {
         const enfa = Fixtures.genericEpsilonNFALargerAlphabet();
@@ -49,49 +49,53 @@ describe("NFA acceptance testing", () => {
         expect(enfa.runString("acadabc")).toBe(true);
         expect(enfa.runString("acad")).toBe(true);
         expect(enfa.runString("cab")).toBe(false);
-    })
-})
+    });
+});
 
 describe("NFA toString", () => {
     it("should correctly print a NFA with no present epsilons", () => {
         const nfa = Fixtures.genericNFA();
-        expect(nfa.toString()).toBe("NFA: {\n" +
-            "\tAlphabet: [a, b]\n" +
-            "\tStates: [start, 1, 2, end]\n" +
-            "\tStarting State: start\n" +
-            "\tTransitions:\n" +
-            "\t\tState: start\n" +
-            "\t\t\ta => 1, 2\n" +
-            "\t\tState: 1\n" +
-            "\t\tState: 2\n" +
-            "\t\t\ta => 2, end\n" +
-            "\t\t\tb => 2\n" +
-            "\t\tState: end\n" +
-            "}");
-    })
+        expect(nfa.toString()).toBe(
+            "NFA: {\n" +
+                "\tAlphabet: [a, b]\n" +
+                "\tStates: [start, 1, 2, end]\n" +
+                "\tStarting State: start\n" +
+                "\tTransitions:\n" +
+                "\t\tState: start\n" +
+                "\t\t\ta => 1, 2\n" +
+                "\t\tState: 1\n" +
+                "\t\tState: 2\n" +
+                "\t\t\ta => 2, end\n" +
+                "\t\t\tb => 2\n" +
+                "\t\tState: end\n" +
+                "}"
+        );
+    });
 
     it("should correctly print a NFA with epsilons", () => {
         const enfa = Fixtures.genericEpsilonNFA();
-        expect(enfa.toString()).toBe("NFA: {\n" +
-            "\tAlphabet: [a, b]\n" +
-            "\tStates: [start, 1, 11, 2, 22, 3, 33, end]\n" +
-            "\tStarting State: start\n" +
-            "\tTransitions:\n" +
-            "\t\tState: start\n" +
-            "\t\t\tε => 1, 11\n" +
-            "\t\tState: 1\n" +
-            "\t\t\ta => 2\n" +
-            "\t\tState: 11\n" +
-            "\t\t\tb => 22\n" +
-            "\t\t\tε => end\n" +
-            "\t\tState: 2\n" +
-            "\t\t\tb => 3\n" +
-            "\t\tState: 22\n" +
-            "\t\t\ta => 22, 33\n" +
-            "\t\tState: 3\n" +
-            "\t\tState: 33\n" +
-            "\t\tState: end\n" +
-            "\t\t\tb => end\n" +
-            "}");
-    })
-})
+        expect(enfa.toString()).toBe(
+            "NFA: {\n" +
+                "\tAlphabet: [a, b]\n" +
+                "\tStates: [start, 1, 11, 2, 22, 3, 33, end]\n" +
+                "\tStarting State: start\n" +
+                "\tTransitions:\n" +
+                "\t\tState: start\n" +
+                "\t\t\tε => 1, 11\n" +
+                "\t\tState: 1\n" +
+                "\t\t\ta => 2\n" +
+                "\t\tState: 11\n" +
+                "\t\t\tb => 22\n" +
+                "\t\t\tε => end\n" +
+                "\t\tState: 2\n" +
+                "\t\t\tb => 3\n" +
+                "\t\tState: 22\n" +
+                "\t\t\ta => 22, 33\n" +
+                "\t\tState: 3\n" +
+                "\t\tState: 33\n" +
+                "\t\tState: end\n" +
+                "\t\t\tb => end\n" +
+                "}"
+        );
+    });
+});

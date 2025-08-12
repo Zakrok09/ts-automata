@@ -2,8 +2,8 @@
  * Represents a state in an automaton.
  */
 export abstract class State {
-    public readonly name:string;
-    public accepting:boolean;
+    public readonly name: string;
+    public accepting: boolean;
 
     /**
      * Creates a new instance of the constructor.

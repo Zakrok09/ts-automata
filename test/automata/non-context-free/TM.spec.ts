@@ -1,17 +1,13 @@
-import {describe, it, expect, beforeEach} from "vitest";
-import {TM} from "../../../src/automata/non-context-free/TM";
+import { describe, it, expect, beforeEach } from "vitest";
+import { TM } from "../../../src/automata/non-context-free/TM";
 import Fixtures from "../../fixtures";
-import {EMPTY,EPSILON} from "../../../src/types";
-
-
+import { EMPTY, EPSILON } from "../../../src/types";
 
 describe("TM: Running string on TM-medium", () => {
-
-    let tm:TM;
+    let tm: TM;
     // THIS TM doesn't halt if it doesn't accept the string.
     tm = Fixtures.mediumTM();
     it("should accept all", () => {
-
         expect(tm.runString("")).toBe(true);
         expect(tm.runString("a")).toBe(true);
         expect(tm.runString("b")).toBe(true);
@@ -21,44 +17,39 @@ describe("TM: Running string on TM-medium", () => {
         expect(tm.runString("bbbbbbbabbba")).toBe(true);
         expect(tm.runString("bababbbab")).toBe(true);
         expect(tm.runString("bb")).toBe(true);
-    })
-
-})
+    });
+});
 
 describe("TM: Running string on NDTM-simple", () => {
-
-    let tm:TM;
+    let tm: TM;
     tm = Fixtures.simpleNDTM();
     it("simple tests", () => {
-        for(let curr of [tm,tm.copy()]){
-        expect(curr.runString("")).toBe(false);
-        expect(curr.runString("b")).toBe(false);
-        expect(curr.runString("a")).toBe(true);
-        expect(curr.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
-        expect(curr.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
-        expect(curr.runString("abbbbbbbbbbbbbbbbbba")).toBe(true);
+        for (let curr of [tm, tm.copy()]) {
+            expect(curr.runString("")).toBe(false);
+            expect(curr.runString("b")).toBe(false);
+            expect(curr.runString("a")).toBe(true);
+            expect(curr.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
+            expect(curr.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
+            expect(curr.runString("abbbbbbbbbbbbbbbbbba")).toBe(true);
         }
-        
-    })
+    });
     it("simple tests: remove edge", () => {
-        let tm2 = tm 
-        tm2.removeEdge("q0","a",EMPTY,"R","qacc")
+        let tm2 = tm;
+        tm2.removeEdge("q0", "a", EMPTY, "R", "qacc");
         expect(tm2.runString("")).toBe(false);
         expect(tm2.runString("b")).toBe(false);
         expect(tm2.runString("a")).toBe(false);
         expect(tm2.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
         expect(tm2.runString("bbbbbbbbbbbbbbbbbb")).toBe(false);
         expect(tm2.runString("abbbbbbbbbbbbbbbbbba")).toBe(false);
-    })
-
-})
+    });
+});
 
 describe("TM: Running string on Equal a's and b's", () => {
-    let tm:TM;
+    let tm: TM;
     // THIS TM doesn't halt if it doesn't accept the string.
     tm = Fixtures.equalAandB();
     it("general case- TRUE", () => {
-
         expect(tm.runString("")).toBe(true);
         expect(tm.runString("ab")).toBe(true);
         expect(tm.runString("abab")).toBe(true);
@@ -69,8 +60,7 @@ describe("TM: Running string on Equal a's and b's", () => {
         expect(tm.runString("aaaaaaabbbbbbb")).toBe(true);
         expect(tm.runString("aaaaaaaabbbbbbbb")).toBe(true);
         expect(tm.runString("bababababa")).toBe(true);
-
-    })
+    });
     it("general case- FALSE", () => {
         expect(tm.runString("b")).toBe(false);
         expect(tm.runString("a")).toBe(false);
@@ -83,15 +73,20 @@ describe("TM: Running string on Equal a's and b's", () => {
         expect(tm.runString("aaabaaaabbbbbbb")).toBe(false);
         expect(tm.runString("aaaaaaaaabbbbbbbb")).toBe(false);
         expect(tm.runString("bababababaa")).toBe(false);
-
-    })
-    it("Throws Exception on illegal input", () => {  
+    });
+    it("Throws Exception on illegal input", () => {
         expect(() => tm.runString("aabc")).toThrowError("c is not part of the alphabet of this finite automaton");
         expect(() => tm.runString("aaaebb")).toThrowError("e is not part of the alphabet of this finite automaton");
-        expect(() => tm.runString("aabbb"+EMPTY)).toThrowError(`${EMPTY} is not part of the alphabet of this finite automaton`);
-        expect(() => tm.runString("aaaaaaabbbbbbbb"+EPSILON)).toThrowError(`${EPSILON} is not part of the alphabet of this finite automaton`);
+        expect(() => tm.runString("aabbb" + EMPTY)).toThrowError(
+            `${EMPTY} is not part of the alphabet of this finite automaton`
+        );
+        expect(() => tm.runString("aaaaaaabbbbbbbb" + EPSILON)).toThrowError(
+            `${EPSILON} is not part of the alphabet of this finite automaton`
+        );
         expect(() => tm.runString("Aa")).toThrowError(`A is not part of the alphabet of this finite automaton`);
         expect(() => tm.runString("ab0")).toThrowError(`0 is not part of the alphabet of this finite automaton`);
-        expect(() => tm.runString("ab"+EMPTY)).toThrowError(`${EMPTY} is not part of the alphabet of this finite automaton`);
-    })
-})
+        expect(() => tm.runString("ab" + EMPTY)).toThrowError(
+            `${EMPTY} is not part of the alphabet of this finite automaton`
+        );
+    });
+});

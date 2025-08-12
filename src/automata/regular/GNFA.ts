@@ -1,5 +1,5 @@
-import {Alphabet, Automaton, EPSILON} from "../../automata";
-import {GNFAState} from "../../states/RegularStates";
+import { Alphabet, Automaton, EPSILON } from "../../automata";
+import { GNFAState } from "../../states/RegularStates";
 
 /**
  * Represents a Generalized Non-Deterministic Finite Automaton (GNFA).
@@ -13,10 +13,15 @@ import {GNFAState} from "../../states/RegularStates";
  */
 export class GNFA extends Automaton<GNFAState> {
     public copy(): GNFA {
-        const newGNFA = new GNFA(this.alphabet.joinToString(),this.startState.name,this.finalState.name)
-        this.states.forEach(state => {if (!newGNFA.getState(state.name)){newGNFA.addState(state.name)}})
-        this.states.forEach(state => state.outgoing
-                            .forEach((nextState,sym)=> newGNFA.addEdge(state.name,sym,nextState.name)))
+        const newGNFA = new GNFA(this.alphabet.joinToString(), this.startState.name, this.finalState.name);
+        this.states.forEach(state => {
+            if (!newGNFA.getState(state.name)) {
+                newGNFA.addState(state.name);
+            }
+        });
+        this.states.forEach(state =>
+            state.outgoing.forEach((nextState, sym) => newGNFA.addEdge(state.name, sym, nextState.name))
+        );
         return newGNFA;
     }
 
@@ -29,7 +34,7 @@ export class GNFA extends Automaton<GNFAState> {
      * @param startState the name of the starting state.
      * @param finalState the name of the final state.
      */
-    public constructor(alphabetString: string, startState: string, finalState:string) {
+    public constructor(alphabetString: string, startState: string, finalState: string) {
         const start: GNFAState = new GNFAState(startState);
         super(Alphabet.fromString(alphabetString), start);
 
@@ -43,7 +48,7 @@ export class GNFA extends Automaton<GNFAState> {
      * Checks the validity of the GNFA.
      * @returns true if the GNFA is valid, false otherwise.
      */
-     
+
     public isValid(): boolean {
         throw new Error("Method not implemented.");
     }
@@ -60,7 +65,7 @@ export class GNFA extends Automaton<GNFAState> {
      * Inserts states into the GNFA.
      * @param names the names of the states to insert.
      */
-    public insertStates(...names:string[]) {
+    public insertStates(...names: string[]) {
         super.addStates(false, ...names);
     }
 
@@ -69,7 +74,7 @@ export class GNFA extends Automaton<GNFAState> {
      * Uses Sipser's algorithm to rip a state from the GNFA.
      * @param stateName the name of the state to rip.
      */
-    public ripState(stateName:string): void {
+    public ripState(stateName: string): void {
         const ripState = this.states.get(stateName);
         if (!ripState) throw new Error(`State ${stateName} does not exist!`);
 
@@ -86,20 +91,19 @@ export class GNFA extends Automaton<GNFAState> {
             }
         }
 
-        ripState.incoming.forEach(({regex: fromRegex, state}) => {
+        ripState.incoming.forEach(({ regex: fromRegex, state }) => {
             if (state === ripState) return;
             state.removeTransition(fromRegex, ripState);
 
-
             ripState.outgoing.forEach((toState, toRegex) => {
                 if (toState === ripState) return;
-                let compoundRegex = (fromRegex === EPSILON) ? "" : `(${fromRegex})`;
+                let compoundRegex = fromRegex === EPSILON ? "" : `(${fromRegex})`;
                 if (midRegex !== "" || midRegex !== EPSILON) compoundRegex += `(${midRegex})*`;
                 if (toRegex !== EPSILON) compoundRegex += `(${toRegex})`;
 
                 let altRegex = "";
 
-                state.incoming.forEach(({regex: alt, state: fromState}) => {
+                state.incoming.forEach(({ regex: alt, state: fromState }) => {
                     if (fromState === state) altRegex = alt;
                 });
 
@@ -146,7 +150,7 @@ export class GNFA extends Automaton<GNFAState> {
     /**
      * Gets the type of the machine.
      */
-     
+
     public get machineType(): string {
         return "GNFA";
     }

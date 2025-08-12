@@ -1,16 +1,16 @@
-import {DFA} from "../regular/DFA";
-import {DFABuilder} from "./builders/automata/DFABuilder";
-import {NFA} from "../regular/NFA";
-import {NFAState} from "../../states/RegularStates";
-import {char} from "../../types";
+import { DFA } from "../regular/DFA";
+import { DFABuilder } from "./builders/automata/DFABuilder";
+import { NFA } from "../regular/NFA";
+import { NFAState } from "../../states/RegularStates";
+import { char } from "../../types";
 
 /**
  * @class Method object for converting NFAs to DFAs
  * @link https://refactoring.guru/replace-method-with-method-object
  */
 export class NFAConverter {
-    private readonly nfa:NFA;
-    private dfaBuilder:DFABuilder;
+    private readonly nfa: NFA;
+    private dfaBuilder: DFABuilder;
 
     /**
      * Constructs a new instance of the class.
@@ -36,7 +36,7 @@ export class NFAConverter {
         while (statesToProcess.length > 0) {
             const currentBunch = statesToProcess.pop()!;
 
-            this.processStateBunch(currentBunch, statesToProcess)
+            this.processStateBunch(currentBunch, statesToProcess);
         }
 
         return this.dfaBuilder.getResult();
@@ -51,10 +51,9 @@ export class NFAConverter {
      *
      * @link https://refactoring.guru/extract-method
      */
-    private processStateBunch(currentBunch:StateBunch, statesToProcess:StateBunch[]):void {
+    private processStateBunch(currentBunch: StateBunch, statesToProcess: StateBunch[]): void {
         const isFinal = currentBunch.hasAnyFinalState();
-        if (!this.dfaBuilder.getState(currentBunch.name))
-            this.dfaBuilder.addState(currentBunch.name, isFinal)
+        if (!this.dfaBuilder.getState(currentBunch.name)) this.dfaBuilder.addState(currentBunch.name, isFinal);
 
         for (const symbol of this.nfa.alphabet.chars) {
             this.processNextStateBunch(currentBunch, symbol, statesToProcess);
@@ -72,8 +71,8 @@ export class NFAConverter {
      * @param symbol the symbol on which to acquire the new stateBunch.
      * @param statesToProcess reference to the stack of states to be processed.
      */
-    private processNextStateBunch(currentBunch:StateBunch, symbol:char, statesToProcess:StateBunch[]):void {
-        const nextStates:NFAState[] = currentBunch.giveNextStates(symbol);
+    private processNextStateBunch(currentBunch: StateBunch, symbol: char, statesToProcess: StateBunch[]): void {
+        const nextStates: NFAState[] = currentBunch.giveNextStates(symbol);
         const newStateBunch = new StateBunch(nextStates, this.nfa);
 
         // Look to see if we've already encountered this set of NFA states as a DFA state.
@@ -82,10 +81,10 @@ export class NFAConverter {
         // If we haven't, make it a new state in the DFA and remember to process it later.
         if (!nextDFAState) {
             statesToProcess.push(new StateBunch(nextStates, this.nfa));
-            this.dfaBuilder.addState(newStateBunch.name, newStateBunch.hasAnyFinalState())
+            this.dfaBuilder.addState(newStateBunch.name, newStateBunch.hasAnyFinalState());
         }
 
-        this.dfaBuilder.addEdge(currentBunch.name, symbol, newStateBunch.name)
+        this.dfaBuilder.addEdge(currentBunch.name, symbol, newStateBunch.name);
     }
 }
 
@@ -95,14 +94,14 @@ export class NFAConverter {
  * using Sipser's algorithm.
  */
 class StateBunch {
-    states:NFAState[];
-    nfa:NFA;
-    name:string;
+    states: NFAState[];
+    nfa: NFA;
+    name: string;
 
-    constructor(states: NFAState[], nfa:NFA) {
+    constructor(states: NFAState[], nfa: NFA) {
         this.states = states;
         this.nfa = nfa;
-        this.name = this.stateName(states)
+        this.name = this.stateName(states);
     }
 
     /**
@@ -114,15 +113,17 @@ class StateBunch {
      * If the state name is empty, returns "dead-state".
      */
     private stateName(states: NFAState[]): string {
-        const res = states.map(s => `{${s.name}}`)
-            .sort((a, b) => a.localeCompare(b)).join('');
+        const res = states
+            .map(s => `{${s.name}}`)
+            .sort((a, b) => a.localeCompare(b))
+            .join("");
         return res.trim() === "" ? "dead-state" : res;
     }
 
     /**
      * Checks if any of the states in the state bunch is accepting.
      */
-    hasAnyFinalState():boolean {
+    hasAnyFinalState(): boolean {
         return this.states.some(nfaState => this.nfa.acceptStates.has(nfaState));
     }
 
@@ -134,10 +135,10 @@ class StateBunch {
      * @returns an array with the states reachable from any of the current states,
      * given this input (incl. epsilon closure)
      */
-    giveNextStates(symbol:char):NFAState[] {
-        const nextStates:NFAState[] = []
+    giveNextStates(symbol: char): NFAState[] {
+        const nextStates: NFAState[] = [];
         for (const state of this.states) {
-            nextStates.push(...state.transition(symbol))
+            nextStates.push(...state.transition(symbol));
         }
 
         return NFA.epsilonClosure(nextStates);

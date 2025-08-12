@@ -1,10 +1,10 @@
-import {EPSILON, toChar} from "../../types";
-import {Alphabet} from "../Alphabet";
-import {DFA} from "./DFA";
-import {FiniteAutomaton} from "./FiniteAutomaton";
-import {IllegalArgument} from "../../exceptions/exceptions";
-import {NFAConverter} from "../util/NFAConverter";
-import {NFAState} from "../../states/RegularStates";
+import { EPSILON, toChar } from "../../types";
+import { Alphabet } from "../Alphabet";
+import { DFA } from "./DFA";
+import { FiniteAutomaton } from "./FiniteAutomaton";
+import { IllegalArgument } from "../../exceptions/exceptions";
+import { NFAConverter } from "../util/NFAConverter";
+import { NFAState } from "../../states/RegularStates";
 
 /**
  * Nondeterministic finite automaton.
@@ -18,7 +18,6 @@ import {NFAState} from "../../states/RegularStates";
  * @since 0.1.0
  */
 export class NFA extends FiniteAutomaton<NFAState> {
-
     /**
      * Constructs a finite automaton given an alphabet and a starting state. Applies to
      * all types of finite automatas defined: DFA, NFA and GNFA.
@@ -28,7 +27,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param startingAccept whether the starting state should accept.
      */
     public constructor(alphabetString: string, startState: string, startingAccept: boolean) {
-        const start:NFAState = new NFAState(startState);
+        const start: NFAState = new NFAState(startState);
         super(Alphabet.fromString(alphabetString), start);
 
         if (startingAccept) {
@@ -53,7 +52,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param {string} stateName - The name of the state from which the epsilon edge originates.
      * @param {string} to - The name of the state to which the epsilon edge leads.
      */
-    public addEpsilonEdge(stateName:string, to:string):void {
+    public addEpsilonEdge(stateName: string, to: string): void {
         const state = this.states.get(stateName);
         if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
@@ -71,8 +70,8 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @param to the destination state as in a NFA there can be multiple edges with the
      * same input symbol and state from which they come out of.
      */
-    public removeEdge(stateName:string, input:string, to:string) {
-        const char = toChar(input)
+    public removeEdge(stateName: string, input: string, to: string) {
+        const char = toChar(input);
         this.testSymbolAgainstAlphabet(char);
 
         const state = this.states.get(stateName);
@@ -82,7 +81,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
         if (!dest) throw new IllegalArgument(`State ${stateName} does not exist!`);
 
         return state.removeTransition(char, dest);
-    };
+    }
 
     /**
      * Runs the given string against the finite state machine.
@@ -135,19 +134,19 @@ export class NFA extends FiniteAutomaton<NFAState> {
      * @returns The string representation of the NFA.
      */
     public toString() {
-        let transitions:string = "";
+        let transitions: string = "";
         this.states.forEach(state => {
             let currState = `\n\t\tState: ${state.name}`;
 
             for (const [input, nextStates] of state.transitions) {
                 let nextString = "";
-                nextStates.forEach(nextState => nextString += `${nextState.name}, `)
-                nextString = nextString.trim().slice(0, nextString.length-2)
-                currState += `\n\t\t\t${input} => ${nextString}`
+                nextStates.forEach(nextState => (nextString += `${nextState.name}, `));
+                nextString = nextString.trim().slice(0, nextString.length - 2);
+                currState += `\n\t\t\t${input} => ${nextString}`;
             }
 
-            transitions+=currState;
-        })
+            transitions += currState;
+        });
 
         return super.toString(transitions);
     }
@@ -155,7 +154,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
     /**
      * Returns the machine type of the NFA. The result is always NFA.
      */
-     
+
     get machineType(): string {
         return "NFA";
     }
@@ -163,7 +162,7 @@ export class NFA extends FiniteAutomaton<NFAState> {
     /**
      * Returns whether the NFA is valid.
      */
-     
+
     isValid(): boolean {
         return true;
     }
@@ -179,20 +178,29 @@ export class NFA extends FiniteAutomaton<NFAState> {
         const nfaConverter = new NFAConverter(this);
         return nfaConverter.toDFA();
     }
+
     /**
      * Create a copy of this NFA
      * @returns a deep copy of this NFA
      */
-    public copy() : NFA{
-        const newNFA = new NFA(this.alphabet.joinToString(),this.startState.name,this.startState.accepting)
-        this.states.forEach(state => {if (!newNFA.getState(state.name)){newNFA.addState(state.name,state.accepting)}})
-        this.states.forEach(state => state.transitions
-                            .forEach((possibleTo,sym)=> possibleTo
-                                .forEach(to => {if (sym==EPSILON){
-                                                    newNFA.addEpsilonEdge(state.name,to.name)
-                                                }else{
-                                                    newNFA.addEdge(state.name,sym,to.name)
-                                                }})))
+    public copy(): NFA {
+        const newNFA = new NFA(this.alphabet.joinToString(), this.startState.name, this.startState.accepting);
+        this.states.forEach(state => {
+            if (!newNFA.getState(state.name)) {
+                newNFA.addState(state.name, state.accepting);
+            }
+        });
+        this.states.forEach(state =>
+            state.transitions.forEach((possibleTo, sym) =>
+                possibleTo.forEach(to => {
+                    if (sym == EPSILON) {
+                        newNFA.addEpsilonEdge(state.name, to.name);
+                    } else {
+                        newNFA.addEdge(state.name, sym, to.name);
+                    }
+                })
+            )
+        );
         return newNFA;
     }
 }
