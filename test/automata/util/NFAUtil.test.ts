@@ -21,7 +21,7 @@ describe("NFAUtil: Union", () => {
             .to("end")
             .over("b")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let unionOfBoth = util.union(automaton1, automaton2);
         expect(unionOfBoth.runString("a")).toBe(true);
         expect(unionOfBoth.runString("b")).toBe(true);
@@ -36,12 +36,12 @@ describe("NFAUtil: Union", () => {
             .to("end")
             .over("a")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let unionOfBoth = util.union(automaton1, util.negation(automaton1));
         expect(util.isLanguageAllStrings(unionOfBoth)).toBe(true);
     });
     it("set differenece", () => {
-        let util = new NFAUtil();
+        const util = new NFAUtil();
 
         let automaton1 = new NFABuilder("a")
             .withNotFinalStates("start")
@@ -77,7 +77,7 @@ describe("NFAUtil: Union", () => {
             .to("start")
             .over("a")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let AminusB = util.intersection(automaton1, util.negation(automaton2));
         expect(util.doesLanguageContainString(AminusB, "a")).toBe(false);
         expect(util.doesLanguageContainString(AminusB, "")).toBe(false);
@@ -108,7 +108,7 @@ describe("NFAUtil: Intersection", () => {
             .to("q1")
             .over("a")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let intersected = util.intersection(automaton1, automaton2);
 
         expect(util.doesLanguageContainString(intersected, "aa")).toBe(true);
@@ -118,7 +118,7 @@ describe("NFAUtil: Intersection", () => {
     it("complex intersection", () => {
         let automaton1 = Fixtures.genericEpsilonNFALargerAlphabet();
         let automaton2 = Fixtures.genericEpsilonNFA();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let intersected = util.intersection(automaton1, automaton2);
 
         expect(util.doesLanguageContainString(intersected, "ba")).toBe(true);
@@ -127,85 +127,85 @@ describe("NFAUtil: Intersection", () => {
 });
 describe("NFAUtil: Empty", () => {
     it("should return true for non-empty NFA", () => {
-        let nfa = Fixtures.genericEpsilonNFA();
-        let util = new NFAUtil();
+        const nfa = Fixtures.genericEpsilonNFA();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(false);
     });
     it("should return true for empty NFA", () => {
-        let nfa = Fixtures.genericEpsilonNFA();
+        const nfa = Fixtures.genericEpsilonNFA();
         nfa.getState("end")!.accepting = false;
         nfa.getState("3")!.accepting = false;
         nfa.getState("33")!.accepting = false;
 
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(true);
     });
 
     it("should return true for smaller language NFA", () => {
-        let nfa = Fixtures.genericEpsilonNFA();
+        const nfa = Fixtures.genericEpsilonNFA();
         nfa.getState("end")!.accepting = false;
         nfa.getState("33")!.accepting = false;
 
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(false);
     });
 
     it("should return true for empty NFA, with unreachable accept state", () => {
-        let nfa = Fixtures.genericEpsilonNFA();
+        const nfa = Fixtures.genericEpsilonNFA();
         nfa.getState("end")!.accepting = false;
         nfa.getState("3")!.accepting = false;
         nfa.getState("33")!.accepting = false;
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         nfa.addStates(true, "unreachable");
         nfa.addEdges("unreachable", "ab", "unreachable");
         expect(util.isLanguageEmpty(nfa)).toBe(true);
         expect(nfa.isValid()).toBe(true);
     });
     it("should return false for generic NFA", () => {
-        let nfa = Fixtures.genericEpsilonNFA();
-        let util = new NFAUtil();
+        const nfa = Fixtures.genericEpsilonNFA();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(false);
     });
 
     it("one state - non-empty language", () => {
-        let nfa = new NFA("ab", "start", true);
+        const nfa = new NFA("ab", "start", true);
         nfa.addEdges("start", "ab", "start");
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(false);
         expect(nfa.isValid()).toBe(true);
     });
 
     it("one state - empty language", () => {
-        let nfa = new NFA("ab", "start", false);
+        const nfa = new NFA("ab", "start", false);
         nfa.addEdges("start", "ab", "start");
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(true);
         expect(nfa.isValid()).toBe(true);
     });
 
     it("non-empty language, empty alphabet", () => {
-        let nfa = new NFA("", "start", true);
+        const nfa = new NFA("", "start", true);
         nfa.addState("unreachable", true);
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(false);
         expect(nfa.isValid()).toBe(true);
     });
 
     it("empty language, empty alphabet", () => {
-        let nfa = new NFA("", "start", false);
+        const nfa = new NFA("", "start", false);
         nfa.addState("unreachable", true);
 
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(true);
         expect(nfa.isValid()).toBe(true);
     });
 
     it("connected by one epsilon transition", () => {
-        let nfa = new NFA("abcdef", "start", false);
+        const nfa = new NFA("abcdef", "start", false);
 
         nfa.addState("end", true);
         nfa.addEpsilonEdge("start", "end");
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(nfa)).toBe(false);
         expect(nfa.isValid()).toBe(true);
     });
@@ -213,25 +213,25 @@ describe("NFAUtil: Empty", () => {
 
 describe("NFAUtil: All", () => {
     it("should return false for generic NFA", () => {
-        let nfa = Fixtures.genericEpsilonNFA();
-        let util = new NFAUtil();
+        const nfa = Fixtures.genericEpsilonNFA();
+        const util = new NFAUtil();
         expect(util.isLanguageAllStrings(nfa)).toBe(false);
     });
 
     it("should return true for trivial NFA", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withFinalStates("start")
             .withNotFinalStates("unreachable")
             .withEdges.from("start")
             .to("start")
             .over("abcdef")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageAllStrings(nfa)).toBe(true);
     });
 
     it("should return false for trivial NFA", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start")
             .withFinalStates("unreachable")
             .addEpsilonEdge("unreachable", "start")
@@ -239,12 +239,12 @@ describe("NFAUtil: All", () => {
             .to("start")
             .over("abcdef")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageAllStrings(nfa)).toBe(false);
     });
 
     it("should return true for epsilon edge", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start", "reachable", "unreachable")
             .withFinalStates("end")
             .withEdges.from("start")
@@ -253,12 +253,12 @@ describe("NFAUtil: All", () => {
             .addEpsilonEdge("start", "end")
             .addEpsilonEdge("start", "reachable")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageAllStrings(nfa)).toBe(true);
     });
 
     it("should return true for always stay at start", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withFinalStates("start")
             .withNotFinalStates("q0", "q1", "q2")
             .withEdges.from("start")
@@ -271,14 +271,14 @@ describe("NFAUtil: All", () => {
             .to("q2")
             .over("bc")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageAllStrings(nfa)).toBe(true);
     });
 });
 
 describe("NFAUtil: Negation", () => {
     it("empty language", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start")
             .withFinalStates("unreachable")
             .addEpsilonEdge("unreachable", "start")
@@ -286,12 +286,12 @@ describe("NFAUtil: Negation", () => {
             .to("start")
             .over("abcdef")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let negated = util.negation(nfa);
         expect(util.isLanguageAllStrings(negated)).toBe(true);
     });
     it("accepts new string with unused character", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start")
             .withFinalStates("unreachable")
             .addEpsilonEdge("unreachable", "start")
@@ -299,13 +299,13 @@ describe("NFAUtil: Negation", () => {
             .to("start")
             .over("abcde")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let negated = util.negation(nfa);
         expect(util.doesLanguageContainString(negated, "f")).toBe(true);
     });
 
     it("empty language - complicated", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start")
             .withNotFinalStates("q0")
             .addEpsilonEdge("q0", "start")
@@ -314,13 +314,13 @@ describe("NFAUtil: Negation", () => {
             .to("start")
             .over("abcdef")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         let negated = util.negation(nfa);
         expect(util.isLanguageAllStrings(negated)).toBe(true);
     });
 
     it("should return empty for negation of all ", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start", "reachable", "unreachable")
             .withFinalStates("end")
             .withEdges.from("start")
@@ -329,12 +329,12 @@ describe("NFAUtil: Negation", () => {
             .addEpsilonEdge("start", "end")
             .addEpsilonEdge("start", "reachable")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.isLanguageEmpty(util.negation(nfa))).toBe(true);
     });
 
     it("should double negation should be equal to itself", () => {
-        let nfa = new NFABuilder("abcdef")
+        const nfa = new NFABuilder("abcdef")
             .withNotFinalStates("start", "reachable", "unreachable")
             .withFinalStates("end")
             .withEdges.from("start")
@@ -343,27 +343,27 @@ describe("NFAUtil: Negation", () => {
             .addEpsilonEdge("start", "end")
             .addEpsilonEdge("start", "reachable")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.equal(util.negation(util.negation(nfa)), nfa)).toBe(true);
     });
 
     it("negation and intersection withself is empty", () => {
-        let nfa = Fixtures.genericEpsilonNFALargerAlphabet();
-        let util = new NFAUtil();
+        const nfa = Fixtures.genericEpsilonNFALargerAlphabet();
+        const util = new NFAUtil();
         let finalNFA = util.intersection(nfa, util.negation(nfa));
         expect(util.isLanguageEmpty(finalNFA)).toBe(true);
     });
 
     it("negation and union withself is sigma star", () => {
-        let nfa = Fixtures.genericNFA();
-        let util = new NFAUtil();
+        const nfa = Fixtures.genericNFA();
+        const util = new NFAUtil();
         let finalNFA = util.union(nfa, util.negation(nfa));
         expect(util.isLanguageAllStrings(finalNFA)).toBe(true);
     });
 
     it("should accept words it didn't before and vice versa", () => {
-        let nfa = Fixtures.genericEpsilonNFALargerAlphabet();
-        let util = new NFAUtil();
+        const nfa = Fixtures.genericEpsilonNFALargerAlphabet();
+        const util = new NFAUtil();
         let negated = util.negation(nfa);
         let wordsAccepted = ["c", "ca", "cb"];
         for (let word of wordsAccepted) {
@@ -385,7 +385,7 @@ describe("equals", () => {
             Fixtures.genericEpsilonNFA(),
             Fixtures.genericEpsilonNFALargerAlphabet()
         ];
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         for (let automaton of automatons) {
             expect(util.equal(automaton, automaton.copy()));
         }
@@ -396,7 +396,7 @@ describe("equals", () => {
             Fixtures.genericEpsilonNFA(),
             Fixtures.genericEpsilonNFALargerAlphabet()
         ];
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         for (let automaton of automatons) {
             expect(util.equal(automaton, util.intersection(automaton, automaton.copy())));
         }
@@ -419,7 +419,7 @@ describe("equals", () => {
             .to("q0")
             .over("b")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.equal(automaton1, automaton2)).toBe(false);
     });
     it("should recogonize theoretically not equivalent automata ", () => {
@@ -443,7 +443,7 @@ describe("equals", () => {
             .over("a")
 
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
         expect(util.equal(automaton1, automaton2)).toBe(false);
     });
     it("should recogonize theoretically not equivalent automata - small ", () => {
@@ -454,7 +454,7 @@ describe("equals", () => {
             .to("c")
             .over("a")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
 
         expect(util.equal(automaton1, automaton2)).toBe(false);
     });
@@ -465,7 +465,7 @@ describe("equals", () => {
             .to("end")
             .over("ab")
             .getResult();
-        let util = new NFAUtil();
+        const util = new NFAUtil();
 
         expect(util.equal(automaton1, automaton1.toDFA().toNFA())).toBe(true);
     });

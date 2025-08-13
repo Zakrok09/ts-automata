@@ -126,7 +126,7 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
      * @returns NFA that recognizes L1 union L2
      */
     public union(automaton: NFA, other: NFA): NFA {
-        return new NFACombinator(automaton,other,"OR").toDFA().toNFA();
+        return new NFACombinator(automaton, other, "OR").toDFA().toNFA();
     }
 
     /**
@@ -137,16 +137,17 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
      * @returns Automaton that recognizes L1 intersection L2
      */
     public intersection(automaton: NFA, other: NFA, util = new DFAUtil()): NFA {
-        return new NFACombinator(automaton,other,"AND").toDFA().toNFA();
-    
+        return new NFACombinator(automaton, other, "AND").toDFA().toNFA();
     }
-    public mapStateNames(automaton : NFA,func : ((name : string)=> string)) : NFA{
+    public mapStateNames(automaton: NFA, func: (name: string) => string): NFA {
         const statesOfThisNFA = this.dfs(automaton);
-        let newNFA = new NFA(automaton.alphabet.joinToString(),
-                                func(automaton.startState.name),
-                                    automaton.startState.accepting);
+        let newNFA = new NFA(
+            automaton.alphabet.joinToString(),
+            func(automaton.startState.name),
+            automaton.startState.accepting
+        );
         for (const state of statesOfThisNFA) {
-            if(state.name==automaton.startState.name){
+            if (state.name == automaton.startState.name) {
                 continue;
             }
             newNFA.addState(func(state.name), state.accepting);
@@ -154,41 +155,37 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         statesOfThisNFA.forEach(state =>
             state.transitions.forEach((nextStates, symbol) =>
                 nextStates.forEach(nextState => {
-                    const toWithPrefix = func(nextState.name)
-                    const fromWithPrefix = func(state.name)
+                    const toWithPrefix = func(nextState.name);
+                    const fromWithPrefix = func(state.name);
                     if (symbol === EPSILON) {
                         newNFA.addEpsilonEdge(fromWithPrefix, toWithPrefix);
                     } else {
-                        newNFA.addEdge(fromWithPrefix, symbol,toWithPrefix);
+                        newNFA.addEdge(fromWithPrefix, symbol, toWithPrefix);
                     }
                 })
             )
         );
-        
 
-        return newNFA
+        return newNFA;
     }
-    public addToNFA(automaton : NFA, other : NFA) : NFA{
+    public addToNFA(automaton: NFA, other: NFA): NFA {
         const newNFA = automaton.copy();
-        const statesOfOtherNFA = this.dfs(other)
-        statesOfOtherNFA.forEach(state => newNFA.addState(state.name,state.accepting));
+        const statesOfOtherNFA = this.dfs(other);
+        statesOfOtherNFA.forEach(state => newNFA.addState(state.name, state.accepting));
         statesOfOtherNFA.forEach(state =>
             state.transitions.forEach((nextStates, symbol) =>
                 nextStates.forEach(nextState => {
-                    this.addEdgeWithPossibleEpsilon(newNFA,
-                                    state.name,
-                                        nextState.name,
-                                        symbol)
+                    this.addEdgeWithPossibleEpsilon(newNFA, state.name, nextState.name, symbol);
                 })
             )
         );
-        return newNFA
+        return newNFA;
     }
-    private addEdgeWithPossibleEpsilon(automaton : NFA, from : string, to : string, symbol : string){
+    private addEdgeWithPossibleEpsilon(automaton: NFA, from: string, to: string, symbol: string) {
         if (symbol === EPSILON) {
             automaton.addEpsilonEdge(from, to);
         } else {
-            automaton.addEdge(from, symbol,to);
+            automaton.addEdge(from, symbol, to);
         }
     }
 }

@@ -92,7 +92,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Automaton that recognizes L1 union L2
      */
     public union(automaton: DFA, other: DFA, nfaUtil = new NFAUtil()): DFA {
-        return new NFACombinator(automaton.toNFA(),other.toNFA(),"OR").toDFA();
+        return new NFACombinator(automaton.toNFA(), other.toNFA(), "OR").toDFA();
     }
 
     /**
@@ -102,7 +102,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns DFA that recognizes words both in R1 and R2
      */
     public intersection(automaton: DFA, other: DFA): DFA {
-        return new NFACombinator(automaton.toNFA(),other.toNFA(),"AND").toDFA();
+        return new NFACombinator(automaton.toNFA(), other.toNFA(), "AND").toDFA();
     }
 
     /**
