@@ -239,10 +239,10 @@ function simpleNDTM(): TM {
         .withFinalStates("qacc")
         .withEdges.from("q0")
         .to("qrej")
-        .over(`a${  EMPTY  }R`)
+        .over(`a${EMPTY}R`)
         .withEdges.from("q0")
         .to("qacc")
-        .over(`a${  EMPTY  }R`)
+        .over(`a${EMPTY}R`)
         .getResult();
 }
 

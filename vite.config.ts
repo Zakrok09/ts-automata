@@ -8,21 +8,17 @@ export default defineConfig({
             entry: resolve(__dirname, "src/index.ts"),
             fileName: "index",
             formats: ["es", "cjs"],
-            name: "ts-automata",
+            name: "ts-automata"
         },
         manifest: true,
         minify: true,
-        reportCompressedSize: true,
-        
+        reportCompressedSize: true
     },
     plugins: [
         dts({
             insertTypesEntry: true,
             outDir: "dist",
-            rollupTypes: true,
-
+            rollupTypes: true
         })
     ]
-
-
 });

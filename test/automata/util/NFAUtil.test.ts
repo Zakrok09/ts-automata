@@ -4,17 +4,15 @@ import { NFAUtil } from "../../../src/automata/util/automata/NFA-util";
 import { NFA } from "../../../src/automata/regular/NFA";
 import { NFABuilder } from "../../../src";
 import { EPSILON } from "../../../src/types";
-import { test, fc } from '@fast-check/vitest';
+import { test, fc } from "@fast-check/vitest";
 import { NFAArbitrary } from "./NFAArbitrary";
 
 describe("NFAUtil: Union", () => {
-
-
-    test.prop([NFAArbitrary])("Negation with itself should be empty",(nfa)=>{
-            let util = new NFAUtil()
-            const final_automaton =util.union(util.negation(nfa),nfa)
-            expect(util.isLanguageEmpty(final_automaton)).toBe(false);
-            expect(util.isLanguageAllStrings(final_automaton)).toBe(true);
+    test.prop([NFAArbitrary])("Negation with itself should be empty", nfa => {
+        let util = new NFAUtil();
+        const final_automaton = util.union(util.negation(nfa), nfa);
+        expect(util.isLanguageEmpty(final_automaton)).toBe(false);
+        expect(util.isLanguageAllStrings(final_automaton)).toBe(true);
     });
     it("union two simple nfa", () => {
         const automaton1 = new NFABuilder("a")
@@ -97,12 +95,11 @@ describe("NFAUtil: Union", () => {
 });
 
 describe("NFAUtil: Intersection", () => {
-    test.prop([NFAArbitrary])("Negation with itself should be empty",(nfa)=>{
-            const util = new NFAUtil()
-            const final_automaton =util.intersection(util.negation(nfa),nfa)
-            expect(util.isLanguageEmpty(final_automaton)).toBe(true);
-            expect(util.isLanguageAllStrings(final_automaton)).toBe(false);
-
+    test.prop([NFAArbitrary])("Negation with itself should be empty", nfa => {
+        const util = new NFAUtil();
+        const final_automaton = util.intersection(util.negation(nfa), nfa);
+        expect(util.isLanguageEmpty(final_automaton)).toBe(true);
+        expect(util.isLanguageAllStrings(final_automaton)).toBe(false);
     });
     it("simple intersection", () => {
         const automaton1 = new NFABuilder("ab")

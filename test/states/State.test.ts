@@ -1,4 +1,4 @@
-import {beforeEach,describe, expect, it, } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { DFAState } from "../../src/states/RegularStates";
 
 describe("Getters and setters", () => {

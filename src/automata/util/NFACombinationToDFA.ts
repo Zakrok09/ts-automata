@@ -43,7 +43,6 @@ export class NFACombinator {
      * @return a DFA of the combined NFAs using Sipper's algorithm.
      */
     public toDFA(): DFA {
-        
         const return_nfa = this.toNFA();
         const startStateBunch = new StateBunch(NFA.epsilonClosure([return_nfa.startState]), return_nfa);
         const statesToProcess: StateBunch[] = [startStateBunch];

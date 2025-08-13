@@ -281,6 +281,6 @@ describe("DFAUtil: extend Alphabet", () => {
                 .getResult()
         ];
         const util = new DFAUtil();
-        dfas.forEach(dfa => expect(util.equal(util.extendAlphabet(dfa, `${dfa.alphabet.joinToString()  }zgmçğ`), dfa)));
+        dfas.forEach(dfa => expect(util.equal(util.extendAlphabet(dfa, `${dfa.alphabet.joinToString()}zgmçğ`), dfa)));
     });
 });
