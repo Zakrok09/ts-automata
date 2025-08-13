@@ -4,11 +4,12 @@ import { NFA } from "../regular/NFA";
 import { NFAState } from "../../states/RegularStates";
 import { Operator, char } from "../../types";
 import { NFAUtil } from "./automata/NFA-util";
+import { resourceUsage } from "process";
 
 const prefix_for_nfa_one = "1-";
 const prefix_for_nfa_two = "2-";
 /**
- * @class Method object for converting NFAs to DFAs
+ * @class Method object for combining to NFAs
  * @link https://refactoring.guru/replace-method-with-method-object
  */
 export class NFACombinator {
@@ -22,6 +23,9 @@ export class NFACombinator {
      * Constructs a new instance of the class.
      *
      * @param {NFA} nfa - The NFA object to assign to the instance.
+     * @param {NFA} other - The other NFA object to assign to the instance
+     * @param {Operator} combination_operator - The combination operation that should be performed
+     * @param {NFAUtil} nfa_util - Optional. The utility for NFA operations
      */
     constructor(nfa: NFA, other: NFA, combination_operator: Operator, nfa_util = new NFAUtil()) {
         this.other = other;
@@ -36,27 +40,11 @@ export class NFACombinator {
      * Conversion is done
      * using the algorithm described by Micheal Sipser in his book "Introduction to the Theory of Computation"
      *
-     * @return a DFA of the NFA using Sipper's algorithm.
+     * @return a DFA of the combined NFAs using Sipper's algorithm.
      */
     public toDFA(): DFA {
-        const prefix_for_nfa = this.prefixFunctionGenerator("1-");
-        const prefix_for_other = this.prefixFunctionGenerator("2-");
-
-        const prepended_nfa = this.nfa_util.mapStateNames(this.nfa, prefix_for_nfa);
-        const prepended_other = this.nfa_util.mapStateNames(this.other, prefix_for_other);
-
-        const combinedAlphabet = this.nfa.alphabet.joinToString() + this.other.alphabet.joinToString();
-        const newStartStateName = "U";
-        const startStateAccepting = false;
-        let return_nfa = new NFA(combinedAlphabet, newStartStateName, startStateAccepting);
-        return_nfa = this.nfa_util.addToNFA(return_nfa, prepended_nfa);
-        return_nfa = this.nfa_util.addToNFA(return_nfa, prepended_other);
-        const prefixed_nfa_startstate = prefix_for_nfa(this.nfa.startState.name);
-        const prefixed_other_startstate = prefix_for_other(this.other.startState.name);
-
-        return_nfa.addEpsilonEdge(newStartStateName, prefixed_nfa_startstate);
-        return_nfa.addEpsilonEdge(newStartStateName, prefixed_other_startstate);
-
+        
+        const return_nfa = this.toNFA();
         const startStateBunch = new StateBunch(NFA.epsilonClosure([return_nfa.startState]), return_nfa);
         const statesToProcess: StateBunch[] = [startStateBunch];
 
@@ -67,6 +55,32 @@ export class NFACombinator {
 
         return this.dfaBuilder.getResult();
     }
+    /**
+     * Method for combinig two NFAs by adding an epsilon transition to the two start states.
+     * Also delimites each nfa to make sure all nodes are uniquely named
+     */
+    public toNFA(): NFA {
+        const prefix_for_nfa = this.prefixFunctionGenerator("1-");
+        const prefix_for_other = this.prefixFunctionGenerator("2-");
+        const prepended_nfa = this.nfa_util.mapStateNames(this.nfa, prefix_for_nfa);
+        const prepended_other = this.nfa_util.mapStateNames(this.other, prefix_for_other);
+        const combinedAlphabet = this.nfa.alphabet.joinToString() + this.other.alphabet.joinToString();
+        const newStartStateName = "U";
+        const startStateAccepting = false;
+        let return_nfa = new NFA(combinedAlphabet, newStartStateName, startStateAccepting);
+        return_nfa = this.nfa_util.addToNFA(return_nfa, prepended_nfa);
+        return_nfa = this.nfa_util.addToNFA(return_nfa, prepended_other);
+        const prefixed_nfa_startstate = prefix_for_nfa(this.nfa.startState.name);
+        const prefixed_other_startstate = prefix_for_other(this.other.startState.name);
+        return_nfa.addEpsilonEdge(newStartStateName, prefixed_nfa_startstate);
+        return_nfa.addEpsilonEdge(newStartStateName, prefixed_other_startstate);
+        return return_nfa;
+    }
+    /**
+     * Higher order function to return a function that adds a given prefix to a string
+     * @param prefix The prefix to add to the strings in the function
+     * @returns The function
+     */
     private prefixFunctionGenerator(prefix: string): (arg0: string) => string {
         return x => `${prefix}${x}`;
     }

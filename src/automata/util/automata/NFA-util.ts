@@ -139,6 +139,12 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     public intersection(automaton: NFA, other: NFA, util = new DFAUtil()): NFA {
         return new NFACombinator(automaton, other, "AND").toDFA().toNFA();
     }
+    /**
+     * Function to change the names of the states of an NFA
+     * @param automaton The NFA
+     * @param func The function to do the change with for each state name
+     * @returns The nfa with the function applied to all state names
+     */
     public mapStateNames(automaton: NFA, func: (name: string) => string): NFA {
         const statesOfThisNFA = this.dfs(automaton);
         const newNFA = new NFA(
@@ -147,9 +153,6 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
             automaton.startState.accepting
         );
         for (const state of statesOfThisNFA) {
-            if (state.name == automaton.startState.name) {
-                continue;
-            }
             newNFA.addState(func(state.name), state.accepting);
         }
         statesOfThisNFA.forEach(state =>
@@ -168,6 +171,13 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
 
         return newNFA;
     }
+    /**
+     * Method to add the states and transitions of an nfa to another
+     * WARNING: State names must be unique otherwise may give weird behaviour
+     * @param automaton The NFA
+     * @param other The other NFA
+     * @returns An NFA that has the states and transitions of both. The start state is of the first NFA
+     */
     public addToNFA(automaton: NFA, other: NFA): NFA {
         const newNFA = automaton.copy();
         const statesOfOtherNFA = this.dfs(other);
@@ -181,6 +191,13 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         );
         return newNFA;
     }
+    /**
+     * Helper method to add edges without caring about EPSILON rules
+     * @param automaton The automaton
+     * @param from The state the edge is from
+     * @param to The state the edge is to
+     * @param symbol The symbol, can be EPSILON.
+     */
     private addEdgeWithPossibleEpsilon(automaton: NFA, from: string, to: string, symbol: string) {
         if (symbol === EPSILON) {
             automaton.addEpsilonEdge(from, to);
