@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { CFGBuilder } from "../../../src/automata/util/builders/automata/CFGBuilder";
 import { CFGUtil } from "../../../src/automata/util/automata/CFGUtil";
 import { CFG } from "../../../src/automata/context-free/CFG";
-import { test, fc } from "@fast-check/vitest";
+import { fc, test } from "@fast-check/vitest";
 import { cfgArbitrary } from "./CFGArbitrary";
 import { reverse } from "dns";
 

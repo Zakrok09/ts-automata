@@ -1,10 +1,8 @@
-import { describe, beforeEach, it, expect } from "vitest";
-
-import { State } from "../../src/states/State";
+import {beforeEach,describe, expect, it, } from "vitest";
 import { DFAState } from "../../src/states/RegularStates";
 
 describe("Getters and setters", () => {
-    let state: State;
+    let state = new DFAState("state");
 
     beforeEach(() => {
         state = new DFAState("state");

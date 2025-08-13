@@ -2,7 +2,7 @@ import { DFA } from "../regular/DFA";
 import { DFABuilder } from "./builders/automata/DFABuilder";
 import { NFA } from "../regular/NFA";
 import { NFAState } from "../../states/RegularStates";
-import { char, Operator } from "../../types";
+import { Operator, char } from "../../types";
 import { NFAUtil } from "./automata/NFA-util";
 
 const prefix_for_nfa_one = "1-";

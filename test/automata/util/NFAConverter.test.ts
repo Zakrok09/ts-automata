@@ -1,10 +1,10 @@
 import Fixtures from "../../fixtures";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("NFA to DFA converter", () => {
     it("should correctly convert NFA with no present epsilons to DFA", () => {
-        let nfa = Fixtures.genericNFA();
-        let dfa = nfa.toDFA();
+        const nfa = Fixtures.genericNFA();
+        const dfa = nfa.toDFA();
 
         expect(dfa.isValid()).toBe(true);
 
@@ -16,8 +16,8 @@ describe("NFA to DFA converter", () => {
     });
 
     it("should correctly convert NFA with epsilons to DFA", () => {
-        let enfa = Fixtures.genericEpsilonNFA();
-        let dfa = enfa.toDFA();
+        const enfa = Fixtures.genericEpsilonNFA();
+        const dfa = enfa.toDFA();
 
         expect(dfa.isValid()).toBe(true);
 
@@ -31,8 +31,8 @@ describe("NFA to DFA converter", () => {
     });
 
     it("should correctly convert NFA with epsilons to DFA with larger alphabet", () => {
-        let enfa = Fixtures.genericEpsilonNFALargerAlphabet();
-        let dfa = enfa.toDFA();
+        const enfa = Fixtures.genericEpsilonNFALargerAlphabet();
+        const dfa = enfa.toDFA();
 
         expect(dfa.isValid()).toBe(true);
         expect(dfa.runString("")).toBe(false);

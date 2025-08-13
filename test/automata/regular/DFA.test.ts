@@ -1,12 +1,11 @@
-import { describe, beforeEach, it, expect } from "vitest";
-
+import { beforeEach, describe, expect, it } from "vitest";
 import { DFA } from "../../../src";
 import { IllegalArgument, IllegalAutomatonState } from "../../../src/exceptions/exceptions";
 import Fixtures from "../../fixtures";
 import { EPSILON } from "../../../src/types";
 
 describe("DFA: Running string on DFA", () => {
-    // states: q0, q1, q2
+    // States: q0, q1, q2
     let dfa: DFA;
 
     beforeEach(() => {

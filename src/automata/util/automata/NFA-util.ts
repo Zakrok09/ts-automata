@@ -141,7 +141,7 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     }
     public mapStateNames(automaton: NFA, func: (name: string) => string): NFA {
         const statesOfThisNFA = this.dfs(automaton);
-        let newNFA = new NFA(
+        const newNFA = new NFA(
             automaton.alphabet.joinToString(),
             func(automaton.startState.name),
             automaton.startState.accepting

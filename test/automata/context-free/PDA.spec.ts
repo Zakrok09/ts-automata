@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { PDA } from "../../../src/automata/context-free/PDA";
 import Fixtures from "../../fixtures";
 

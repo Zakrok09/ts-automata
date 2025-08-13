@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { CFGBuilder } from "../../../src/automata/util/builders/automata/CFGBuilder";
 import { IllegalArgument } from "../../../src/exceptions/exceptions";
 import { EPSILON } from "../../../src/types";
@@ -6,7 +6,7 @@ import { CFGVariable } from "../../../src/states/CFGState";
 
 describe("CFG: Correct CRUD", () => {
     it("adding terminals", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"], ["a", "X"])
@@ -23,23 +23,23 @@ describe("CFG: Correct CRUD", () => {
         expect(() => cfg.addTerminal("aksks")).toThrow(IllegalArgument);
         expect(() => cfg.addTransition("a", "X")).toThrow(IllegalArgument);
         expect(() => cfg.addTransition("X", "H")).toThrow(IllegalArgument);
-        let X = cfg.getVariable("X");
-        let Y = cfg.getVariable("Y");
-        let a = cfg.getTerminal("a");
+        const X = cfg.getVariable("X");
+        const Y = cfg.getVariable("Y");
+        const a = cfg.getTerminal("a");
         expect(X.transitions.size).toBe(2);
         cfg.removeTransition("X", "X", "X");
         expect(X.transitions.size).toBe(1);
     });
 
     it("adding terminals- COPY", () => {
-        let cfg2 = new CFGBuilder("ab")
+        const cfg2 = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"], ["a", "X"])
             .withTransitions.from("Y")
             .to(["Y"])
             .getResult();
-        let cfg = cfg2.copy();
+        const cfg = cfg2.copy();
         expect(cfg.getVariable("X").symbol).toBe("X");
         expect(cfg.getVariable("Y").symbol).toBe("Y");
         expect(cfg.getTerminal("a").symbol).toBe("a");
@@ -50,9 +50,9 @@ describe("CFG: Correct CRUD", () => {
         expect(() => cfg.addTerminal("aksks")).toThrow(IllegalArgument);
         expect(() => cfg.addTransition("a", "X")).toThrow(IllegalArgument);
         expect(() => cfg.addTransition("X", "H")).toThrow(IllegalArgument);
-        let X = cfg.getVariable("X");
-        let Y = cfg.getVariable("Y");
-        let a = cfg.getTerminal("a");
+        const X = cfg.getVariable("X");
+        const Y = cfg.getVariable("Y");
+        const a = cfg.getTerminal("a");
         expect(X.transitions.size).toBe(2);
         cfg.removeTransition("X", "X", "X");
         expect(X.transitions.size).toBe(1);

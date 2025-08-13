@@ -1,5 +1,5 @@
 import Fixtures from "../../fixtures";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { DFAUtil } from "../../../src/automata/util/automata/DFA-util";
 import { DFA } from "../../../src/automata/regular/DFA";
 import { DFABuilder } from "../../../src";
@@ -89,7 +89,7 @@ describe("DFAUtil: All Strings", () => {
 
     it("should return false for empty DFA, trickier", () => {
         const dfa = new DFA("ab", "start", false);
-        // unreachable state
+        // Unreachable state
         dfa.addState("unreachable", true);
         dfa.addEdges("start", "ab", "start");
         dfa.addEdges("unreachable", "ab", "unreachable");
@@ -100,7 +100,7 @@ describe("DFAUtil: All Strings", () => {
     });
     it("should return true for trivial DFA", () => {
         const dfa = new DFA("ab", "start", true);
-        // unreachable state
+        // Unreachable state
         dfa.addState("unreachable", false);
         dfa.addEdges("start", "ab", "start");
         dfa.addEdges("unreachable", "ab", "unreachable");
@@ -112,7 +112,7 @@ describe("DFAUtil: All Strings", () => {
 
     it("should return true for trivial DFA", () => {
         const dfa = new DFA("ab", "start", true);
-        // unreachable state
+        // Unreachable state
         dfa.addState("reachable", false);
         dfa.addEdges("start", "a", "start");
         dfa.addEdges("start", "b", "reachable");
@@ -281,6 +281,6 @@ describe("DFAUtil: extend Alphabet", () => {
                 .getResult()
         ];
         const util = new DFAUtil();
-        dfas.forEach(dfa => expect(util.equal(util.extendAlphabet(dfa, dfa.alphabet.joinToString() + "zgmçğ"), dfa)));
+        dfas.forEach(dfa => expect(util.equal(util.extendAlphabet(dfa, `${dfa.alphabet.joinToString()  }zgmçğ`), dfa)));
     });
 });

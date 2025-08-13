@@ -1,5 +1,5 @@
 import Fixtures from "../../fixtures";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { NFAUtil } from "../../../src/automata/util/automata/NFA-util";
 import { NFA } from "../../../src/automata/regular/NFA";
 import { NFABuilder } from "../../../src";
@@ -7,14 +7,14 @@ import { EPSILON } from "../../../src/types";
 
 describe("NFAUtil: Union", () => {
     it("union two simple nfa", () => {
-        let automaton1 = new NFABuilder("a")
+        const automaton1 = new NFABuilder("a")
             .withNotFinalStates("start")
             .withFinalStates("end")
             .withEdges.from("start")
             .to("end")
             .over("a")
             .getResult();
-        let automaton2 = new NFABuilder("ab")
+        const automaton2 = new NFABuilder("ab")
             .withNotFinalStates("start")
             .withFinalStates("end")
             .withEdges.from("start")
@@ -22,14 +22,14 @@ describe("NFAUtil: Union", () => {
             .over("b")
             .getResult();
         const util = new NFAUtil();
-        let unionOfBoth = util.union(automaton1, automaton2);
+        const unionOfBoth = util.union(automaton1, automaton2);
         expect(unionOfBoth.runString("a")).toBe(true);
         expect(unionOfBoth.runString("b")).toBe(true);
         expect(unionOfBoth.runString("ba")).toBe(false);
     });
 
     it("negation and union with self equal to sigma *", () => {
-        let automaton1 = new NFABuilder("a")
+        const automaton1 = new NFABuilder("a")
             .withNotFinalStates("start")
             .withFinalStates("end")
             .withEdges.from("start")
@@ -37,7 +37,7 @@ describe("NFAUtil: Union", () => {
             .over("a")
             .getResult();
         const util = new NFAUtil();
-        let unionOfBoth = util.union(automaton1, util.negation(automaton1));
+        const unionOfBoth = util.union(automaton1, util.negation(automaton1));
         expect(util.isLanguageAllStrings(unionOfBoth)).toBe(true);
     });
     it("set differenece", () => {
@@ -51,34 +51,34 @@ describe("NFAUtil: Union", () => {
             .over("a")
             .getResult();
         automaton1 = util.extendAlphabet(automaton1, "ab");
-        let automaton2 = new NFABuilder("ab")
+        const automaton2 = new NFABuilder("ab")
             .withFinalStates("start")
             .withEdges.from("start")
             .to("start")
             .over("ab")
             .getResult();
-        let AminusB = util.intersection(automaton2, util.negation(automaton1));
+        const AminusB = util.intersection(automaton2, util.negation(automaton1));
         expect(util.doesLanguageContainString(AminusB, "a")).toBe(false);
         expect(util.doesLanguageContainString(AminusB, "")).toBe(true);
         expect(util.doesLanguageContainString(AminusB, "aa")).toBe(true);
         expect(util.doesLanguageContainString(AminusB, "aba")).toBe(true);
     });
     it("set differenece to empty language", () => {
-        let automaton1 = new NFABuilder("a")
+        const automaton1 = new NFABuilder("a")
             .withNotFinalStates("start")
             .withFinalStates("end")
             .withEdges.from("start")
             .to("end")
             .over("a")
             .getResult();
-        let automaton2 = new NFABuilder("a")
+        const automaton2 = new NFABuilder("a")
             .withFinalStates("start")
             .withEdges.from("start")
             .to("start")
             .over("a")
             .getResult();
         const util = new NFAUtil();
-        let AminusB = util.intersection(automaton1, util.negation(automaton2));
+        const AminusB = util.intersection(automaton1, util.negation(automaton2));
         expect(util.doesLanguageContainString(AminusB, "a")).toBe(false);
         expect(util.doesLanguageContainString(AminusB, "")).toBe(false);
         expect(util.doesLanguageContainString(AminusB, "aa")).toBe(false);
@@ -88,7 +88,7 @@ describe("NFAUtil: Union", () => {
 
 describe("NFAUtil: Intersection", () => {
     it("simple intersection", () => {
-        let automaton1 = new NFABuilder("ab")
+        const automaton1 = new NFABuilder("ab")
             .withNotFinalStates("q0", "q1")
             .withFinalStates("q2")
             .withEdges.from("q0")
@@ -98,7 +98,7 @@ describe("NFAUtil: Intersection", () => {
             .to("q2")
             .over("a")
             .getResult();
-        let automaton2 = new NFABuilder("ab")
+        const automaton2 = new NFABuilder("ab")
             .withNotFinalStates("q0")
             .withFinalStates("q1")
             .withEdges.from("q0")
@@ -109,17 +109,17 @@ describe("NFAUtil: Intersection", () => {
             .over("a")
             .getResult();
         const util = new NFAUtil();
-        let intersected = util.intersection(automaton1, automaton2);
+        const intersected = util.intersection(automaton1, automaton2);
 
         expect(util.doesLanguageContainString(intersected, "aa")).toBe(true);
         expect(util.doesLanguageContainString(intersected, "aaa")).toBe(false);
     });
 
     it("complex intersection", () => {
-        let automaton1 = Fixtures.genericEpsilonNFALargerAlphabet();
-        let automaton2 = Fixtures.genericEpsilonNFA();
+        const automaton1 = Fixtures.genericEpsilonNFALargerAlphabet();
+        const automaton2 = Fixtures.genericEpsilonNFA();
         const util = new NFAUtil();
-        let intersected = util.intersection(automaton1, automaton2);
+        const intersected = util.intersection(automaton1, automaton2);
 
         expect(util.doesLanguageContainString(intersected, "ba")).toBe(true);
         expect(util.doesLanguageContainString(intersected, "aaa")).toBe(false);
@@ -287,7 +287,7 @@ describe("NFAUtil: Negation", () => {
             .over("abcdef")
             .getResult();
         const util = new NFAUtil();
-        let negated = util.negation(nfa);
+        const negated = util.negation(nfa);
         expect(util.isLanguageAllStrings(negated)).toBe(true);
     });
     it("accepts new string with unused character", () => {
@@ -300,7 +300,7 @@ describe("NFAUtil: Negation", () => {
             .over("abcde")
             .getResult();
         const util = new NFAUtil();
-        let negated = util.negation(nfa);
+        const negated = util.negation(nfa);
         expect(util.doesLanguageContainString(negated, "f")).toBe(true);
     });
 
@@ -315,7 +315,7 @@ describe("NFAUtil: Negation", () => {
             .over("abcdef")
             .getResult();
         const util = new NFAUtil();
-        let negated = util.negation(nfa);
+        const negated = util.negation(nfa);
         expect(util.isLanguageAllStrings(negated)).toBe(true);
     });
 
@@ -350,28 +350,28 @@ describe("NFAUtil: Negation", () => {
     it("negation and intersection withself is empty", () => {
         const nfa = Fixtures.genericEpsilonNFALargerAlphabet();
         const util = new NFAUtil();
-        let finalNFA = util.intersection(nfa, util.negation(nfa));
+        const finalNFA = util.intersection(nfa, util.negation(nfa));
         expect(util.isLanguageEmpty(finalNFA)).toBe(true);
     });
 
     it("negation and union withself is sigma star", () => {
         const nfa = Fixtures.genericNFA();
         const util = new NFAUtil();
-        let finalNFA = util.union(nfa, util.negation(nfa));
+        const finalNFA = util.union(nfa, util.negation(nfa));
         expect(util.isLanguageAllStrings(finalNFA)).toBe(true);
     });
 
     it("should accept words it didn't before and vice versa", () => {
         const nfa = Fixtures.genericEpsilonNFALargerAlphabet();
         const util = new NFAUtil();
-        let negated = util.negation(nfa);
-        let wordsAccepted = ["c", "ca", "cb"];
-        for (let word of wordsAccepted) {
+        const negated = util.negation(nfa);
+        const wordsAccepted = ["c", "ca", "cb"];
+        for (const word of wordsAccepted) {
             expect(util.doesLanguageContainString(negated, word)).toBe(true);
             expect(util.doesLanguageContainString(nfa, word)).toBe(false);
         }
-        let wordsRejected = ["a", "b", "ba"];
-        for (let word of wordsRejected) {
+        const wordsRejected = ["a", "b", "ba"];
+        for (const word of wordsRejected) {
             expect(util.doesLanguageContainString(negated, word)).toBe(false);
             expect(util.doesLanguageContainString(nfa, word)).toBe(true);
         }
@@ -380,36 +380,36 @@ describe("NFAUtil: Negation", () => {
 
 describe("equals", () => {
     it("copy should be equal to itself", () => {
-        let automatons = [
+        const automatons = [
             Fixtures.genericNFA(),
             Fixtures.genericEpsilonNFA(),
             Fixtures.genericEpsilonNFALargerAlphabet()
         ];
         const util = new NFAUtil();
-        for (let automaton of automatons) {
+        for (const automaton of automatons) {
             expect(util.equal(automaton, automaton.copy()));
         }
     });
     it("intersection with itself be equal to itself", () => {
-        let automatons = [
+        const automatons = [
             Fixtures.genericNFA(),
             Fixtures.genericEpsilonNFA(),
             Fixtures.genericEpsilonNFALargerAlphabet()
         ];
         const util = new NFAUtil();
-        for (let automaton of automatons) {
+        for (const automaton of automatons) {
             expect(util.equal(automaton, util.intersection(automaton, automaton.copy())));
         }
     });
 
     it("should recogonize theoretically not equivalent automata", () => {
-        let automaton1 = new NFABuilder("ab")
+        const automaton1 = new NFABuilder("ab")
             .withFinalStates("end")
             .withEdges.from("end")
             .to("end")
             .over("ab")
             .getResult();
-        let automaton2 = new NFABuilder("abcdefghi")
+        const automaton2 = new NFABuilder("abcdefghi")
             .withFinalStates("q0", "q1")
             .withEdges.from("q0")
             .to("q1")
@@ -423,13 +423,13 @@ describe("equals", () => {
         expect(util.equal(automaton1, automaton2)).toBe(false);
     });
     it("should recogonize theoretically not equivalent automata ", () => {
-        let automaton1 = new NFABuilder("ab")
+        const automaton1 = new NFABuilder("ab")
             .withFinalStates("end")
             .withEdges.from("end")
             .to("end")
             .over("ab")
             .getResult();
-        let automaton2 = new NFABuilder("abcdefghi")
+        const automaton2 = new NFABuilder("abcdefghi")
             .withFinalStates("q0", "q1")
             .withNotFinalStates("q2")
             .withEdges.from("q0")
@@ -447,8 +447,8 @@ describe("equals", () => {
         expect(util.equal(automaton1, automaton2)).toBe(false);
     });
     it("should recogonize theoretically not equivalent automata - small ", () => {
-        let automaton1 = new NFABuilder("ab").withFinalStates("a").withEdges.from("a").to("a").over("ab").getResult();
-        let automaton2 = new NFABuilder("a")
+        const automaton1 = new NFABuilder("ab").withFinalStates("a").withEdges.from("a").to("a").over("ab").getResult();
+        const automaton2 = new NFABuilder("a")
             .withFinalStates("b", "c")
             .withEdges.from("b")
             .to("c")
@@ -459,7 +459,7 @@ describe("equals", () => {
         expect(util.equal(automaton1, automaton2)).toBe(false);
     });
     it("should recogonize itself after two transformations", () => {
-        let automaton1 = new NFABuilder("ab")
+        const automaton1 = new NFABuilder("ab")
             .withFinalStates("end")
             .withEdges.from("end")
             .to("end")

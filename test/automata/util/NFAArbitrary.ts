@@ -6,8 +6,8 @@ import { EPSILON } from "../../../src/types";
 // Generate lowercase terminals: 'a', 'b', 'c', etc.
 const alphabetCharArb = fc.string().filter(x => !x.includes(EPSILON) && x.length > 0);
 const namesOfStates = fc.uniqueArray(
-    fc.string({ minLength: 1, maxLength: 100 }), // control complexity
-    { minLength: 1, maxLength: 20 } // control list size
+    fc.string({ minLength: 1, maxLength: 100 }), // Control complexity
+    { minLength: 1, maxLength: 20 } // Control list size
 ); // Generate uppercase variables: 'A', 'B', 'S', etc.
 
 /**
@@ -47,12 +47,12 @@ export const NFAArbitrary: fc.Arbitrary<NFA> = fc
 
             return fc.tuple(transitionsArb, epsilonTransitionsArb).map(([transitions, epsilonVars]) => {
                 for (const [from, [symbol, to]] of transitions) {
-                    for (let stateTo of to) {
+                    for (const stateTo of to) {
                         builder.addEdge(from, symbol, stateTo);
                     }
                 }
                 for (const [from, to] of epsilonVars) {
-                    for (let stateTo of to) {
+                    for (const stateTo of to) {
                         builder.addEpsilonEdge(from, stateTo);
                     }
                 }
