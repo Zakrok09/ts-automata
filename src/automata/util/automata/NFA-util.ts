@@ -187,4 +187,48 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         const newDFAasNFA = util.toNFA(newDFA);
         return newDFAasNFA;
     }
+    public prependToStateNames(automaton : NFA, prefix: string) : NFA{
+        const statesOfThisNFA = this.dfs(automaton);
+        const newNFA = new NFA(automaton.alphabet.joinToString(),
+                                `${prefix}${automaton.startState.name}`,
+                                    automaton.startState.accepting);
+        for (const state of statesOfThisNFA) {
+            newNFA.addState(`${prefix}${state.name}`, state.accepting);
+        }
+        statesOfThisNFA.forEach(state =>
+            state.transitions.forEach((nextStates, symbol) =>
+                nextStates.forEach(nextState => {
+                    const toWithPrefix = `${prefix}${nextState.name}`
+                    const fromWithPrefix = `${prefix}${state.name}`
+                    this.addEdgeWithPossibleEpsilon(newNFA,
+                                    fromWithPrefix,
+                                        toWithPrefix,
+                                        symbol)
+                })
+            )
+        );
+        return newNFA
+    }
+    public addToNFA(automaton : NFA, other : NFA){
+        const newNFA = automaton.copy();
+        const statesOfOtherNFA = this.dfs(other)
+        statesOfOtherNFA.forEach(state => newNFA.addState(state.name,state.accepting));
+        statesOfOtherNFA.forEach(state =>
+            state.transitions.forEach((nextStates, symbol) =>
+                nextStates.forEach(nextState => {
+                    this.addEdgeWithPossibleEpsilon(newNFA,
+                                    state.name,
+                                        nextState.name,
+                                        symbol)
+                })
+            )
+        );
+    }
+    private addEdgeWithPossibleEpsilon(automaton : NFA, from : string, to : string, symbol : string){
+        if (symbol === EPSILON) {
+            automaton.addEpsilonEdge(from, to);
+            } else {
+            automaton.addEdge(from, symbol,to);
+        }
+    }
 }
