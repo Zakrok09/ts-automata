@@ -87,8 +87,12 @@ export abstract class Automaton<TState extends State> {
      *
      * @param newState - The name of the state to be added.
      * @param final - Optional. Specify if the state is a final (accepting) state. Defaults to false.
-     */
+     * @throws {IllegalArgument} - If duplicate state name is used 
+    */
     protected insertState(newState: TState, final?: boolean) {
+        if(this.states.has(newState.name)){
+            return;
+        }
         this.states.set(newState.name, newState);
 
         if (final) {

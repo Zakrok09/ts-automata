@@ -3,6 +3,7 @@ import { DFAState } from "~/states/RegularStates";
 import { NFA } from "../../regular/NFA";
 import { NFAUtil } from "./NFA-util";
 import { RegularAutomatonUtil } from "./finite-automata-util";
+import { NFACombinator } from "../NFACombinationToDFA";
 
 export class DFAUtil extends RegularAutomatonUtil<DFA> {
     /**
@@ -91,10 +92,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Automaton that recognizes L1 union L2
      */
     public union(automaton: DFA, other: DFA, nfaUtil = new NFAUtil()): DFA {
-        const thisDFAasNFA = this.toNFA(automaton);
-        const otherDFAasNFA = this.toNFA(other);
-        const newNFA = nfaUtil.union(thisDFAasNFA, otherDFAasNFA);
-        return newNFA.toDFA();
+        return new NFACombinator(automaton.toNFA(),other.toNFA(),"OR").toDFA();
     }
 
     /**
@@ -104,39 +102,7 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns DFA that recognizes words both in R1 and R2
      */
     public intersection(automaton: DFA, other: DFA): DFA {
-        // Use procedure from Sipser.
-        const newDFA = this.union(automaton, other);
-        const states = this.dfs(newDFA);
-        const resultDFA = new DFA(newDFA.alphabet.joinToString(), newDFA.startState.name, newDFA.startState.accepting);
-        // Mark each state in the union DFA to be accepting if it represents a super position of states
-        // Such that it both represents being in an accepting state in the first dfa AND the second.
-        states.forEach(state => {
-            // Extract the names from the unioned DFA. Example {1-statex}{2-statey}{1-{statez}}
-            const namesInThisDFA = super
-                .nameSeperator(state.name)
-                .filter(name => name.startsWith("1-"))
-                .map(name => name.slice(2));
-            // Get names of the states in the second DFA. Example from the upper comment: statey
-            const namesInOtherDFA = super
-                .nameSeperator(state.name)
-                .filter(name => name.startsWith("2-"))
-                .map(name => name.slice(2));
-            const isAnyAcceptingInThisDFA = namesInThisDFA.some(name => automaton.getState(name)!.accepting);
-            const isAnyAcceptingInOtherDFA = namesInOtherDFA.some(name => other.getState(name)!.accepting);
-            const result = isAnyAcceptingInOtherDFA && isAnyAcceptingInThisDFA;
-            if (state.name != resultDFA.startState.name) {
-                // Get names of the states in the first DFA. Example from the upper comment: statex, {statez}
-                resultDFA.addState(state.name);
-            }
-            resultDFA.setAccepting(state.name, result);
-        });
-        // REcreate the edges
-        states.forEach(state => {
-            newDFA.getState(state.name)!.transitions.forEach((nextState, symbol) => {
-                resultDFA.addEdge(state.name, symbol, nextState.name);
-            });
-        });
-        return resultDFA;
+        return new NFACombinator(automaton.toNFA(),other.toNFA(),"AND").toDFA();
     }
 
     /**
