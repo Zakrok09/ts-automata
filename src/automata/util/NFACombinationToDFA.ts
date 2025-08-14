@@ -5,9 +5,10 @@ import { NFAState } from "../../states/RegularStates";
 import { Operator, char } from "../../types";
 import { NFAUtil } from "./automata/NFA-util";
 import { resourceUsage } from "process";
+import { IllegalArgument } from "../../exceptions/exceptions";
 
-const prefix_for_nfa_one = "1-";
-const prefix_for_nfa_two = "2-";
+const prefixForNfaOne = "1-";
+const prefixForNfaTwo = "2-";
 /**
  * @class Method object for combining to NFAs
  * @link https://refactoring.guru/replace-method-with-method-object
@@ -15,8 +16,8 @@ const prefix_for_nfa_two = "2-";
 export class NFACombinator {
     private readonly nfa: NFA;
     private readonly other: NFA;
-    private readonly combination_operator: Operator;
-    private readonly nfa_util: NFAUtil;
+    private readonly combinationOperator: Operator;
+    private readonly nfaUtil: NFAUtil;
     private dfaBuilder: DFABuilder;
 
     /**
@@ -24,14 +25,14 @@ export class NFACombinator {
      *
      * @param {NFA} nfa - The NFA object to assign to the instance.
      * @param {NFA} other - The other NFA object to assign to the instance
-     * @param {Operator} combination_operator - The combination operation that should be performed
-     * @param {NFAUtil} nfa_util - Optional. The utility for NFA operations
+     * @param {Operator} combinationOperator - The combination operation that should be performed
+     * @param {NFAUtil} nfaUtil - Optional. The utility for NFA operations
      */
-    constructor(nfa: NFA, other: NFA, combination_operator: Operator, nfa_util = new NFAUtil()) {
+    constructor(nfa: NFA, other: NFA, combinationOperator: Operator, nfaUtil = new NFAUtil()) {
         this.other = other;
         this.nfa = nfa;
-        this.nfa_util = nfa_util;
-        this.combination_operator = combination_operator;
+        this.nfaUtil = nfaUtil;
+        this.combinationOperator = combinationOperator;
         this.dfaBuilder = new DFABuilder(nfa.alphabet.joinToString() + other.alphabet.joinToString());
     }
 
@@ -43,13 +44,13 @@ export class NFACombinator {
      * @return a DFA of the combined NFAs using Sipper's algorithm.
      */
     public toDFA(): DFA {
-        const return_nfa = this.toNFA();
-        const startStateBunch = new StateBunch(NFA.epsilonClosure([return_nfa.startState]), return_nfa);
+        const returnNfa = this.toNFA();
+        const startStateBunch = new StateBunch(NFA.epsilonClosure([returnNfa.startState]), returnNfa);
         const statesToProcess: StateBunch[] = [startStateBunch];
 
         while (statesToProcess.length > 0) {
             const currentBunch = statesToProcess.pop()!;
-            this.processStateBunch(currentBunch, statesToProcess, return_nfa);
+            this.processStateBunch(currentBunch, statesToProcess, returnNfa);
         }
 
         return this.dfaBuilder.getResult();
@@ -59,21 +60,21 @@ export class NFACombinator {
      * Also delimites each nfa to make sure all nodes are uniquely named
      */
     public toNFA(): NFA {
-        const prefix_for_nfa = this.prefixFunctionGenerator("1-");
-        const prefix_for_other = this.prefixFunctionGenerator("2-");
-        const prepended_nfa = this.nfa_util.mapStateNames(this.nfa, prefix_for_nfa);
-        const prepended_other = this.nfa_util.mapStateNames(this.other, prefix_for_other);
+        const prefixForNfa = this.prefixFunctionGenerator("1-");
+        const prefixForOther = this.prefixFunctionGenerator("2-");
+        const prepended_nfa = this.nfaUtil.mapStateNames(this.nfa, prefixForNfa);
+        const prepended_other = this.nfaUtil.mapStateNames(this.other, prefixForOther);
         const combinedAlphabet = this.nfa.alphabet.joinToString() + this.other.alphabet.joinToString();
         const newStartStateName = "U";
         const startStateAccepting = false;
-        let return_nfa = new NFA(combinedAlphabet, newStartStateName, startStateAccepting);
-        return_nfa = this.nfa_util.addToNFA(return_nfa, prepended_nfa);
-        return_nfa = this.nfa_util.addToNFA(return_nfa, prepended_other);
-        const prefixed_nfa_startstate = prefix_for_nfa(this.nfa.startState.name);
-        const prefixed_other_startstate = prefix_for_other(this.other.startState.name);
-        return_nfa.addEpsilonEdge(newStartStateName, prefixed_nfa_startstate);
-        return_nfa.addEpsilonEdge(newStartStateName, prefixed_other_startstate);
-        return return_nfa;
+        let returnNfa = new NFA(combinedAlphabet, newStartStateName, startStateAccepting);
+        returnNfa = this.nfaUtil.addToNFA(returnNfa, prepended_nfa);
+        returnNfa = this.nfaUtil.addToNFA(returnNfa, prepended_other);
+        const prefixedNfaStartstate = prefixForNfa(this.nfa.startState.name);
+        const prefixedOtherStartstate = prefixForOther(this.other.startState.name);
+        returnNfa.addEpsilonEdge(newStartStateName, prefixedNfaStartstate);
+        returnNfa.addEpsilonEdge(newStartStateName, prefixedOtherStartstate);
+        return returnNfa;
     }
     /**
      * Higher order function to return a function that adds a given prefix to a string
@@ -95,7 +96,7 @@ export class NFACombinator {
      * @link https://refactoring.guru/extract-method
      */
     private processStateBunch(currentBunch: StateBunch, statesToProcess: StateBunch[], nfa: NFA): void {
-        const isFinal = currentBunch.hasAnyFinalState(this.combination_operator);
+        const isFinal = currentBunch.hasAnyFinalState(this.combinationOperator);
         if (!this.dfaBuilder.getState(currentBunch.name)) this.dfaBuilder.addState(currentBunch.name, isFinal);
 
         for (const symbol of nfa.alphabet.chars) {
@@ -130,7 +131,7 @@ export class NFACombinator {
         // If we haven't, make it a new state in the DFA and remember to process it later.
         if (!nextDFAState) {
             statesToProcess.push(new StateBunch(nextStates, nfa));
-            this.dfaBuilder.addState(newStateBunch.name, newStateBunch.hasAnyFinalState(this.combination_operator));
+            this.dfaBuilder.addState(newStateBunch.name, newStateBunch.hasAnyFinalState(this.combinationOperator));
         }
 
         this.dfaBuilder.addEdge(currentBunch.name, symbol, newStateBunch.name);
@@ -171,20 +172,23 @@ class StateBunch {
 
     /**
      * Checks if any of the states in the state bunch is accepting.
+     * @throws {IllegalArgument} If an invalid operation is passed.
      */
     hasAnyFinalState(operator: Operator): boolean {
-        const statesFromNFA1 = this.states.filter(x => x.name.startsWith(prefix_for_nfa_one));
-        const statesFromNFA2 = this.states.filter(x => x.name.startsWith(prefix_for_nfa_two));
-        const NFA1_accepting = statesFromNFA1.some(nfaState => nfaState.accepting);
-        const NFA2_accepting = statesFromNFA2.some(nfaState => nfaState.accepting);
+        const statesFromNFA1 = this.states.filter(x => x.name.startsWith(prefixForNfaOne));
+        const statesFromNFA2 = this.states.filter(x => x.name.startsWith(prefixForNfaTwo));
+        const NFA1Accepting = statesFromNFA1.some(nfaState => nfaState.accepting);
+        const NFA2Accepting = statesFromNFA2.some(nfaState => nfaState.accepting);
 
         switch (operator) {
             case "AND":
-                return NFA1_accepting && NFA2_accepting;
+                return NFA1Accepting && NFA2Accepting;
             case "OR":
-                return NFA1_accepting || NFA2_accepting;
+                return NFA1Accepting || NFA2Accepting;
             case "XOR":
-                return NFA1_accepting !== NFA2_accepting;
+                return NFA1Accepting !== NFA2Accepting && (NFA1Accepting || NFA2Accepting);
+            default:
+                throw new IllegalArgument(`${operator} is not a valid operator!`);
         }
     }
 
