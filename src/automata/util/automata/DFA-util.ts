@@ -69,8 +69,8 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
     public equal(automaton: DFA, other: DFA): boolean {
         // First Automaton recgonize a language A and the second a language B
         // If Symmetric difference of A and B is empty, they are equal
-        const func = NFACombinator.operatorToFunction("XOR")
-        const combinator = new NFACombinator(automaton.toNFA(),other.toNFA(),func)
+        const func = NFACombinator.operatorToFunction("XOR");
+        const combinator = new NFACombinator(automaton.toNFA(), other.toNFA(), func);
         return this.isLanguageEmpty(combinator.toDFA());
     }
 
