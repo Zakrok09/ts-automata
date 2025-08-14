@@ -1,4 +1,4 @@
-import { describe, beforeEach, it, expect } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { GNFA } from "../../../src/automata/regular/GNFA";
 import Fixtures from "../../fixtures";
 

@@ -2,7 +2,7 @@ import { DFA, DFABuilder, NFA } from "../src";
 import { NFABuilder } from "../src/automata/util/builders/automata/NFABuilder";
 import { PDA } from "../src/automata/context-free/PDA";
 import { PDAState } from "../src/states/PDAState";
-import { Alphabet, EPSILON, EMPTY } from "../src/automata";
+import { Alphabet, EMPTY, EPSILON } from "../src/automata";
 import { GNFA } from "../src/automata/regular/GNFA";
 import { TM } from "../src/automata/non-context-free/TM";
 import { TMState } from "../src/states/TMState";
@@ -177,7 +177,7 @@ function genericEpsilonNFA(): NFA {
 }
 
 function genericNFA(): NFA {
-    // visualized here: https://imgur.com/a/K9wYgii
+    // Visualized here: https://imgur.com/a/K9wYgii
     return new NFABuilder("ab")
         .withNotFinalStates("start", "1", "2")
         .withFinalStates("end")
@@ -197,9 +197,9 @@ function genericNFA(): NFA {
 }
 
 function genericPDA(): PDA {
-    let start = new PDAState("q1");
+    const start = new PDAState("q1");
     start.accepting = true;
-    let pda = new PDA(Alphabet.fromString("10"), Alphabet.fromString("10$"), start);
+    const pda = new PDA(Alphabet.fromString("10"), Alphabet.fromString("10$"), start);
 
     pda.addStates(false, "q2", "q3");
     pda.addState("q4", true);
@@ -216,9 +216,9 @@ function mediumTM(): TM {
     // The language of words that do not have 2 a’s directly following each other.
     // Image of TM in : https://imgur.com/a/LpS5aI3
     // This TM doesn't halt if it doesn't accept the string.
-    let start = new TMState("start");
+    const start = new TMState("start");
     start.accepting = false;
-    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
+    const tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("ab"), start);
     tm.addState("qacc", true);
     tm.addState("middle", false);
     tm.addEdge("start", "a", EMPTY, "L", "start");
@@ -239,10 +239,10 @@ function simpleNDTM(): TM {
         .withFinalStates("qacc")
         .withEdges.from("q0")
         .to("qrej")
-        .over("a" + EMPTY + "R")
+        .over(`a${EMPTY}R`)
         .withEdges.from("q0")
         .to("qacc")
-        .over("a" + EMPTY + "R")
+        .over(`a${EMPTY}R`)
         .getResult();
 }
 
@@ -251,9 +251,9 @@ function equalAandB(): TM {
     // TM from : https://www.geeksforgeeks.org/theory-of-computation/design-a-turing-machine-for-equal-number-of-as-and-bs/
     // Changed Slightly because of the fixed tape on the left.
     // Image of TM in : https://imgur.com/a/wwwa56I
-    let start = new TMState("q5");
+    const start = new TMState("q5");
     start.accepting = false;
-    let tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("abXS"), start);
+    const tm = new TM(Alphabet.fromString("ab"), Alphabet.fromString("abXS"), start);
 
     tm.addState("q4", true);
     tm.addState("q0", false);
@@ -287,7 +287,7 @@ function equalAandB(): TM {
 }
 
 function genericGNFA(): GNFA {
-    let gnfa = new GNFA("ab", "start", "end");
+    const gnfa = new GNFA("ab", "start", "end");
 
     gnfa.insertStates("q1", "q2");
 

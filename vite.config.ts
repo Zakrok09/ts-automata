@@ -1,33 +1,24 @@
 import { defineConfig } from "vite";
-import { resolve } from "path";
 import dts from "vite-plugin-dts";
+import { resolve } from "path";
 
 export default defineConfig({
     build: {
-        manifest: true,
-        minify: true,
-        reportCompressedSize: true,
         lib: {
             entry: resolve(__dirname, "src/index.ts"),
-            name: "ts-automata",
             fileName: "index",
-            formats: ["es", "cjs"]
-        }
+            formats: ["es", "cjs"],
+            name: "ts-automata"
+        },
+        manifest: true,
+        minify: true,
+        reportCompressedSize: true
     },
     plugins: [
         dts({
-            rollupTypes: true,
+            insertTypesEntry: true,
             outDir: "dist",
-            insertTypesEntry: true
+            rollupTypes: true
         })
     ]
-
-    // resolve: {
-    //     alias: [
-    //         {
-    //             find: "~",
-    //             replacement: resolve(__dirname, "./src"),
-    //         },
-    //     ],
-    // },
 });

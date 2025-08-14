@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { CFGBuilder } from "../../../src/automata/util/builders/automata/CFGBuilder";
 import { CFGUtil } from "../../../src/automata/util/automata/CFGUtil";
 import { CFG } from "../../../src/automata/context-free/CFG";
-import { test, fc } from "@fast-check/vitest";
+import { fc, test } from "@fast-check/vitest";
 import { cfgArbitrary } from "./CFGArbitrary";
 import { reverse } from "dns";
 
@@ -20,7 +20,7 @@ describe("CFGUtil: Chomsky", () => {
     );
 
     test("test chomskty checker- false", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("S", "X", "Y", "Z")
             .withTransitions.from("S")
             .to(["Z"])
@@ -35,7 +35,7 @@ describe("CFGUtil: Chomsky", () => {
         expect(util.isInChomskyNormalForm(cfg)).toBe(false);
     });
     it("test chomskty checker- true ", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("S", "X", "Y", "Z")
             .withTransitions.from("S")
             .to(["Z"])
@@ -60,7 +60,7 @@ describe("CFGUtil: A_CFG", () => {
         util = new CFGUtil();
     });
     test.prop([anbnArb])("correct method", word => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X")
             .withTransitions.from("X")
             .to(["a", "X", "b"])
@@ -70,7 +70,7 @@ describe("CFGUtil: A_CFG", () => {
     });
 
     test.prop([aOrBStringArb])("correct method palindrome", word => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X")
             .withTransitions.from("X")
             .to(["a", "X", "a"], ["b", "X", "b"], ["a"], ["b"])
@@ -80,7 +80,7 @@ describe("CFGUtil: A_CFG", () => {
     });
 
     it("should return false for not in language", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X")
             .withTransitions.from("X")
             .to(["a", "X", "b"])
@@ -106,7 +106,7 @@ describe("CFGUtil: Union", () => {
             .to(["a", "X", "a"], ["b", "X", "b"], ["a"], ["b"])
             .withEpsilonTransition("X")
             .getResult();
-        let cfg2 = new CFGBuilder("ab")
+        const cfg2 = new CFGBuilder("ab")
             .withVariables("X")
             .withTransitions.from("X")
             .to(["a", "X", "b"])
@@ -126,7 +126,7 @@ describe("CFGUtil: Empty CFG", () => {
         util = new CFGUtil();
     });
     it("should return false for simple CFG", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"], ["a"])
@@ -137,7 +137,7 @@ describe("CFGUtil: Empty CFG", () => {
     });
 
     it("should return true for simple CFG", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"], ["X"])
@@ -147,7 +147,7 @@ describe("CFGUtil: Empty CFG", () => {
         expect(util.isLanguageEmpty(cfg)).toBe(true);
     });
     it("should return false for simple CFG with Epsilon Edge", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"], ["X"])
@@ -158,7 +158,7 @@ describe("CFGUtil: Empty CFG", () => {
         expect(util.isLanguageEmpty(cfg)).toBe(false);
     });
     it("should return false for simple CFG with Epsilon Edge, two layers", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"], ["Y"])
@@ -169,7 +169,7 @@ describe("CFGUtil: Empty CFG", () => {
         expect(util.isLanguageEmpty(cfg)).toBe(false);
     });
     it("should return false for simple CFG with non-epsilon Edge, two layers", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y", "Z")
             .withTransitions.from("X")
             .to(["X", "X"], ["Y"])
@@ -182,7 +182,7 @@ describe("CFGUtil: Empty CFG", () => {
     });
 
     it("should return true for simple CFG with unreachable variable", () => {
-        let cfg = new CFGBuilder("ab")
+        const cfg = new CFGBuilder("ab")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["X", "X"])
@@ -194,7 +194,7 @@ describe("CFGUtil: Empty CFG", () => {
     });
 
     it("should return false for simple CFG with no non-terminals", () => {
-        let cfg = new CFGBuilder("")
+        const cfg = new CFGBuilder("")
             .withVariables("X", "Y")
             .withTransitions.from("X")
             .to(["Y", "Y"])
@@ -205,7 +205,7 @@ describe("CFGUtil: Empty CFG", () => {
         expect(util.isLanguageEmpty(cfg)).toBe(false);
     });
     it("should return false complex example", () => {
-        let cfg = new CFGBuilder("abcdef")
+        const cfg = new CFGBuilder("abcdef")
             .withVariables("X", "Y", "Z", "E")
             .withTransitions.from("X")
             .to(["Y", "Z"])
@@ -218,7 +218,7 @@ describe("CFGUtil: Empty CFG", () => {
         expect(util.isLanguageEmpty(cfg)).toBe(false);
     });
     it("should return true complex example", () => {
-        let cfg = new CFGBuilder("abcdef")
+        const cfg = new CFGBuilder("abcdef")
             .withVariables("X", "Y", "Z", "E")
             .withTransitions.from("X")
             .to(["Y", "Z"])

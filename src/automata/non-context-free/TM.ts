@@ -117,8 +117,10 @@ export class TM extends Automaton<TMState> {
     }
 
     public copy(): Automaton<TMState> {
-        const resultTM = new TM(this.alphabet, this.tapeAlphabet, this.startState);
-        this.states.forEach(state => resultTM.addState(state.name, state.accepting));
+        const resultTM = new TM(this.alphabet, this.tapeAlphabet, new TMState(this.startState.name));
+        this.states.forEach(state => {
+            resultTM.addState(state.name, state.accepting);
+        });
         this.states.forEach(state =>
             state.transitions.forEach((nextStates, sym) =>
                 nextStates.forEach(edge => resultTM.addEdge(state.name, sym, edge.writeTape, edge.move, edge.to))
