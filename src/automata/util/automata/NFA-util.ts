@@ -81,14 +81,9 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
     public equal(automaton: NFA, other: NFA): boolean {
         // First Automaton recgonize a language A and the second a language B
         // If Symmetric difference of A and B is empty, they are equal
-        const commonAlphabet = automaton.alphabet.joinToString() + other.alphabet.joinToString();
-        const automatonExtendedAlphabet = this.extendAlphabet(automaton, commonAlphabet);
-        const otherExtendedAlphabet = this.extendAlphabet(other, commonAlphabet);
-
-        const AminB = this.intersection(automatonExtendedAlphabet, this.negation(otherExtendedAlphabet));
-        const BminA = this.intersection(this.negation(automatonExtendedAlphabet), otherExtendedAlphabet);
-        const intersection = this.union(AminB, BminA);
-        return this.isLanguageEmpty(intersection);
+        const func = NFACombinator.operatorToFunction("XOR")
+        const combinator = new NFACombinator(automaton,other,func)
+        return this.isLanguageEmpty(combinator.toDFA().toNFA());
     }
 
     /**
