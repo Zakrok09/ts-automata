@@ -7,8 +7,11 @@ import { NFAUtil } from "./automata/NFA-util";
 import { resourceUsage } from "process";
 import { IllegalArgument } from "../../exceptions/exceptions";
 
-const prefixForNfaOne = "1-";
-const prefixForNfaTwo = "2-";
+// When combining two NFAs the first passed NFA is prefixed with {prefixForNfaOne}
+// The second is prefixed with {prefixForNfaTwo}
+export const prefixForNfaOne = "1-";
+export const prefixForNfaTwo = "2-";
+
 /**
  * @class Method object for combining to NFAs
  * @link https://refactoring.guru/replace-method-with-method-object
@@ -16,7 +19,7 @@ const prefixForNfaTwo = "2-";
 export class NFACombinator {
     private readonly nfa: NFA;
     private readonly other: NFA;
-    private readonly combinationOperator: Operator;
+    private readonly combinationOperator: StateBunchToBool;
     private readonly nfaUtil: NFAUtil;
     private dfaBuilder: DFABuilder;
 
@@ -28,7 +31,7 @@ export class NFACombinator {
      * @param {Operator} combinationOperator - The combination operation that should be performed
      * @param {NFAUtil} nfaUtil - Optional. The utility for NFA operations
      */
-    constructor(nfa: NFA, other: NFA, combinationOperator: Operator, nfaUtil = new NFAUtil()) {
+    constructor(nfa: NFA, other: NFA, combinationOperator: StateBunchToBool, nfaUtil = new NFAUtil()) {
         this.other = other;
         this.nfa = nfa;
         this.nfaUtil = nfaUtil;
@@ -103,6 +106,33 @@ export class NFACombinator {
             this.processNextStateBunch(currentBunch, symbol, statesToProcess, nfa);
         }
     }
+    /**
+     * Static. Higher order function for returning a function that performs the operation done in the operator
+     * @param operator The operator that should be used to decide the accepting state of the state
+     * @returns The higher order function
+     */
+    static operatorToFunction(operator: Operator) {
+        return (states: NFAState[]) => {
+            const op = operator;
+            const statesFromNFA1 = states.filter(x => x.name.startsWith(prefixForNfaOne));
+            const statesFromNFA2 = states.filter(x => x.name.startsWith(prefixForNfaTwo));
+            const NFA1Accepting = statesFromNFA1.some(nfaState => nfaState.accepting);
+            const NFA2Accepting = statesFromNFA2.some(nfaState => nfaState.accepting);
+            switch (op) {
+                // If both NFAs accept
+                case "AND":
+                    return NFA1Accepting && NFA2Accepting;
+                // If either of the NFAs accept (or both)
+                case "OR":
+                    return NFA1Accepting || NFA2Accepting;
+                // If either of the NFAs accept, but not both
+                case "XOR":
+                    return NFA1Accepting !== NFA2Accepting && (NFA1Accepting || NFA2Accepting);
+                default:
+                    throw new IllegalArgument(`${operator} is not a valid operator!`);
+            }
+        };
+    }
 
     /**
      * Process the next StateBunch to be added given a symbol.
@@ -172,24 +202,11 @@ class StateBunch {
 
     /**
      * Checks if any of the states in the state bunch is accepting.
-     * @throws {IllegalArgument} If an invalid operation is passed.
+     * @param operator Higher order function to determine if the state is final given a list of NFA states that we are at "simulatenously"
+     * @returns True if the state should be final according to the operator, false otherwise.
      */
-    hasAnyFinalState(operator: Operator): boolean {
-        const statesFromNFA1 = this.states.filter(x => x.name.startsWith(prefixForNfaOne));
-        const statesFromNFA2 = this.states.filter(x => x.name.startsWith(prefixForNfaTwo));
-        const NFA1Accepting = statesFromNFA1.some(nfaState => nfaState.accepting);
-        const NFA2Accepting = statesFromNFA2.some(nfaState => nfaState.accepting);
-
-        switch (operator) {
-            case "AND":
-                return NFA1Accepting && NFA2Accepting;
-            case "OR":
-                return NFA1Accepting || NFA2Accepting;
-            case "XOR":
-                return NFA1Accepting !== NFA2Accepting && (NFA1Accepting || NFA2Accepting);
-            default:
-                throw new IllegalArgument(`${operator} is not a valid operator!`);
-        }
+    hasAnyFinalState(operator: StateBunchToBool): boolean {
+        return operator(this.states);
     }
 
     /**
@@ -209,3 +226,4 @@ class StateBunch {
         return NFA.epsilonClosure(nextStates);
     }
 }
+export type StateBunchToBool = (x: NFAState[]) => boolean;

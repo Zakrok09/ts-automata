@@ -20,7 +20,8 @@ export class NFAConverter {
     constructor(nfa: NFA) {
         const placeHolderNFA = new NFA("", "", false);
         const operation = "OR";
-        this.nfaCombinator = new NFACombinator(nfa, placeHolderNFA, operation);
+        const opFunction = NFACombinator.operatorToFunction(operation);
+        this.nfaCombinator = new NFACombinator(nfa, placeHolderNFA, opFunction);
     }
 
     /**

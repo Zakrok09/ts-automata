@@ -3,9 +3,10 @@ import { describe, expect, it } from "vitest";
 import { NFAUtil } from "../../../src/automata/util/automata/NFA-util";
 import { NFA } from "../../../src/automata/regular/NFA";
 import { NFABuilder } from "../../../src";
-import { EPSILON } from "../../../src/types";
-import { test, fc } from "@fast-check/vitest";
+import { test } from "@fast-check/vitest";
 import { NFAArbitrary } from "./NFAArbitrary";
+import { NFAState } from "../../../src/states/RegularStates";
+import { NFACombinator } from "../../../src/automata/util/NFACombinationToDFA";
 
 describe("NFAUtil: Union", () => {
     test.prop([NFAArbitrary])("Negation with itself should be empty", nfa => {
@@ -137,6 +138,20 @@ describe("NFAUtil: Intersection", () => {
 
         expect(util.doesLanguageContainString(intersected, "ba")).toBe(true);
         expect(util.doesLanguageContainString(intersected, "aaa")).toBe(false);
+    });
+});
+describe("NFAUtil: Combine with arbitrary function", () => {
+    test.prop([NFAArbitrary, NFAArbitrary])("All states accept should be always sigma*", (nfa, other) => {
+        const func = (x: NFAState[]) => true;
+        const util = new NFAUtil();
+        const nfaCombined = util.combineTwo(nfa, other, func);
+        expect(util.isLanguageAllStrings(nfaCombined)).toBe(true);
+    });
+    test.prop([NFAArbitrary, NFAArbitrary])("No states accept should be always empty", (nfa, other) => {
+        const func = (x: NFAState[]) => false;
+        const util = new NFAUtil();
+        const nfaCombined = util.combineTwo(nfa, other, func);
+        expect(util.isLanguageEmpty(nfaCombined)).toBe(true);
     });
 });
 describe("NFAUtil: Empty", () => {

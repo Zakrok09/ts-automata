@@ -4,7 +4,7 @@ import { NFA } from "../../regular/NFA";
 import { NFAConverter } from "../NFAConverter";
 import { NFAState } from "~/states/RegularStates";
 import { RegularAutomatonUtil } from "./finite-automata-util";
-import { NFACombinator } from "../NFACombinationToDFA";
+import { NFACombinator, StateBunchToBool } from "../NFACombinationToDFA";
 export class NFAUtil extends RegularAutomatonUtil<NFA> {
     /**
      * Performs a depth-first search to find all states reachable from the start state.
@@ -118,6 +118,18 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         });
         return resAutomaton;
     }
+    /**
+     * Combines two NFAs into 1 NFA while determining the accept states using the given function
+     * Uses procedure from Sipser.
+     * @param automaton The first automaton
+     * @param other The second automaton
+     * @param func A function that maps a list of NFA states to determine whether their combination should be final
+     * @returns The combined NFA with the given function
+     */
+    public combineTwo(automaton: NFA, other: NFA, func: StateBunchToBool): NFA {
+        const combinator = new NFACombinator(automaton, other, func);
+        return combinator.toDFA().toNFA();
+    }
 
     /**
      * Get an NFA that recognizes the union of two NFAs
@@ -126,7 +138,9 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
      * @returns NFA that recognizes L1 union L2
      */
     public union(automaton: NFA, other: NFA): NFA {
-        return new NFACombinator(automaton, other, "OR").toDFA().toNFA();
+        const operation = "OR";
+        const opFunction = NFACombinator.operatorToFunction(operation);
+        return new NFACombinator(automaton, other, opFunction).toDFA().toNFA();
     }
 
     /**
@@ -137,7 +151,9 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
      * @returns Automaton that recognizes L1 intersection L2
      */
     public intersection(automaton: NFA, other: NFA, util = new DFAUtil()): NFA {
-        return new NFACombinator(automaton, other, "AND").toDFA().toNFA();
+        const operation = "AND";
+        const opFunction = NFACombinator.operatorToFunction(operation);
+        return new NFACombinator(automaton, other, opFunction).toDFA().toNFA();
     }
     /**
      * Function to change the names of the states of an NFA

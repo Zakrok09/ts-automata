@@ -3,7 +3,7 @@ import { DFAState } from "~/states/RegularStates";
 import { NFA } from "../../regular/NFA";
 import { NFAUtil } from "./NFA-util";
 import { RegularAutomatonUtil } from "./finite-automata-util";
-import { NFACombinator } from "../NFACombinationToDFA";
+import { NFACombinator, StateBunchToBool } from "../NFACombinationToDFA";
 
 export class DFAUtil extends RegularAutomatonUtil<DFA> {
     /**
@@ -92,7 +92,9 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns Automaton that recognizes L1 union L2
      */
     public union(automaton: DFA, other: DFA, nfaUtil = new NFAUtil()): DFA {
-        return new NFACombinator(automaton.toNFA(), other.toNFA(), "OR").toDFA();
+        const operation = "OR";
+        const opFunction = NFACombinator.operatorToFunction(operation);
+        return new NFACombinator(automaton.toNFA(), other.toNFA(), opFunction).toDFA();
     }
 
     /**
@@ -102,7 +104,21 @@ export class DFAUtil extends RegularAutomatonUtil<DFA> {
      * @returns DFA that recognizes words both in R1 and R2
      */
     public intersection(automaton: DFA, other: DFA): DFA {
-        return new NFACombinator(automaton.toNFA(), other.toNFA(), "AND").toDFA();
+        const operation = "AND";
+        const opFunction = NFACombinator.operatorToFunction(operation);
+        return new NFACombinator(automaton.toNFA(), other.toNFA(), opFunction).toDFA();
+    }
+    /**
+     * Combines two NFAs into 1 NFA while determining the accept states using the given function
+     * Uses procedure from Sipser.
+     * @param automaton The first automaton
+     * @param other The second automaton
+     * @param func A function that maps a list of NFA states to determine whether their combination should be final
+     * @returns The combined NFA with the given function
+     */
+    public combineTwo(automaton: DFA, other: DFA, func: StateBunchToBool): DFA {
+        const combinator = new NFACombinator(automaton.toNFA(), other.toNFA(), func);
+        return combinator.toDFA();
     }
 
     /**

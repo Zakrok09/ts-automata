@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import { DFAUtil } from "../../../src/automata/util/automata/DFA-util";
 import { DFA } from "../../../src/automata/regular/DFA";
 import { DFABuilder } from "../../../src";
+import { test } from "@fast-check/vitest";
+import { NFAArbitrary } from "./NFAArbitrary";
+import { NFAState } from "../../../src/states/RegularStates";
 
 describe("DFAUtil: Empty", () => {
     it("should return true for non-empty DFA", () => {
@@ -282,5 +285,19 @@ describe("DFAUtil: extend Alphabet", () => {
         ];
         const util = new DFAUtil();
         dfas.forEach(dfa => expect(util.equal(util.extendAlphabet(dfa, `${dfa.alphabet.joinToString()}zgmçğ`), dfa)));
+    });
+});
+describe("NFAUtil: Combine with arbitrary function", () => {
+    test.prop([NFAArbitrary, NFAArbitrary])("All states accept should be always sigma*", (nfa, other) => {
+        const func = (x: NFAState[]) => true;
+        const util = new DFAUtil();
+        const nfaCombined = util.combineTwo(nfa.toDFA(), other.toDFA(), func);
+        expect(util.isLanguageAllStrings(nfaCombined)).toBe(true);
+    });
+    test.prop([NFAArbitrary, NFAArbitrary])("No states accept should be always empty", (nfa, other) => {
+        const func = (x: NFAState[]) => false;
+        const util = new DFAUtil();
+        const nfaCombined = util.combineTwo(nfa.toDFA(), other.toDFA(), func);
+        expect(util.isLanguageEmpty(nfaCombined)).toBe(true);
     });
 });
