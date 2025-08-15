@@ -3,8 +3,13 @@ import { CFGVariable } from "../../../states/CFGState";
 import { EPSILON } from "../../../types";
 import { UndecidableProblem } from "../../../exceptions/exceptions";
 import { ChomskyConverter } from "../ChomskyConverter";
+import { ChomskyChecker } from "../ChomskyChecker";
+import { CFGCommonUtil } from "./CFGCommonUtils";
 
-export class CFGUtil {
+export class CFGUtil extends CFGCommonUtil {
+    public constructor() {
+        super();
+    }
     /**
      * Checks if the language of the CFG is empty. Using procedure from Sipser's proof of theorem 4.8
      * @param cfg The CFG to check
@@ -102,91 +107,12 @@ export class CFGUtil {
         }
         return dp[0][n - 1].includes(cfg.startVariable.symbol);
     }
-    /**
-     * Get variables with a single transition to the symbol
-     * @param cfg The CFG
-     * @param symbol the symbol a
-     * @returns all variables X with the transition X -> a
-     */
-    protected getVariablesWithSingleTransition(cfg: CFG, symbol: string): Set<string> {
-        const res: Set<string> = new Set();
-        const { variables } = cfg;
-        for (const [sym, variable] of variables) {
-            for (const transition of variable.transitions) {
-                if (transition.length === 1 && transition[0].symbol === symbol) {
-                    res.add(sym);
-                    break;
-                }
-            }
-        }
-        return res;
-    }
-    /**
-     * Method to remove redundant transitions
-     * @param arrays The list of transitions
-     * @returns Simplified list of transitions that are distinct
-     */
-    protected uniqueify(arrays: string[][]): string[][] {
-        const seen = new Set<string>();
-        const result: string[][] = [];
-
-        for (const array of arrays) {
-            const key = JSON.stringify(array);
-            if (!seen.has(key)) {
-                seen.add(key);
-                result.push(array);
-            }
-        }
-
-        return result;
-    }
-    /**
-     * Get the CFG transitions in map format
-     * @param cfg The cfg
-     * @returns The transitions in a map
-     */
-    protected getTransitionsInMap(cfg: CFG): Map<string, string[][]> {
-        const transitions: Map<string, string[][]> = new Map();
-        for (const [symbol, variable] of cfg.variables) {
-            transitions.set(symbol, []);
-            for (const transition of variable.transitions) {
-                const mappedTransition = transition.map(x => x.symbol);
-                const toBePushed = transitions.get(symbol)!;
-                toBePushed.push(mappedTransition);
-            }
-            transitions.set(symbol, this.uniqueify(transitions.get(symbol)!));
-        }
-        return transitions;
-    }
 
     // Checks if two automata reconize the same language.
     public equal(cfg: CFG, otherCfg: CFG): boolean {
         throw new UndecidableProblem("Equality of CFGs is an undecidable problem!");
     }
-    /**
-     * Prepend a string to all non-terminals
-     * @param cfg The cfg
-     * @param prepend the string to prepend: x -> prepend+x
-     * @returns The new CFG
-     */
-    public prependToCFGSymbols(cfg: CFG, prepend: string): CFG {
-        const copyOfCFG = new CFG(prepend + cfg.startVariable.symbol);
-        cfg.terminals.forEach(terminal => copyOfCFG.addTerminal(terminal.symbol));
-        cfg.variables.forEach(variable => copyOfCFG.addVariable(prepend + variable.symbol));
-        cfg.variables.forEach(variable =>
-            variable.transitions.forEach(transition => {
-                if (transition.length === 1 && transition[0].symbol === EPSILON) {
-                    copyOfCFG.addTransitionToEmptyString(prepend + variable.symbol);
-                } else {
-                    copyOfCFG.addTransition(
-                        prepend + variable.symbol,
-                        ...transition.map(x => (x instanceof CFGVariable ? prepend + x.symbol : x.symbol))
-                    );
-                }
-            })
-        );
-        return copyOfCFG;
-    }
+
     /**
      * Union of two languages
      * @param cfg The first cfg
@@ -211,94 +137,11 @@ export class CFGUtil {
         cfg.changeStartVariable("S0");
         return cfg;
     }
-
     /**
      * Check if CFG in Chomsky Normal Form
-     * @param cfg The cfg
      * @returns True if the CFg is in Chomsky Normal Form
      */
     public isInChomskyNormalForm(cfg: CFG): boolean {
-        return [
-            this.checkStartRule(cfg),
-            this.checkEpsilonRule(cfg),
-            this.checkProperFormRule(cfg),
-            this.checkUnitRule(cfg)
-        ].every(x => x);
-    }
-
-    /**
-     * Check if the start variable is in any transition
-     * @param cfg The CFG
-     * @returns fALSE if the start variable is in any transition
-     */
-    private checkStartRule(cfg: CFG): boolean {
-        const start = cfg.startVariable.symbol;
-        for (const [, variable] of cfg.variables) {
-            for (const transitions of variable.transitions) {
-                if (transitions.map(x => x.symbol).includes(start)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Check the unit rule
-     * @param cfg The CFG
-     * @returns True if there arent any unit rules
-     */
-    private checkUnitRule(cfg: CFG): boolean {
-        for (const [, variable] of cfg.variables) {
-            for (const transition of variable.transitions) {
-                if (transition.length === 1 && transition[0] instanceof CFGVariable) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks the epsilon rule
-     * @param cfg The cfg
-     * @returns True if there aren't any other epsilon transitions than in the start state
-     */
-    private checkEpsilonRule(cfg: CFG): boolean {
-        for (const [fromSymbol, variable] of cfg.variables) {
-            for (const transition of variable.transitions) {
-                if (
-                    transition.length === 1 &&
-                    transition[0].symbol === EPSILON &&
-                    fromSymbol != cfg.startVariable.symbol
-                ) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks if the transitions are in proper form
-     * @param cfg The cfg
-     * @returns True if there aren't any transitions with more than 2 symbols
-     */
-    private checkProperFormRule(cfg: CFG): boolean {
-        for (const [, variable] of cfg.variables) {
-            for (const transition of variable.transitions) {
-                if (transition.length > 2 && transition.length === 0) {
-                    return false;
-                }
-                const transitionMapped = Array.from(transition).map(x => x.symbol);
-                if (transition.length === 2 && transitionMapped.some(x => cfg.terminals.has(x))) {
-                    return false;
-                }
-                if (transition.length === 1 && cfg.variables.has(transition[0].symbol)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return new ChomskyChecker(cfg).isInChomskyNormalForm();
     }
 }

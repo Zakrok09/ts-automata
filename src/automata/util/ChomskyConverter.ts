@@ -1,13 +1,13 @@
 import { CFGVariable } from "../../states/CFGState";
 import { CFG } from "../context-free/CFG";
 import { EPSILON } from "../../types";
-import { CFGUtil } from "./automata/CFGUtil";
+import { CFGCommonUtil } from "./automata/CFGCommonUtils";
 
 /**
- * @class Method object for converting NFAs to DFAs
+ * @class Method object for converting CFGs to Chomsky Normal Form using Sipser's method
  * @link https://refactoring.guru/replace-method-with-method-object
  */
-export class ChomskyConverter extends CFGUtil {
+export class ChomskyConverter extends CFGCommonUtil {
     private delimeter = "..";
 
     private readonly cfg: CFG;
