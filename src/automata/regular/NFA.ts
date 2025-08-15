@@ -82,6 +82,24 @@ export class NFA extends FiniteAutomaton<NFAState> {
 
         return state.removeTransition(char, dest);
     }
+    /**
+     * Remove an epsilon edge from the NFA.
+     *
+     * @param stateName the name of the state from which the edge shall be removed
+     * @param to the destination state as in a NFA there can be multiple edges with the
+     * same input symbol and state from which they come out of.
+     */
+    public removeEpsilonEdge(stateName: string, to: string) {
+        const char = toChar(EPSILON);
+
+        const state = this.states.get(stateName);
+        if (!state) throw new IllegalArgument(`State ${stateName} does not exist!`);
+
+        const dest = this.states.get(to);
+        if (!dest) throw new IllegalArgument(`State ${stateName} does not exist!`);
+
+        return state.removeTransition(char, dest);
+    }
 
     /**
      * Runs the given string against the finite state machine.

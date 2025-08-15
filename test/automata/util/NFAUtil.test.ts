@@ -154,6 +154,22 @@ describe("NFAUtil: Combine with arbitrary function", () => {
         expect(util.isLanguageEmpty(nfaCombined)).toBe(true);
     });
 });
+describe("NFAUtil: Reverse", () => {
+    test.prop([NFAArbitrary])("Double reverse should equal self", nfa => {
+        const util = new NFAUtil();
+        const doubleReversed = util.reverse(util.reverse(nfa));
+        expect(util.equal(nfa, doubleReversed)).toBe(true);
+    });
+    it("should return true for genericNFA", () => {
+        const util = new NFAUtil();
+        const enfa = util.reverse(Fixtures.genericEpsilonNFALargerAlphabet());
+        const words = ["ba", "abcdccaa", "acadabc", "acad", "ac", "ca", "cd", "d"];
+        const expected = [true, true, true, true, true, false, true, false];
+        for (let i = 0; i < words.length; ++i) {
+            expect(enfa.runString(words[i].split("").reverse().join(""))).toBe(expected[i]);
+        }
+    });
+});
 describe("NFAUtil: Empty", () => {
     it("should return true for non-empty NFA", () => {
         const nfa = Fixtures.genericEpsilonNFA();
