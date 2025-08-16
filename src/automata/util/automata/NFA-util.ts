@@ -85,6 +85,69 @@ export class NFAUtil extends RegularAutomatonUtil<NFA> {
         const combinator = new NFACombinator(automaton, other, func);
         return this.isLanguageEmpty(combinator.toDFA().toNFA());
     }
+    /**
+     * Utility for creating an NFA that recognizes the language of the old one but reversed
+     * @param automaton The NFA
+     * @returns An NFA that has the reverse language of the original one
+     */
+    public reverse(automaton: NFA): NFA {
+        const alphabet = automaton.alphabet.joinToString();
+        const startStateName = "S";
+        let newNfa = new NFA(alphabet, startStateName, false);
+        // Do this to make sure there isn't any collisions with the new start state name
+        const mappingFunc = (x: string) => `-${x}`;
+        const mappedNfa = this.mapStateNames(automaton, mappingFunc);
+        newNfa = this.addToNFA(newNfa, mappedNfa);
+        const statesOldNfa = this.dfs(automaton);
+        // Add epsilon edges
+        this.addEpsilonEdgesToOldAcceptingStates(statesOldNfa, mappingFunc, newNfa);
+        this.reverseEdges(statesOldNfa, mappingFunc, newNfa);
+        const oldStartState = mappingFunc(automaton.startState.name);
+        newNfa.setAccepting(oldStartState, true);
+        return newNfa;
+    }
+    /**
+     * Add epsilon edges to old accept states in the old NFA following Sipser
+     * @param statesOldNfa The states of the old nfa
+     * @param mappingFunc The mapping function to map the old state names to the ones in the new one
+     * @param newNfa The new NFA that the edges should be reversed in
+     */
+    private addEpsilonEdgesToOldAcceptingStates(
+        statesOldNfa: Set<NFAState>,
+        mappingFunc: (arg0: string) => string,
+        newNfa: NFA
+    ) {
+        const startStateName = newNfa.startState.name;
+        statesOldNfa.forEach(state => {
+            if (state.accepting) {
+                newNfa.addEpsilonEdge(startStateName, mappingFunc(state.name));
+                newNfa.setAccepting(mappingFunc(state.name), false);
+            }
+        });
+    }
+    /**
+     * Utility function for reverse
+     * @param statesOldNfa The states of the old nfa
+     * @param mappingFunc The mapping function to map the old state names to the ones in the new one
+     * @param newNfa The new NFA that the edges should be reversed in
+     */
+    private reverseEdges(statesOldNfa: Set<NFAState>, mappingFunc: (arg0: string) => string, newNfa: NFA) {
+        statesOldNfa.forEach(state => {
+            const from = mappingFunc(state.name);
+            state.transitions.forEach((toStates, symbol) => {
+                // Go through each edge and reverse it in the new NFA
+                toStates.forEach(to => {
+                    const toMapped = mappingFunc(to.name);
+                    if (symbol == EPSILON) {
+                        newNfa.removeEpsilonEdge(from, toMapped);
+                    } else {
+                        newNfa.removeEdge(from, symbol, toMapped);
+                    }
+                    this.addEdgeWithPossibleEpsilon(newNfa, toMapped, from, symbol);
+                });
+            });
+        });
+    }
 
     /**
      * Extending the alphabet of an NFA
