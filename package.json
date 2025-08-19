@@ -19,8 +19,8 @@
     "homepage": "https://github.com/Zakrok09/ts-automata",
     "exports": {
         ".": {
-            "import": "./dist/main.es.js",
-            "require": "./dist/main.cjs.js"
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
         }
     },
     "main": "./dist/index.js",
