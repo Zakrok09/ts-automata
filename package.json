@@ -1,6 +1,6 @@
 {
     "name": "ts-automata",
-    "version": "0.5.1",
+    "version": "1.0.0-beta.1",
     "description": "Automata utility package for FSMs, PDAs, TMs in JS/TS.",
     "keywords": [
         "automata",
@@ -15,7 +15,18 @@
         "tm"
     ],
     "license": "MIT",
-    "author": "Kiril Panayotov <contact@zakrok.dev> (https://zakrok.dev)",
+    "author": {
+        "name": "Kiril Panayotov",
+        "email": "contact@zakrok.dev",
+        "url": "https://zakrok.dev"
+    },
+    "contributors": [
+        {
+            "name": "San Demiroren",
+            "email": "",
+            "url": "https://github.com/sandemiroren1"
+        }
+    ],
     "homepage": "https://github.com/Zakrok09/ts-automata",
     "exports": {
         ".": {
