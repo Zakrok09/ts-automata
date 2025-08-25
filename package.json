@@ -1,6 +1,6 @@
 {
     "name": "ts-automata",
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0",
     "description": "Automata utility package for FSMs, PDAs, TMs in JS/TS.",
     "keywords": [
         "automata",
@@ -23,7 +23,7 @@
     "contributors": [
         {
             "name": "San Demiroren",
-            "email": "",
+            "email": "Sandemiroren1@gmail.com",
             "url": "https://github.com/sandemiroren1"
         }
     ],
