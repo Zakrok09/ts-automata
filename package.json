@@ -1,6 +1,6 @@
 {
     "name": "ts-automata",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Automata utility package for FSMs, PDAs, TMs in JS/TS.",
     "keywords": [
         "automata",
@@ -64,8 +64,5 @@
         "vite": "^6.3.5",
         "vite-plugin-dts": "^4.5.4",
         "vitest": "^3.2.3"
-    },
-    "dependencies": {
-        "i": "^0.3.7"
     }
 }
